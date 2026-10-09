@@ -22,6 +22,7 @@ function StatTiles({
     value: number;
     tone?: Tone;
     detail?: string;
+    detailTone?: "carry-transition" | "carry-possession";
     emphasizeDetail?: boolean;
     highlight?: boolean;
   }[];
@@ -36,7 +37,11 @@ function StatTiles({
           <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
           <span className="spdf-stat__label">{item.label}</span>
           {item.detail ? (
-            <span className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}`}>{item.detail}</span>
+            <span
+              className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}${item.detailTone ? ` spdf-stat__detail--${item.detailTone}` : ""}`}
+            >
+              {item.detail}
+            </span>
           ) : null}
         </li>
       ))}
@@ -221,13 +226,15 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
                   label: "Positive in transition",
                   value: carries.transitionPositive,
                   tone: "blue",
-                  detail: `${pct(carries.transitionPositive, carries.inTransition)}%`,
+                  detail: `${pct(carries.transitionPositive, carries.inTransition)}% positive`,
+                  detailTone: "carry-transition",
                 },
                 {
                   label: "Positive in possession",
                   value: carries.possessionPositive,
                   tone: "blue",
-                  detail: `${pct(carries.possessionPositive, carries.inPossession)}%`,
+                  detail: `${pct(carries.possessionPositive, carries.inPossession)}% positive`,
+                  detailTone: "carry-possession",
                 },
               ]}
             />

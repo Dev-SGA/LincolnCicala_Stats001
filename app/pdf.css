@@ -628,6 +628,18 @@
   color: #9b1010;
 }
 
+.spdf-stat__detail--carry-transition {
+  font-size: 11px;
+  font-weight: 800;
+  color: #05712d;
+}
+
+.spdf-stat__detail--carry-possession {
+  font-size: 11px;
+  font-weight: 800;
+  color: #b8940f;
+}
+
 .spdf-stat__value--grey {
   color: #6b8192;
 }

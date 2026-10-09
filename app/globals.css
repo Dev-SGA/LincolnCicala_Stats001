@@ -487,6 +487,18 @@ body::before {
   letter-spacing: 0.02em;
 }
 
+.metric-card__pct--carry-transition {
+  font-size: 15px;
+  font-weight: 800;
+  color: #5fd68a;
+}
+
+.metric-card__pct--carry-possession {
+  font-size: 15px;
+  font-weight: 800;
+  color: #e8c547;
+}
+
 .metric-card__title {
   margin: 0 0 14px;
   font-size: 15px;

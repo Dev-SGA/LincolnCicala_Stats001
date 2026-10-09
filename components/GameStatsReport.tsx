@@ -139,10 +139,12 @@ function PositiveCarryStat({
   label,
   positive,
   total,
+  pctTone,
 }: {
   label: string;
   positive: number;
   total: number;
+  pctTone: "transition" | "possession";
 }) {
   const pctLabel = `${percent(positive, total)}% positive`;
 
@@ -150,7 +152,7 @@ function PositiveCarryStat({
     <div className="metric-card">
       <h3 className="metric-card__title">{label}</h3>
       <span className="metric-card__value">{positive}</span>
-      <span className="metric-card__pct">{pctLabel}</span>
+      <span className={`metric-card__pct metric-card__pct--carry-${pctTone}`}>{pctLabel}</span>
       <p className="metric-card__caption">
         {positive} of {total} carries
       </p>
@@ -226,12 +228,14 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               label="In transition"
               positive={carries.transitionPositive}
               total={carries.inTransition}
+              pctTone="transition"
             />,
             <PositiveCarryStat
               key="possession"
               label="In possession"
               positive={carries.possessionPositive}
               total={carries.inPossession}
+              pctTone="possession"
             />,
           ]}
         />
