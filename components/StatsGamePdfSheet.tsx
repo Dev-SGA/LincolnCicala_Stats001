@@ -1,4 +1,4 @@
-import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
+import { BRAND, carryProgressiveRateColor, type CarryProgressiveSituation } from "@/lib/brand";
 import type { GameStats, PlayResultBreakdown } from "@/lib/stats";
 import { getFinalThirdBreakdown } from "@/lib/stats";
 
@@ -22,7 +22,6 @@ function StatTiles({
     value: number;
     tone?: Tone;
     detail?: string;
-    detailTone?: "carry-transition" | "carry-possession";
     emphasizeDetail?: boolean;
     highlight?: boolean;
   }[];
@@ -37,18 +36,7 @@ function StatTiles({
           <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
           <span className="spdf-stat__label">{item.label}</span>
           {item.detail ? (
-            <span
-              className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}${item.detailTone ? " spdf-stat__detail--carry-rate" : ""}`}
-              style={
-                item.detailTone
-                  ? {
-                      color: carryProgressiveRateColor(
-                        item.detailTone === "carry-transition" ? "transition" : "possession",
-                      ),
-                    }
-                  : undefined
-              }
-            >
+            <span className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}`}>
               {item.detail}
             </span>
           ) : null}
@@ -106,6 +94,41 @@ function ActionResultPanel({ title, breakdown }: { title: string; breakdown: Pla
           </strong>
         </li>
       </ul>
+    </div>
+  );
+}
+
+function CarryResultPanel({
+  label,
+  total,
+  progressive,
+  situation,
+}: {
+  label: string;
+  total: number;
+  progressive: number;
+  situation: CarryProgressiveSituation;
+}) {
+  const color = carryProgressiveRateColor(situation);
+
+  return (
+    <div className="spdf-carry">
+      <p className="spdf-carry__title">{label}</p>
+      <div className="spdf-carry__figures">
+        <div className="spdf-carry__figure">
+          <span className="spdf-carry__value">{total}</span>
+          <span className="spdf-carry__label">Total</span>
+        </div>
+        <div className="spdf-carry__figure spdf-carry__figure--split">
+          <span className="spdf-carry__value" style={{ color }}>
+            {progressive}
+          </span>
+          <span className="spdf-carry__label">Progressive</span>
+        </div>
+      </div>
+      <span className="spdf-carry__rate" style={{ color }}>
+        {pct(progressive, total)}% progressive plays
+      </span>
     </div>
   );
 }
@@ -228,26 +251,26 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             </div>
           </section>
 
-          <PdfSection title="Carries Results" kpi={carries.total} unit="Carries" size="md">
-            <StatTiles
-              items={[
-                {
-                  label: "Progressive in transition",
-                  value: carries.transitionPositive,
-                  tone: "blue",
-                  detail: `${pct(carries.transitionPositive, carries.inTransition)}% progressive plays`,
-                  detailTone: "carry-transition",
-                },
-                {
-                  label: "Progressive in possession",
-                  value: carries.possessionPositive,
-                  tone: "blue",
-                  detail: `${pct(carries.possessionPositive, carries.inPossession)}% progressive plays`,
-                  detailTone: "carry-possession",
-                },
-              ]}
-            />
-          </PdfSection>
+          <section className="spdf-section spdf-section--carrying spdf-section--md">
+            <div className="spdf-section__top">
+              <p className="spdf-section__phase">Carrying</p>
+              <h3 className="spdf-section__title">Carries Results</h3>
+            </div>
+            <div className="spdf-carry-row">
+              <CarryResultPanel
+                label="In transition"
+                total={carries.inTransition}
+                progressive={carries.transitionPositive}
+                situation="transition"
+              />
+              <CarryResultPanel
+                label="In possession"
+                total={carries.inPossession}
+                progressive={carries.possessionPositive}
+                situation="possession"
+              />
+            </div>
+          </section>
 
           <PdfSection
             title="Final Third Actions"

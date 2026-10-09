@@ -279,12 +279,12 @@ body::before {
 }
 
 .topic--build-up,
-.topic--carrying,
-.topic--final-third {
+.topic--carrying {
   --topic-color: var(--accent);
   background: color-mix(in srgb, var(--sga-blue) 14%, var(--surface));
 }
 
+.topic--final-third,
 .topic--defensive {
   --topic-color: #7a8f9f;
   background: color-mix(in srgb, var(--sga-white) 8%, var(--surface));
@@ -306,11 +306,11 @@ body::before {
 }
 
 .topic--build-up .topic__phase,
-.topic--carrying .topic__phase,
-.topic--final-third .topic__phase {
+.topic--carrying .topic__phase {
   color: var(--tone-accent);
 }
 
+.topic--final-third .topic__phase,
 .topic--defensive .topic__phase {
   color: var(--text-faint);
 }
@@ -490,6 +490,31 @@ body::before {
 .metric-card__pct--carry-rate {
   font-size: 15px;
   font-weight: 800;
+}
+
+.carry-result {
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+}
+
+.carry-result__figure {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.carry-result__figure + .carry-result__figure {
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+}
+
+.carry-result__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .metric-card__title {

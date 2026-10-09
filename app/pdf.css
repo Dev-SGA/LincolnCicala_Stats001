@@ -339,12 +339,12 @@
 }
 
 .spdf-section--build-up,
-.spdf-section--carrying,
-.spdf-section--final-third {
+.spdf-section--carrying {
   background: #eef6fc;
   border: 1px solid #d4e8f7;
 }
 
+.spdf-section--final-third,
 .spdf-section--defensive {
   background: #f2f4f6;
   border: 1px solid #dde3e8;
@@ -359,11 +359,11 @@
 }
 
 .spdf-section--build-up .spdf-section__phase,
-.spdf-section--carrying .spdf-section__phase,
-.spdf-section--final-third .spdf-section__phase {
+.spdf-section--carrying .spdf-section__phase {
   color: #297cc1;
 }
 
+.spdf-section--final-third .spdf-section__phase,
 .spdf-section--defensive .spdf-section__phase {
   color: #6b8192;
 }
@@ -386,11 +386,11 @@
 }
 
 .spdf-section--build-up .spdf-section__title,
-.spdf-section--carrying .spdf-section__title,
-.spdf-section--final-third .spdf-section__title {
+.spdf-section--carrying .spdf-section__title {
   color: #044f80;
 }
 
+.spdf-section--final-third .spdf-section__title,
 .spdf-section--defensive .spdf-section__title {
   color: #4a5c6a;
 }
@@ -628,7 +628,79 @@
   color: #9b1010;
 }
 
-.spdf-stat__detail--carry-rate {
+.spdf-section--final-third .spdf-section__kpi {
+  border-right-color: #d3d9de;
+}
+
+.spdf-section--final-third .spdf-pass-panel,
+.spdf-section--final-third .spdf-stat {
+  border-color: #dde3e8;
+}
+
+.spdf-carry-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.spdf-carry {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid #d4e8f7;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.spdf-carry__title {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #297cc1;
+}
+
+.spdf-carry__figures {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-top: 6px;
+}
+
+.spdf-carry__figure {
+  display: flex;
+  flex-direction: column;
+}
+
+.spdf-carry__figure--split {
+  padding-left: 18px;
+  border-left: 1px solid #dde3e8;
+}
+
+.spdf-carry__value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: #072334;
+}
+
+.spdf-carry__label {
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b8192;
+}
+
+.spdf-carry__rate {
+  margin-top: 6px;
   font-size: 11px;
   font-weight: 800;
 }

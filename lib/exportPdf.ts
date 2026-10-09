@@ -84,7 +84,11 @@ export async function exportStatsSlideToPdf(element: HTMLElement, filename: stri
     backgroundColor: "#ffffff",
     logging: false,
     onclone: (clonedDoc) => {
-      clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => node.remove());
+      // Font stylesheets are cross-origin and safe for html2canvas; only app CSS carries color-mix.
+      clonedDoc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]').forEach((link) => {
+        if (new URL(link.href, window.location.href).origin === window.location.origin) link.remove();
+      });
+      clonedDoc.querySelectorAll("style").forEach((node) => node.remove());
       const style = clonedDoc.createElement("style");
       style.textContent = pdfSlideCss;
       clonedDoc.head.appendChild(style);

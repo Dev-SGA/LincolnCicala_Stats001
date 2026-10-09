@@ -151,16 +151,24 @@ function PositiveCarryStat({
   return (
     <div className="metric-card">
       <h3 className="metric-card__title">{label}</h3>
-      <span className="metric-card__value">{positive}</span>
+      <div className="carry-result">
+        <div className="carry-result__figure">
+          <span className="metric-card__value">{total}</span>
+          <span className="carry-result__label">Total</span>
+        </div>
+        <div className="carry-result__figure">
+          <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
+            {positive}
+          </span>
+          <span className="carry-result__label">Progressive</span>
+        </div>
+      </div>
       <span
         className="metric-card__pct metric-card__pct--carry-rate"
         style={{ color: carryProgressiveRateColor(pctTone) }}
       >
         {pctLabel}
       </span>
-      <p className="metric-card__caption">
-        {positive} of {total} carries
-      </p>
     </div>
   );
 }
