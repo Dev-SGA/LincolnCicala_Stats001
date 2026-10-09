@@ -338,7 +338,9 @@
   overflow: hidden;
 }
 
-.spdf-section--build-up {
+.spdf-section--build-up,
+.spdf-section--carrying,
+.spdf-section--final-third {
   background: #eef6fc;
   border: 1px solid #d4e8f7;
 }
@@ -356,7 +358,9 @@
   text-transform: uppercase;
 }
 
-.spdf-section--build-up .spdf-section__phase {
+.spdf-section--build-up .spdf-section__phase,
+.spdf-section--carrying .spdf-section__phase,
+.spdf-section--final-third .spdf-section__phase {
   color: #297cc1;
 }
 
@@ -381,7 +385,9 @@
   text-transform: uppercase;
 }
 
-.spdf-section--build-up .spdf-section__title {
+.spdf-section--build-up .spdf-section__title,
+.spdf-section--carrying .spdf-section__title,
+.spdf-section--final-third .spdf-section__title {
   color: #044f80;
 }
 

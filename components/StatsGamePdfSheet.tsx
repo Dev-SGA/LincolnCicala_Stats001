@@ -96,6 +96,13 @@ function ActionResultPanel({ title, breakdown }: { title: string; breakdown: Pla
   );
 }
 
+type PdfPhase = "carrying" | "final-third";
+
+const PDF_PHASE_LABEL: Record<PdfPhase, string> = {
+  carrying: "Carrying",
+  "final-third": "Final Third",
+};
+
 function PdfSection({
   title,
   kpi,
@@ -103,6 +110,7 @@ function PdfSection({
   children,
   footer,
   size = "md",
+  phase = "carrying",
 }: {
   title: string;
   kpi: number;
@@ -110,11 +118,12 @@ function PdfSection({
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: "md" | "lg";
+  phase?: PdfPhase;
 }) {
   return (
-    <section className={`spdf-section spdf-section--build-up spdf-section--${size}`}>
+    <section className={`spdf-section spdf-section--${phase} spdf-section--${size}`}>
       <div className="spdf-section__top">
-        <p className="spdf-section__phase">Build-Up</p>
+        <p className="spdf-section__phase">{PDF_PHASE_LABEL[phase]}</p>
         <h3 className="spdf-section__title">{title}</h3>
       </div>
       <div className="spdf-section__content">
@@ -159,9 +168,9 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
         </header>
 
         <div className="spdf-stack">
-          <section className="spdf-section spdf-section--build-up spdf-section--pressure">
+          <section className="spdf-section spdf-section--carrying spdf-section--pressure">
             <div className="spdf-section__top">
-              <p className="spdf-section__phase">Build-Up</p>
+              <p className="spdf-section__phase">Carrying</p>
               <h3 className="spdf-section__title">Carries</h3>
             </div>
             <div className="spdf-pressure">
@@ -224,7 +233,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             />
           </PdfSection>
 
-          <PdfSection title="Final Third Actions" kpi={finalThirdActions.total} unit="Actions" size="lg">
+          <PdfSection
+            title="Final Third Actions"
+            kpi={finalThirdActions.total}
+            unit="Actions"
+            size="lg"
+            phase="final-third"
+          >
             <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} />
             <StatTiles
               items={[

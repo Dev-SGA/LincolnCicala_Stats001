@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export type Phase = "build-up" | "defensive";
+export type Phase = "carrying" | "final-third" | "defensive";
 
 export type Topic = {
   id: string;
@@ -12,7 +12,8 @@ export type Topic = {
 };
 
 const PHASE_LABEL: Record<Phase, string> = {
-  "build-up": "Build-Up",
+  carrying: "Carrying",
+  "final-third": "Final Third",
   defensive: "Defensive Phase",
 };
 

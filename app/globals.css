@@ -278,7 +278,9 @@ body::before {
   overflow: hidden;
 }
 
-.topic--build-up {
+.topic--build-up,
+.topic--carrying,
+.topic--final-third {
   --topic-color: var(--accent);
   background: color-mix(in srgb, var(--sga-blue) 14%, var(--surface));
 }
@@ -303,7 +305,9 @@ body::before {
   text-transform: uppercase;
 }
 
-.topic--build-up .topic__phase {
+.topic--build-up .topic__phase,
+.topic--carrying .topic__phase,
+.topic--final-third .topic__phase {
   color: var(--tone-accent);
 }
 

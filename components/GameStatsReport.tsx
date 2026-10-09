@@ -186,7 +186,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "carries",
       title: "Carries",
-      phase: "build-up",
+      phase: "carrying",
       content: (
         <>
           <MetricFlow
@@ -217,7 +217,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "carries-results",
       title: "Carries Results",
-      phase: "build-up",
+      phase: "carrying",
       content: (
         <MetricFlow
           items={[
@@ -240,7 +240,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "final-third",
       title: "Final Third Actions",
-      phase: "build-up",
+      phase: "final-third",
       content: (
         <>
           <div className="metric-card metric-card--hero metric-card--compact">
