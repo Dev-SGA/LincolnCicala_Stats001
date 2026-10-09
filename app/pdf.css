@@ -610,6 +610,12 @@
   background: #fde8e8;
 }
 
+.spdf-stat--highlight {
+  border-color: color-mix(in srgb, #297cc1 45%, #dde3e8);
+  background: color-mix(in srgb, #297cc1 8%, #ffffff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #297cc1 12%, transparent);
+}
+
 .spdf-stat__detail--emphasis {
   font-size: 12px;
   font-weight: 800;

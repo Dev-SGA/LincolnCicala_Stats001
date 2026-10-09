@@ -466,6 +466,16 @@ body::before {
   background: color-mix(in srgb, #a1343c 28%, var(--surface-sunken));
 }
 
+.metric-card--highlight {
+  border-color: color-mix(in srgb, var(--tone-accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--tone-accent) 12%, var(--surface-sunken));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone-accent) 18%, transparent);
+}
+
+.metric-card--highlight .metric-card__value {
+  color: color-mix(in srgb, var(--sga-white) 96%, var(--tone-accent));
+}
+
 .metric-card__pct--emphasis {
   font-size: 17px;
   font-weight: 800;

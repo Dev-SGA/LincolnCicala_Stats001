@@ -158,9 +158,19 @@ function PositiveCarryStat({
   );
 }
 
-function CountStat({ label, value, caption }: { label: string; value: number; caption: string }) {
+function CountStat({
+  label,
+  value,
+  caption,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  caption: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="metric-card metric-card--compact">
+    <div className={`metric-card metric-card--compact${highlight ? " metric-card--highlight" : ""}`}>
       <h3 className="metric-card__title">{label}</h3>
       <span className="metric-card__value">{value}</span>
       <p className="metric-card__caption">{caption}</p>
@@ -201,23 +211,30 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               />,
             ]}
           />
-          <MetricFlow
-            items={[
-              <PositiveCarryStat
-                key="transition"
-                label="In transition"
-                positive={carries.transitionPositive}
-                total={carries.inTransition}
-              />,
-              <PositiveCarryStat
-                key="possession"
-                label="In possession"
-                positive={carries.possessionPositive}
-                total={carries.inPossession}
-              />,
-            ]}
-          />
         </>
+      ),
+    },
+    {
+      id: "carries-results",
+      title: "Carries Results",
+      phase: "build-up",
+      content: (
+        <MetricFlow
+          items={[
+            <PositiveCarryStat
+              key="transition"
+              label="In transition"
+              positive={carries.transitionPositive}
+              total={carries.inTransition}
+            />,
+            <PositiveCarryStat
+              key="possession"
+              label="In possession"
+              positive={carries.possessionPositive}
+              total={carries.inPossession}
+            />,
+          ]}
+        />
       ),
     },
     {
@@ -234,12 +251,13 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} />
           <MetricFlow
             items={[
-              <CountStat key="shots" label="Shots" value={finalThirdActions.shots} caption="Shots taken" />,
+              <CountStat key="shots" label="Shots" value={finalThirdActions.shots} caption="Shots taken" highlight />,
               <CountStat
                 key="pass-shot"
                 label="Pass with shot opportunity"
                 value={finalThirdActions.passWithShotOpportunity}
                 caption="Passes leading to a shot chance"
+                highlight
               />,
             ]}
           />

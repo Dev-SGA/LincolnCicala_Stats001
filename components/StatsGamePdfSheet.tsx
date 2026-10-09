@@ -17,12 +17,22 @@ function pct(value: number, total: number): number {
 function StatTiles({
   items,
 }: {
-  items: { label: string; value: number; tone?: Tone; detail?: string; emphasizeDetail?: boolean }[];
+  items: {
+    label: string;
+    value: number;
+    tone?: Tone;
+    detail?: string;
+    emphasizeDetail?: boolean;
+    highlight?: boolean;
+  }[];
 }) {
   return (
     <ul className="spdf-stats">
       {items.map((item) => (
-        <li key={item.label} className={`spdf-stat${item.emphasizeDetail ? " spdf-stat--emphasis" : ""}`}>
+        <li
+          key={item.label}
+          className={`spdf-stat${item.emphasizeDetail ? " spdf-stat--emphasis" : ""}${item.highlight ? " spdf-stat--highlight" : ""}`}
+        >
           <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
           <span className="spdf-stat__label">{item.label}</span>
           {item.detail ? (
@@ -193,6 +203,9 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
                 </ul>
               </div>
             </div>
+          </section>
+
+          <PdfSection title="Carries Results" kpi={carries.total} unit="Carries" size="md">
             <StatTiles
               items={[
                 {
@@ -209,17 +222,18 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
                 },
               ]}
             />
-          </section>
+          </PdfSection>
 
           <PdfSection title="Final Third Actions" kpi={finalThirdActions.total} unit="Actions" size="lg">
             <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} />
             <StatTiles
               items={[
-                { label: "Shots", value: finalThirdActions.shots, tone: "warn" },
+                { label: "Shots", value: finalThirdActions.shots, tone: "warn", highlight: true },
                 {
                   label: "Pass with shot opportunity",
                   value: finalThirdActions.passWithShotOpportunity,
                   tone: "blue",
+                  highlight: true,
                 },
               ]}
             />
