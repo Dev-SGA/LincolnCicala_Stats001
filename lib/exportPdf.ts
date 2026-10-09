@@ -19,6 +19,27 @@ async function waitForImages(element: HTMLElement): Promise<void> {
   );
 }
 
+/** html2canvas cannot parse modern color functions (e.g. color-mix) from global styles. */
+function collectPdfSlideCssForExport(): string {
+  const chunks: string[] = [];
+  for (const sheet of Array.from(document.styleSheets)) {
+    try {
+      for (const rule of Array.from(sheet.cssRules)) {
+        const text = rule.cssText;
+        if (
+          !text.includes("color-mix(") &&
+          (text.includes(".stats-pdf") || text.includes(".spdf-") || text.includes(".stats-pdf-host"))
+        ) {
+          chunks.push(text);
+        }
+      }
+    } catch {
+      /* Cross-origin or inaccessible stylesheet */
+    }
+  }
+  return chunks.join("\n");
+}
+
 /** Background images are not covered by waitForImages, so preload them explicitly. */
 async function preloadBackgrounds(element: HTMLElement): Promise<void> {
   const urls = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-bg]"))
@@ -53,6 +74,8 @@ export async function exportStatsSlideToPdf(element: HTMLElement, filename: stri
     }))
     .filter((link) => link.url.startsWith("http"));
 
+  const pdfSlideCss = collectPdfSlideCssForExport();
+
   const canvas = await html2canvas(element, {
     scale: 2.5,
     width: PDF_SLIDE_WIDTH,
@@ -60,6 +83,12 @@ export async function exportStatsSlideToPdf(element: HTMLElement, filename: stri
     useCORS: true,
     backgroundColor: "#ffffff",
     logging: false,
+    onclone: (clonedDoc) => {
+      clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => node.remove());
+      const style = clonedDoc.createElement("style");
+      style.textContent = pdfSlideCss;
+      clonedDoc.head.appendChild(style);
+    },
   });
 
   const pdf = new jsPDF({
