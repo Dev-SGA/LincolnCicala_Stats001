@@ -146,7 +146,7 @@ function PositiveCarryStat({
   total: number;
   pctTone: "transition" | "possession";
 }) {
-  const pctLabel = `${percent(positive, total)}% positive`;
+  const pctLabel = `${percent(positive, total)}% positive plays`;
 
   return (
     <div className="metric-card">

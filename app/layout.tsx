@@ -3,8 +3,8 @@ import "./globals.css";
 import "./pdf.css";
 
 export const metadata: Metadata = {
-  title: "Hudson Cicala — Game Stats | SGA Performance",
-  description: "Individual match statistics for Hudson Cicala (FC Cincinnati).",
+  title: "Lincoln Cicala — Game Stats | SGA Performance",
+  description: "Individual match statistics for Lincoln Cicala (FC Cincinnati).",
 };
 
 export const viewport = {
