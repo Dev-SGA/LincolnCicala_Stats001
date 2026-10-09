@@ -18,8 +18,8 @@ type GameStatsReportProps = {
 type BarTone = "accent" | "positive" | "negative" | "muted" | "warn";
 
 const PLAY_TIPS = {
-  positive:
-    "Positive Play — An action that progresses the attack, creates a scoring opportunity, or breaks defensive lines in the final third.",
+  progressive:
+    "Progressive Play — An action that progresses the attack, creates a scoring opportunity, or breaks defensive lines in the final third.",
   neutral:
     "Neutral Play — An action that maintains possession or position without a clear opportunity to threaten the goal.",
   lost: "Lost Play — Losing possession or failing to advance through an inaccurate action or immediate pressure.",
@@ -102,7 +102,7 @@ function ActionResultsMeter({ title, breakdown }: { title: string; breakdown: Pl
       <div
         className="meter"
         role="img"
-        aria-label={`Positive: ${breakdown.positive}. Neutral: ${breakdown.neutral}. Lost: ${breakdown.lost}.`}
+        aria-label={`Progressive: ${breakdown.positive}. Neutral: ${breakdown.neutral}. Lost: ${breakdown.lost}.`}
       >
         <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${positivePct}%` }} />
         <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
@@ -111,7 +111,7 @@ function ActionResultsMeter({ title, breakdown }: { title: string; breakdown: Pl
       <ul className="legend">
         <li>
           <span className="legend__dot legend__dot--pass-progressive" />
-          <PlayTip label="Positive plays" tip={PLAY_TIPS.positive} />
+          <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} />
           <strong>
             {breakdown.positive} · {positivePct}%
           </strong>
@@ -146,7 +146,7 @@ function PositiveCarryStat({
   total: number;
   pctTone: "transition" | "possession";
 }) {
-  const pctLabel = `${percent(positive, total)}% progressive plays`;
+  const pctLabel = `${percent(positive, total)}% progressive play`;
 
   return (
     <div className="metric-card">
@@ -160,7 +160,7 @@ function PositiveCarryStat({
           <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
             {positive}
           </span>
-          <span className="carry-result__label">Progressive</span>
+          <span className="carry-result__label">Progressive play</span>
         </div>
       </div>
       <span

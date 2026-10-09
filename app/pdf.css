@@ -705,6 +705,74 @@
   font-weight: 800;
 }
 
+.spdf-final-third-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.spdf-threat-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.spdf-threat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 12px 9px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.spdf-threat-card--shots {
+  border: 2px solid #e08a4f;
+  background: #fff6ef;
+}
+
+.spdf-threat-card--pass {
+  border: 2px solid #297cc1;
+  background: #f3f9fd;
+}
+
+.spdf-threat-card__value {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  color: #072334;
+}
+
+.spdf-threat-card--shots .spdf-threat-card__value {
+  color: #ad5129;
+}
+
+.spdf-threat-card--pass .spdf-threat-card__value {
+  color: #044f80;
+}
+
+.spdf-threat-card__label {
+  margin-top: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: #33495a;
+}
+
+.spdf-threat-card__caption {
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #6b8192;
+}
+
 .spdf-stat__value--grey {
   color: #6b8192;
 }

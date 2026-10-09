@@ -16,9 +16,9 @@ export const SGA_GRADE_COLORS = {
 
 /** Carry progressive rate line — identical in the web app and PDF export. */
 export const CARRY_PROGRESSIVE_RATE_COLORS = {
-  /** In transition (e.g. 80% progressive plays) */
+  /** In transition (e.g. 80% progressive play) */
   transition: "#528f66",
-  /** In possession (e.g. 33% progressive plays) */
+  /** In possession (e.g. 33% progressive play) */
   possession: "#a89028",
 } as const;
 

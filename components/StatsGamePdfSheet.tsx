@@ -74,7 +74,7 @@ function ActionResultPanel({ title, breakdown }: { title: string; breakdown: Pla
       <ul className="spdf-pass-panel__legend">
         <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
-          <span className="spdf-pass-panel__legend-label">Positive</span>
+          <span className="spdf-pass-panel__legend-label">Progressive plays</span>
           <strong>
             {breakdown.positive} · {pct(breakdown.positive, total)}%
           </strong>
@@ -123,11 +123,11 @@ function CarryResultPanel({
           <span className="spdf-carry__value" style={{ color }}>
             {progressive}
           </span>
-          <span className="spdf-carry__label">Progressive</span>
+          <span className="spdf-carry__label">Progressive play</span>
         </div>
       </div>
       <span className="spdf-carry__rate" style={{ color }}>
-        {pct(progressive, total)}% progressive plays
+        {pct(progressive, total)}% progressive play
       </span>
     </div>
   );
@@ -279,18 +279,21 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             size="lg"
             phase="final-third"
           >
-            <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} />
-            <StatTiles
-              items={[
-                { label: "Shots", value: finalThirdActions.shots, tone: "warn", highlight: true },
-                {
-                  label: "Pass with shot opportunity",
-                  value: finalThirdActions.passWithShotOpportunity,
-                  tone: "blue",
-                  highlight: true,
-                },
-              ]}
-            />
+            <div className="spdf-final-third-panel">
+              <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} />
+              <div className="spdf-threat-row">
+                <div className="spdf-threat-card spdf-threat-card--shots">
+                  <span className="spdf-threat-card__value">{finalThirdActions.shots}</span>
+                  <span className="spdf-threat-card__label">Shots</span>
+                  <span className="spdf-threat-card__caption">Shots taken</span>
+                </div>
+                <div className="spdf-threat-card spdf-threat-card--pass">
+                  <span className="spdf-threat-card__value">{finalThirdActions.passWithShotOpportunity}</span>
+                  <span className="spdf-threat-card__label">Pass with shot opportunity</span>
+                  <span className="spdf-threat-card__caption">Passes leading to a shot chance</span>
+                </div>
+              </div>
+            </div>
           </PdfSection>
         </div>
 
