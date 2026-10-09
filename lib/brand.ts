@@ -14,6 +14,20 @@ export const SGA_GRADE_COLORS = {
   "Above Level": SGA_COLORS.blueDeep,
 } as const;
 
+/** Carry progressive rate line — identical in the web app and PDF export. */
+export const CARRY_PROGRESSIVE_RATE_COLORS = {
+  /** In transition (e.g. 80% progressive plays) */
+  transition: "#528f66",
+  /** In possession (e.g. 33% progressive plays) */
+  possession: "#a89028",
+} as const;
+
+export type CarryProgressiveSituation = keyof typeof CARRY_PROGRESSIVE_RATE_COLORS;
+
+export function carryProgressiveRateColor(situation: CarryProgressiveSituation): string {
+  return CARRY_PROGRESSIVE_RATE_COLORS[situation];
+}
+
 export const SGA_FONTS = {
   ui: '"Source Sans 3", "Source Sans Pro", "Trebuchet MS", sans-serif',
   display: '"Good Times", "Source Sans 3", sans-serif',

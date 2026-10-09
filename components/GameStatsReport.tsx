@@ -7,7 +7,7 @@ import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
-import { BRAND } from "@/lib/brand";
+import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import type { GameStats, PlayResultBreakdown } from "@/lib/stats";
 import { getFinalThirdBreakdown } from "@/lib/stats";
 
@@ -152,7 +152,12 @@ function PositiveCarryStat({
     <div className="metric-card">
       <h3 className="metric-card__title">{label}</h3>
       <span className="metric-card__value">{positive}</span>
-      <span className={`metric-card__pct metric-card__pct--carry-${pctTone}`}>{pctLabel}</span>
+      <span
+        className="metric-card__pct metric-card__pct--carry-rate"
+        style={{ color: carryProgressiveRateColor(pctTone) }}
+      >
+        {pctLabel}
+      </span>
       <p className="metric-card__caption">
         {positive} of {total} carries
       </p>

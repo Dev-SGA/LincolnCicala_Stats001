@@ -1,4 +1,4 @@
-import { BRAND } from "@/lib/brand";
+import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import type { GameStats, PlayResultBreakdown } from "@/lib/stats";
 import { getFinalThirdBreakdown } from "@/lib/stats";
 
@@ -38,7 +38,16 @@ function StatTiles({
           <span className="spdf-stat__label">{item.label}</span>
           {item.detail ? (
             <span
-              className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}${item.detailTone ? ` spdf-stat__detail--${item.detailTone}` : ""}`}
+              className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}${item.detailTone ? " spdf-stat__detail--carry-rate" : ""}`}
+              style={
+                item.detailTone
+                  ? {
+                      color: carryProgressiveRateColor(
+                        item.detailTone === "carry-transition" ? "transition" : "possession",
+                      ),
+                    }
+                  : undefined
+              }
             >
               {item.detail}
             </span>
