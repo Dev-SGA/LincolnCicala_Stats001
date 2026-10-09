@@ -289,25 +289,23 @@
 }
 
 .spdf-pressure__legend {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 7px 0 0;
+  margin: 8px 0 0;
   padding: 0;
   list-style: none;
+  font-size: 0;
 }
 
 .spdf-pressure__legend li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: inline-block;
+  width: 49%;
   font-size: 10px;
   font-weight: 700;
   color: #56697a;
+  vertical-align: middle;
 }
 
 .spdf-pressure__legend strong {
-  margin-left: auto;
+  margin-left: 6px;
   font-size: 11px;
   font-weight: 800;
   color: #072334;
@@ -315,10 +313,12 @@
 }
 
 .spdf-pressure__dot {
-  flex: 0 0 7px;
+  display: inline-block;
   width: 7px;
   height: 7px;
+  margin-right: 6px;
   border-radius: 999px;
+  vertical-align: middle;
 }
 
 .spdf-pressure__dot--warn {
@@ -441,7 +441,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-self: center;
+  align-self: stretch;
 }
 
 .spdf-section__footer {
@@ -517,26 +517,25 @@
 }
 
 .spdf-pass-panel__legend {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
   margin: 0;
   padding: 0;
   list-style: none;
+  font-size: 0;
 }
 
 .spdf-pass-panel__legend li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
+  display: inline-block;
+  width: 32%;
+  vertical-align: middle;
 }
 
 .spdf-pass-panel__dot {
-  flex: 0 0 7px;
+  display: inline-block;
   width: 7px;
   height: 7px;
+  margin-right: 6px;
   border-radius: 999px;
+  vertical-align: middle;
 }
 
 .spdf-pass-panel__dot--pass-progressive {
@@ -552,7 +551,7 @@
 }
 
 .spdf-pass-panel__legend-label {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -561,7 +560,7 @@
 }
 
 .spdf-pass-panel__legend strong {
-  margin-left: auto;
+  margin-left: 6px;
   font-size: 11px;
   font-weight: 800;
   line-height: 1.15;
@@ -667,23 +666,25 @@
 }
 
 .spdf-carry__figures {
-  display: flex;
-  align-items: flex-end;
-  gap: 18px;
-  margin-top: 6px;
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
 }
 
 .spdf-carry__figure {
-  display: flex;
-  flex-direction: column;
+  width: 50%;
+  padding: 0;
+  vertical-align: top;
+  text-align: left;
 }
 
 .spdf-carry__figure--split {
-  padding-left: 18px;
+  padding-left: 16px;
   border-left: 1px solid #dde3e8;
 }
 
 .spdf-carry__value {
+  display: block;
   font-size: 28px;
   font-weight: 800;
   line-height: 1;
@@ -691,6 +692,7 @@
 }
 
 .spdf-carry__label {
+  display: block;
   margin-top: 4px;
   font-size: 9px;
   font-weight: 700;
@@ -719,31 +721,32 @@
 }
 
 .spdf-threat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   flex: 1 1 0;
-  min-width: 0;
-  padding: 10px 12px 9px;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   border-radius: 6px;
-  text-align: center;
+  overflow: hidden;
 }
 
 .spdf-threat-card--shots {
-  border: 2px solid #e08a4f;
-  background: #fff6ef;
+  border: 1px solid #e4c4ae;
+  background: #fff8f3;
 }
 
 .spdf-threat-card--pass {
-  border: 2px solid #297cc1;
-  background: #f3f9fd;
+  border: 1px solid #c5dced;
+  background: #f7fbfe;
 }
 
 .spdf-threat-card__value {
-  font-size: 34px;
+  width: 64px;
+  padding: 12px 0 12px 16px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1;
+  text-align: left;
+  vertical-align: middle;
   color: #072334;
 }
 
@@ -755,19 +758,26 @@
   color: #044f80;
 }
 
+.spdf-threat-card__copy {
+  padding: 12px 14px 12px 8px;
+  vertical-align: middle;
+  text-align: left;
+}
+
 .spdf-threat-card__label {
-  margin-top: 6px;
-  font-size: 9px;
+  display: block;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   line-height: 1.25;
   text-transform: uppercase;
   color: #33495a;
 }
 
 .spdf-threat-card__caption {
-  margin-top: 4px;
-  font-size: 9px;
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
   font-weight: 600;
   line-height: 1.25;
   color: #6b8192;

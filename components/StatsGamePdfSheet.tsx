@@ -114,21 +114,25 @@ function CarryResultPanel({
   return (
     <div className="spdf-carry">
       <p className="spdf-carry__title">{label}</p>
-      <div className="spdf-carry__figures">
-        <div className="spdf-carry__figure">
-          <span className="spdf-carry__value">{total}</span>
-          <span className="spdf-carry__label">Total</span>
-        </div>
-        <div className="spdf-carry__figure spdf-carry__figure--split">
-          <span className="spdf-carry__value" style={{ color }}>
-            {progressive}
-          </span>
-          <span className="spdf-carry__label">Progressive play</span>
-        </div>
-      </div>
-      <span className="spdf-carry__rate" style={{ color }}>
-        {pct(progressive, total)}% progressive play
-      </span>
+      <table className="spdf-carry__figures">
+        <tbody>
+          <tr>
+            <td className="spdf-carry__figure">
+              <span className="spdf-carry__value">{total}</span>
+              <span className="spdf-carry__label">Total</span>
+            </td>
+            <td className="spdf-carry__figure spdf-carry__figure--split">
+              <span className="spdf-carry__value" style={{ color }}>
+                {progressive}
+              </span>
+              <span className="spdf-carry__label">Progressive play</span>
+              <span className="spdf-carry__rate" style={{ color }}>
+                {pct(progressive, total)}% progressive play
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -234,14 +238,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
                 <ul className="spdf-pressure__legend">
                   <li>
                     <span className="spdf-pressure__dot spdf-pressure__dot--warn" />
-                    <span>In transition</span>
+                    In transition
                     <strong>
                       {carries.inTransition} · {pct(carries.inTransition, carries.total)}%
                     </strong>
                   </li>
                   <li>
                     <span className="spdf-pressure__dot spdf-pressure__dot--blue" />
-                    <span>In possession</span>
+                    In possession
                     <strong>
                       {carries.inPossession} · {pct(carries.inPossession, carries.total)}%
                     </strong>
@@ -282,16 +286,28 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             <div className="spdf-final-third-panel">
               <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} />
               <div className="spdf-threat-row">
-                <div className="spdf-threat-card spdf-threat-card--shots">
-                  <span className="spdf-threat-card__value">{finalThirdActions.shots}</span>
-                  <span className="spdf-threat-card__label">Shots</span>
-                  <span className="spdf-threat-card__caption">Shots taken</span>
-                </div>
-                <div className="spdf-threat-card spdf-threat-card--pass">
-                  <span className="spdf-threat-card__value">{finalThirdActions.passWithShotOpportunity}</span>
-                  <span className="spdf-threat-card__label">Pass with shot opportunity</span>
-                  <span className="spdf-threat-card__caption">Passes leading to a shot chance</span>
-                </div>
+                <table className="spdf-threat-card spdf-threat-card--shots">
+                  <tbody>
+                    <tr>
+                      <td className="spdf-threat-card__value">{finalThirdActions.shots}</td>
+                      <td className="spdf-threat-card__copy">
+                        <span className="spdf-threat-card__label">Shots</span>
+                        <span className="spdf-threat-card__caption">Shots taken</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table className="spdf-threat-card spdf-threat-card--pass">
+                  <tbody>
+                    <tr>
+                      <td className="spdf-threat-card__value">{finalThirdActions.passWithShotOpportunity}</td>
+                      <td className="spdf-threat-card__copy">
+                        <span className="spdf-threat-card__label">Pass with shot opportunity</span>
+                        <span className="spdf-threat-card__caption">Passes leading to a shot chance</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </PdfSection>
