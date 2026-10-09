@@ -490,13 +490,13 @@ body::before {
 .metric-card__pct--carry-transition {
   font-size: 15px;
   font-weight: 800;
-  color: #5fd68a;
+  color: #3ecf73;
 }
 
 .metric-card__pct--carry-possession {
   font-size: 15px;
   font-weight: 800;
-  color: #e8c547;
+  color: #a88b2a;
 }
 
 .metric-card__title {

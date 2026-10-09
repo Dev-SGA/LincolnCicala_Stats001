@@ -223,17 +223,17 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             <StatTiles
               items={[
                 {
-                  label: "Positive in transition",
+                  label: "Progressive in transition",
                   value: carries.transitionPositive,
                   tone: "blue",
-                  detail: `${pct(carries.transitionPositive, carries.inTransition)}% positive plays`,
+                  detail: `${pct(carries.transitionPositive, carries.inTransition)}% progressive plays`,
                   detailTone: "carry-transition",
                 },
                 {
-                  label: "Positive in possession",
+                  label: "Progressive in possession",
                   value: carries.possessionPositive,
                   tone: "blue",
-                  detail: `${pct(carries.possessionPositive, carries.inPossession)}% positive plays`,
+                  detail: `${pct(carries.possessionPositive, carries.inPossession)}% progressive plays`,
                   detailTone: "carry-possession",
                 },
               ]}
