@@ -12,7 +12,8 @@ function PdfPlay({ href }: { href?: string }) {
   if (!href) return null;
   return (
     <a className="spdf-play" href={href} data-pdf-link={href} target="_blank" rel="noreferrer" aria-label="Open video">
-      <span className="spdf-play__icon" aria-hidden="true" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/play-icon.png" alt="" className="spdf-play__icon" width={14} height={14} />
     </a>
   );
 }
