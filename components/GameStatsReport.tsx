@@ -40,12 +40,37 @@ function PlayTip({ label, tip, href }: { label: string; tip: string; href?: stri
   );
 }
 
+function ClipAnchor({
+  href,
+  className,
+  children,
+  ariaLabel,
+}: {
+  href?: string;
+  className?: string;
+  children: React.ReactNode;
+  ariaLabel?: string;
+}) {
+  if (!href) return <span className={className}>{children}</span>;
+  return (
+    <a
+      className={["clip-link", "clip-link--hit", className].filter(Boolean).join(" ")}
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={ariaLabel ?? "Open video clip"}
+    >
+      {children}
+    </a>
+  );
+}
+
 function ClipLegendLabel({ label, href }: { label: string; href?: string }) {
   if (!href) return <span className="legend__label">{label}</span>;
   return (
-    <a className="legend__label clip-link" href={href} target="_blank" rel="noreferrer">
+    <ClipAnchor href={href} className="legend__label" ariaLabel={`Open video: ${label}`}>
       {label}
-    </a>
+    </ClipAnchor>
   );
 }
 
@@ -53,9 +78,9 @@ function ClipMetricTitle({ label, href }: { label: string; href?: string }) {
   if (!href) return <h3 className="metric-card__title">{label}</h3>;
   return (
     <h3 className="metric-card__title">
-      <a className="clip-link" href={href} target="_blank" rel="noreferrer">
+      <ClipAnchor href={href} ariaLabel={`Open video: ${label}`}>
         {label}
-      </a>
+      </ClipAnchor>
     </h3>
   );
 }
@@ -205,12 +230,21 @@ function PositiveCarryStat({
           <span className="metric-card__value">{total}</span>
           <span className="carry-result__label">Total</span>
         </div>
-        <div className="carry-result__figure">
-          <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-            {positive}
-          </span>
-          <span className="carry-result__label">Progressive play</span>
-        </div>
+        {titleHref ? (
+          <ClipAnchor href={titleHref} className="carry-result__figure carry-result__figure--clip" ariaLabel={`Open video: ${label} progressive play`}>
+            <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
+              {positive}
+            </span>
+            <span className="carry-result__label carry-result__label--clip">Progressive play</span>
+          </ClipAnchor>
+        ) : (
+          <div className="carry-result__figure">
+            <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
+              {positive}
+            </span>
+            <span className="carry-result__label">Progressive play</span>
+          </div>
+        )}
       </div>
       <span
         className="metric-card__pct metric-card__pct--carry-rate"
@@ -238,7 +272,9 @@ function CountStat({
   return (
     <div className={`metric-card metric-card--compact${highlight ? " metric-card--highlight" : ""}`}>
       <ClipMetricTitle label={label} href={titleHref} />
-      <span className="metric-card__value">{value}</span>
+      <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel={`Open video: ${label}`}>
+        {value}
+      </ClipAnchor>
       <p className="metric-card__caption">{caption}</p>
     </div>
   );
@@ -265,7 +301,9 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             items={[
               <div key="total" className="metric-card metric-card--hero metric-card--compact">
                 <ClipMetricTitle label="Total carries" href={carriesClip} />
-                <span className="metric-card__value">{carries.total}</span>
+                <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
+                  {carries.total}
+                </ClipAnchor>
                 <p className="metric-card__caption">Carries tracked in the match</p>
               </div>,
               <SplitMeter

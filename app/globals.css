@@ -261,9 +261,103 @@ body::before {
   text-decoration: none;
 }
 
-.clip-link:hover,
+.clip-link--hit {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--tone-accent) 55%, transparent);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.clip-link--hit:hover,
 .pass-play-tip--clip:hover .pass-play-tip__label {
   color: var(--tone-accent);
+  text-decoration-color: var(--tone-accent);
+  text-decoration-style: solid;
+}
+
+.clip-link--hit:focus-visible {
+  outline: 2px solid var(--tone-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.clip-link--value {
+  display: inline-block;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.carry-result__figure--clip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.carry-result__figure--clip.clip-link--hit {
+  text-decoration: none;
+}
+
+.carry-result__figure--clip .metric-card__value {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--tone-accent) 45%, transparent);
+  text-underline-offset: 5px;
+}
+
+.carry-result__figure--clip:hover .metric-card__value {
+  text-decoration-color: var(--tone-accent);
+  text-decoration-style: solid;
+}
+
+.carry-result__figure--clip:hover {
+  background: color-mix(in srgb, var(--tone-accent) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone-accent) 38%, transparent);
+}
+
+.carry-result__figure--clip .metric-card__value,
+.carry-result__figure--clip:hover .metric-card__value {
+  color: inherit;
+}
+
+.carry-result__label--clip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.carry-result__label--clip::after {
+  content: "▶";
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tone-accent);
+  opacity: 0.85;
+}
+
+.metric-card__title .clip-link--hit::after {
+  content: "▶";
+  margin-left: 0.4em;
+  font-size: 0.55em;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
+.pass-play-tip--clip {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--tone-accent) 55%, transparent);
+  text-underline-offset: 3px;
 }
 
 .board {
