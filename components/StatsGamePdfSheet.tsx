@@ -11,8 +11,8 @@ type StatsGamePdfSheetProps = {
 function PdfPlay({ href }: { href?: string }) {
   if (!href) return null;
   return (
-    <a className="spdf-play" href={href} data-pdf-link={href} target="_blank" rel="noreferrer">
-      Play
+    <a className="spdf-play" href={href} data-pdf-link={href} target="_blank" rel="noreferrer" aria-label="Open video">
+      <span className="spdf-play__icon" aria-hidden="true" />
     </a>
   );
 }
@@ -102,14 +102,10 @@ function ActionResultPanel({
       <ul className="spdf-pass-panel__legend">
         <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
-          <span className="spdf-pass-panel__legend-label">
-            <PdfPlayTarget href={progressiveHref}>Progressive plays</PdfPlayTarget>
-            <PdfPlay href={progressiveHref} />
-          </span>
+          <span className="spdf-pass-panel__legend-label">Progressive plays</span>
           <strong>
-            <PdfPlayTarget href={progressiveHref}>
-              {breakdown.positive} · {pct(breakdown.positive, total)}%
-            </PdfPlayTarget>
+            {breakdown.positive} · {pct(breakdown.positive, total)}%
+            <PdfPlay href={progressiveHref} />
           </strong>
         </li>
         <li>
@@ -121,14 +117,10 @@ function ActionResultPanel({
         </li>
         <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
-          <span className="spdf-pass-panel__legend-label">
-            <PdfPlayTarget href={lostHref}>Lost</PdfPlayTarget>
-            <PdfPlay href={lostHref} />
-          </span>
+          <span className="spdf-pass-panel__legend-label">Lost</span>
           <strong>
-            <PdfPlayTarget href={lostHref}>
-              {breakdown.lost} · {pct(breakdown.lost, total)}%
-            </PdfPlayTarget>
+            {breakdown.lost} · {pct(breakdown.lost, total)}%
+            <PdfPlay href={lostHref} />
           </strong>
         </li>
       </ul>
