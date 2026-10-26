@@ -8,8 +8,7 @@ import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
-import type { GameStats, PlayResultBreakdown } from "@/lib/stats";
-import { getFinalThirdBreakdown } from "@/lib/stats";
+import { clipUrl, getFinalThirdBreakdown, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
 
 type GameStatsReportProps = {
   stats: GameStats;
@@ -25,11 +24,39 @@ const PLAY_TIPS = {
   lost: "Lost Play — Losing possession or failing to advance through an inaccurate action or immediate pressure.",
 } as const;
 
-function PlayTip({ label, tip }: { label: string; tip: string }) {
+function PlayTip({ label, tip, href }: { label: string; tip: string; href?: string }) {
+  const className = `pass-play-tip legend__label${href ? " pass-play-tip--clip" : ""}`;
+  if (href) {
+    return (
+      <a className={className} href={href} target="_blank" rel="noreferrer" data-tip={tip} aria-label={`${label}. ${tip}`}>
+        <span className="pass-play-tip__label">{label}</span>
+      </a>
+    );
+  }
   return (
-    <button type="button" className="pass-play-tip legend__label" data-tip={tip} aria-label={`${label}. ${tip}`}>
+    <button type="button" className={className} data-tip={tip} aria-label={`${label}. ${tip}`}>
       <span className="pass-play-tip__label">{label}</span>
     </button>
+  );
+}
+
+function ClipLegendLabel({ label, href }: { label: string; href?: string }) {
+  if (!href) return <span className="legend__label">{label}</span>;
+  return (
+    <a className="legend__label clip-link" href={href} target="_blank" rel="noreferrer">
+      {label}
+    </a>
+  );
+}
+
+function ClipMetricTitle({ label, href }: { label: string; href?: string }) {
+  if (!href) return <h3 className="metric-card__title">{label}</h3>;
+  return (
+    <h3 className="metric-card__title">
+      <a className="clip-link" href={href} target="_blank" rel="noreferrer">
+        {label}
+      </a>
+    </h3>
   );
 }
 
@@ -47,6 +74,8 @@ function SplitMeter({
   secondaryTone,
   headline,
   major,
+  primaryHref,
+  secondaryHref,
 }: {
   title: string;
   primary: number;
@@ -57,6 +86,8 @@ function SplitMeter({
   secondaryTone: BarTone;
   headline: string;
   major?: boolean;
+  primaryHref?: string;
+  secondaryHref?: string;
 }) {
   const total = primary + secondary;
   const primaryPct = percent(primary, total);
@@ -72,14 +103,14 @@ function SplitMeter({
       <ul className="legend">
         <li>
           <span className={`legend__dot legend__dot--${primaryTone}`} />
-          <span className="legend__label">{primaryLabel}</span>
+          <ClipLegendLabel label={primaryLabel} href={primaryHref} />
           <strong>
             {primary} · {percent(primary, total)}%
           </strong>
         </li>
         <li>
           <span className={`legend__dot legend__dot--${secondaryTone}`} />
-          <span className="legend__label">{secondaryLabel}</span>
+          <ClipLegendLabel label={secondaryLabel} href={secondaryHref} />
           <strong>
             {secondary} · {percent(secondary, total)}%
           </strong>
@@ -89,7 +120,15 @@ function SplitMeter({
   );
 }
 
-function ActionResultsMeter({ title, breakdown }: { title: string; breakdown: PlayResultBreakdown }) {
+function ActionResultsMeter({
+  title,
+  breakdown,
+  videos,
+}: {
+  title: string;
+  breakdown: PlayResultBreakdown;
+  videos?: GameStats["videos"];
+}) {
   const total = breakdown.positive + breakdown.neutral + breakdown.lost;
   const positivePct = percent(breakdown.positive, total);
   const neutralPct = percent(breakdown.neutral, total);
@@ -111,7 +150,11 @@ function ActionResultsMeter({ title, breakdown }: { title: string; breakdown: Pl
       <ul className="legend">
         <li>
           <span className="legend__dot legend__dot--pass-progressive" />
-          <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} />
+          <PlayTip
+            label="Progressive plays"
+            tip={PLAY_TIPS.progressive}
+            href={clipUrl(videos, "Progressive plays Final third", "Progressive plays final third")}
+          />
           <strong>
             {breakdown.positive} · {positivePct}%
           </strong>
@@ -125,7 +168,11 @@ function ActionResultsMeter({ title, breakdown }: { title: string; breakdown: Pl
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-lost" />
-          <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} />
+          <PlayTip
+            label="Lost plays"
+            tip={PLAY_TIPS.lost}
+            href={clipUrl(videos, "Lost plays final third", "Lost plays Final third")}
+          />
           <strong>
             {breakdown.lost} · {lostPct}%
           </strong>
@@ -140,17 +187,19 @@ function PositiveCarryStat({
   positive,
   total,
   pctTone,
+  titleHref,
 }: {
   label: string;
   positive: number;
   total: number;
   pctTone: "transition" | "possession";
+  titleHref?: string;
 }) {
   const pctLabel = `${percent(positive, total)}% progressive play`;
 
   return (
     <div className="metric-card">
-      <h3 className="metric-card__title">{label}</h3>
+      <ClipMetricTitle label={label} href={titleHref} />
       <div className="carry-result">
         <div className="carry-result__figure">
           <span className="metric-card__value">{total}</span>
@@ -178,15 +227,17 @@ function CountStat({
   value,
   caption,
   highlight,
+  titleHref,
 }: {
   label: string;
   value: number;
   caption: string;
   highlight?: boolean;
+  titleHref?: string;
 }) {
   return (
     <div className={`metric-card metric-card--compact${highlight ? " metric-card--highlight" : ""}`}>
-      <h3 className="metric-card__title">{label}</h3>
+      <ClipMetricTitle label={label} href={titleHref} />
       <span className="metric-card__value">{value}</span>
       <p className="metric-card__caption">{caption}</p>
     </div>
@@ -194,8 +245,13 @@ function CountStat({
 }
 
 export function GameStatsReport({ stats }: GameStatsReportProps) {
-  const { player, carries, finalThirdActions, meta } = stats;
+  const { player, carries, finalThirdActions, meta, videos } = stats;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
+  const carriesClip = clipUrl(videos, "Carries");
+  const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
+  const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
+  const shotsClip = clipUrl(videos, "Shots");
+  const passShotClip = clipUrl(videos, "Passes with shot opportunity", "Pass with shot opportunity");
 
   const topics: Topic[] = [
     {
@@ -208,7 +264,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             className="metric-flow--pressure"
             items={[
               <div key="total" className="metric-card metric-card--hero metric-card--compact">
-                <h3 className="metric-card__title">Total carries</h3>
+                <ClipMetricTitle label="Total carries" href={carriesClip} />
                 <span className="metric-card__value">{carries.total}</span>
                 <p className="metric-card__caption">Carries tracked in the match</p>
               </div>,
@@ -223,6 +279,8 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
                 primaryTone="warn"
                 secondaryTone="accent"
                 major
+                primaryHref={transitionClip}
+                secondaryHref={possessionClip}
               />,
             ]}
           />
@@ -242,6 +300,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               positive={carries.transitionPositive}
               total={carries.inTransition}
               pctTone="transition"
+              titleHref={transitionClip}
             />,
             <PositiveCarryStat
               key="possession"
@@ -249,6 +308,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               positive={carries.possessionPositive}
               total={carries.inPossession}
               pctTone="possession"
+              titleHref={possessionClip}
             />,
           ]}
         />
@@ -265,16 +325,24 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             <span className="metric-card__value">{finalThirdActions.total}</span>
             <p className="metric-card__caption">Actions in the final third</p>
           </div>
-          <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} />
+          <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
           <MetricFlow
             items={[
-              <CountStat key="shots" label="Shots" value={finalThirdActions.shots} caption="Shots taken" highlight />,
+              <CountStat
+                key="shots"
+                label="Shots"
+                value={finalThirdActions.shots}
+                caption="Shots taken"
+                highlight
+                titleHref={shotsClip}
+              />,
               <CountStat
                 key="pass-shot"
                 label="Pass with shot opportunity"
                 value={finalThirdActions.passWithShotOpportunity}
                 caption="Passes leading to a shot chance"
                 highlight
+                titleHref={passShotClip}
               />,
             ]}
           />
@@ -301,7 +369,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
         </header>
 
         <div className="report-grid">
-          <AthleteProfileCard name={player.name} club={player.club} photoSrc={player.photo}>
+          <AthleteProfileCard name={player.name} club={player.club} clubLogo={player.clubLogo} photoSrc={player.photo}>
             <ExportPdfButton stats={stats} />
           </AthleteProfileCard>
 

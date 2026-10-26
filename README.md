@@ -15,7 +15,7 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ## Dados
 
-Edite `data/gameStats.json` para atualizar números e links de vídeo (`carries`, `finalThirdActions`).
+Edite `data/gameStats.json` para atualizar números, logo do clube (`player.clubLogo`) e links de vídeo (`videos`).
 
 ## Deploy
 

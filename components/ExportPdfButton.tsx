@@ -35,6 +35,7 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
           stats={exportStats}
           photoUrl={`${origin}${stats.player.photo}`}
           logoUrl={`${origin}${BRAND.logoTrimmed}`}
+          clubLogoUrl={`${origin}${stats.player.clubLogo}`}
         />,
       );
       await new Promise<void>((resolve) => {

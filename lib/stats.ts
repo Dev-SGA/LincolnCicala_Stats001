@@ -15,6 +15,7 @@ export type GameStats = {
   player: {
     name: string;
     club: string;
+    clubLogo: string;
     photo: string;
   };
   carries: {
@@ -34,10 +35,18 @@ export type GameStats = {
     passWithShotOpportunity: number;
     videoLink: string;
   };
+  videos?: { label: string; url: string }[];
 };
 
 export function getGameStats(): GameStats {
   return gameStats as GameStats;
+}
+
+export function clipUrl(videos: { label: string; url: string }[] | undefined, ...aliases: string[]): string | undefined {
+  if (!videos?.length) return undefined;
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const keys = new Set(aliases.map(normalize));
+  return videos.find((video) => keys.has(normalize(video.label)))?.url;
 }
 
 export function getFinalThirdBreakdown(stats: GameStats): PlayResultBreakdown {

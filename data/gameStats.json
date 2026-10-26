@@ -7,6 +7,7 @@
   "player": {
     "name": "Lincoln Cicala",
     "club": "FC Cincinnati",
+    "clubLogo": "/clubs/fc-cincinnati.png",
     "photo": "/player/lincoln-cicala.png"
   },
   "carries": {
@@ -15,7 +16,7 @@
     "inPossession": 3,
     "transitionPositive": 4,
     "possessionPositive": 1,
-    "videoLink": ""
+    "videoLink": "https://drive.google.com/file/d/1zGdNQj32sejf6C3NAfY4tN-oHLEzAVOW/view?usp=drive_link"
   },
   "finalThirdActions": {
     "total": 24,
@@ -25,5 +26,35 @@
     "shots": 2,
     "passWithShotOpportunity": 5,
     "videoLink": ""
-  }
+  },
+  "videos": [
+    {
+      "label": "Progressive plays in transition",
+      "url": "https://drive.google.com/file/d/1lyr1U-5G0U2V-QLFyyFLQSviuDVFLhzC/view?usp=drive_link"
+    },
+    {
+      "label": "Progressive play in possession",
+      "url": "https://drive.google.com/file/d/1Ah8GBe4oCF-aMiuvBxo9DVCWXqGz29yf/view?usp=drive_link"
+    },
+    {
+      "label": "Progressive plays Final third",
+      "url": "https://drive.google.com/file/d/1S3BbZH4pATytDhee9OIl8GFiR21sHP2c/view?usp=drive_link"
+    },
+    {
+      "label": "Passes with shot opportunity",
+      "url": "https://drive.google.com/file/d/1JApuif1QZtBVC_1yeqPknMIJK7ZdbiFE/view?usp=drive_link"
+    },
+    {
+      "label": "Lost plays final third",
+      "url": "https://drive.google.com/file/d/1RKBU9RkarZ_Bu7LA1zf13vUEBRPI1miB/view?usp=drive_link"
+    },
+    {
+      "label": "Carries",
+      "url": "https://drive.google.com/file/d/1zGdNQj32sejf6C3NAfY4tN-oHLEzAVOW/view?usp=drive_link"
+    },
+    {
+      "label": "Shots",
+      "url": "https://drive.google.com/file/d/1Wo0f7JjB9gPukI7A3TfzpKYtEZrdI2ki/view?usp=drive_link"
+    }
+  ]
 }
