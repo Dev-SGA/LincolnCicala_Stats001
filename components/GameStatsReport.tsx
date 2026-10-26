@@ -25,10 +25,17 @@ const PLAY_TIPS = {
 } as const;
 
 function PlayTip({ label, tip, href }: { label: string; tip: string; href?: string }) {
-  const className = `pass-play-tip legend__label${href ? " pass-play-tip--clip" : ""}`;
+  const className = `pass-play-tip legend__label${href ? " pass-play-tip--clip clip-link--hit" : ""}`;
   if (href) {
     return (
-      <a className={className} href={href} target="_blank" rel="noreferrer" data-tip={tip} aria-label={`${label}. ${tip}`}>
+      <a
+        className={className}
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        data-tip={tip}
+        aria-label={`Open video: ${label}. ${tip}`}
+      >
         <span className="pass-play-tip__label">{label}</span>
       </a>
     );
@@ -158,6 +165,8 @@ function ActionResultsMeter({
   const positivePct = percent(breakdown.positive, total);
   const neutralPct = percent(breakdown.neutral, total);
   const lostPct = percent(breakdown.lost, total);
+  const progressiveHref = clipUrl(videos, "Progressive plays Final third", "Progressive plays final third");
+  const lostHref = clipUrl(videos, "Lost plays final third", "Lost plays Final third");
 
   return (
     <div className="metric-card">
@@ -175,14 +184,10 @@ function ActionResultsMeter({
       <ul className="legend">
         <li>
           <span className="legend__dot legend__dot--pass-progressive" />
-          <PlayTip
-            label="Progressive plays"
-            tip={PLAY_TIPS.progressive}
-            href={clipUrl(videos, "Progressive plays Final third", "Progressive plays final third")}
-          />
-          <strong>
+          <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} href={progressiveHref} />
+          <ClipAnchor href={progressiveHref} className="legend__clip-stat" ariaLabel="Open video: Progressive plays">
             {breakdown.positive} · {positivePct}%
-          </strong>
+          </ClipAnchor>
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-neutral" />
@@ -193,14 +198,10 @@ function ActionResultsMeter({
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-lost" />
-          <PlayTip
-            label="Lost plays"
-            tip={PLAY_TIPS.lost}
-            href={clipUrl(videos, "Lost plays final third", "Lost plays Final third")}
-          />
-          <strong>
+          <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />
+          <ClipAnchor href={lostHref} className="legend__clip-stat" ariaLabel="Open video: Lost plays">
             {breakdown.lost} · {lostPct}%
-          </strong>
+          </ClipAnchor>
         </li>
       </ul>
     </div>

@@ -256,6 +256,30 @@ body::before {
   text-decoration: none;
 }
 
+.pass-play-tip--clip .pass-play-tip__label {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--tone-accent) 55%, transparent);
+  text-underline-offset: 3px;
+}
+
+.pass-play-tip--clip:hover .pass-play-tip__label,
+.pass-play-tip--clip:focus-visible .pass-play-tip__label {
+  color: var(--tone-accent);
+  text-decoration-color: var(--tone-accent);
+  text-decoration-style: solid;
+}
+
+.pass-play-tip--clip .pass-play-tip__label::after {
+  content: "▶";
+  margin-left: 0.35em;
+  font-size: 0.72em;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
 .clip-link {
   color: inherit;
   text-decoration: none;
@@ -354,9 +378,14 @@ body::before {
   opacity: 0.85;
 }
 
-.pass-play-tip--clip {
-  text-decoration: underline dotted;
-  text-decoration-color: color-mix(in srgb, var(--tone-accent) 55%, transparent);
+.legend__clip-stat {
+  justify-self: end;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.legend__clip-stat.clip-link--hit {
   text-underline-offset: 3px;
 }
 
