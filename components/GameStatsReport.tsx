@@ -36,7 +36,11 @@ function PlayTip({ label, tip, href }: { label: string; tip: string; href?: stri
         data-tip={tip}
         aria-label={`Open video: ${label}. ${tip}`}
       >
-        <span className="pass-play-tip__label">{label}</span>
+        <span className="pass-play-tip__label">
+          {label}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/play-icon.png" alt="" className="play-icon" width={14} height={14} />
+        </span>
       </a>
     );
   }
