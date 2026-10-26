@@ -134,11 +134,28 @@
   height: 26px;
 }
 
-.spdf-clip-link {
+.spdf-play {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #297cc1;
+  color: #ffffff;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 12px;
+  text-transform: none;
+  text-decoration: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.spdf-play-target {
   color: inherit;
-  text-decoration: underline;
-  text-decoration-color: #297cc1;
-  text-underline-offset: 2px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
 }
 
 .spdf-side__slogan {

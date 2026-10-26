@@ -8,42 +8,21 @@ type StatsGamePdfSheetProps = {
   clubLogoUrl: string;
 };
 
-function PdfClipLink({ href, children }: { href?: string; children: React.ReactNode }) {
-  if (!href) return <>{children}</>;
+function PdfPlay({ href }: { href?: string }) {
+  if (!href) return null;
   return (
-    <a className="spdf-clip-link" href={href} data-pdf-link={href} target="_blank" rel="noreferrer">
-      {children}
+    <a className="spdf-play" href={href} data-pdf-link={href} target="_blank" rel="noreferrer">
+      Play
     </a>
   );
 }
 
-function PdfVideos({ videos }: { videos: { label: string; url: string }[] }) {
-  if (videos.length === 0) return null;
-
+function PdfPlayTarget({ href, children }: { href?: string; children: React.ReactNode }) {
+  if (!href) return <>{children}</>;
   return (
-    <section className="spdf-videos">
-      <p className="spdf-videos__title">Videos</p>
-      <ul className="spdf-videos__list">
-        {videos.map((video) => (
-          <li key={video.label}>
-            <a
-              className="spdf-videos__link"
-              href={video.url}
-              data-pdf-link={video.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className="spdf-videos__play" aria-hidden="true">
-                <span className="spdf-videos__play-icon" />
-              </span>
-              <span className="spdf-videos__text">
-                <strong>{video.label}</strong>
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <a className="spdf-play-target" href={href} data-pdf-link={href} target="_blank" rel="noreferrer">
+      {children}
+    </a>
   );
 }
 
@@ -124,10 +103,13 @@ function ActionResultPanel({
         <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
           <span className="spdf-pass-panel__legend-label">
-            <PdfClipLink href={progressiveHref}>Progressive plays</PdfClipLink>
+            <PdfPlayTarget href={progressiveHref}>Progressive plays</PdfPlayTarget>
+            <PdfPlay href={progressiveHref} />
           </span>
           <strong>
-            {breakdown.positive} · {pct(breakdown.positive, total)}%
+            <PdfPlayTarget href={progressiveHref}>
+              {breakdown.positive} · {pct(breakdown.positive, total)}%
+            </PdfPlayTarget>
           </strong>
         </li>
         <li>
@@ -140,10 +122,13 @@ function ActionResultPanel({
         <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
           <span className="spdf-pass-panel__legend-label">
-            <PdfClipLink href={lostHref}>Lost</PdfClipLink>
+            <PdfPlayTarget href={lostHref}>Lost</PdfPlayTarget>
+            <PdfPlay href={lostHref} />
           </span>
           <strong>
-            {breakdown.lost} · {pct(breakdown.lost, total)}%
+            <PdfPlayTarget href={lostHref}>
+              {breakdown.lost} · {pct(breakdown.lost, total)}%
+            </PdfPlayTarget>
           </strong>
         </li>
       </ul>
@@ -156,21 +141,19 @@ function CarryResultPanel({
   total,
   progressive,
   situation,
-  titleHref,
+  playHref,
 }: {
   label: string;
   total: number;
   progressive: number;
   situation: CarryProgressiveSituation;
-  titleHref?: string;
+  playHref?: string;
 }) {
   const color = carryProgressiveRateColor(situation);
 
   return (
     <div className="spdf-carry">
-      <p className="spdf-carry__title">
-        <PdfClipLink href={titleHref}>{label}</PdfClipLink>
-      </p>
+      <p className="spdf-carry__title">{label}</p>
       <table className="spdf-carry__figures">
         <tbody>
           <tr>
@@ -180,9 +163,12 @@ function CarryResultPanel({
             </td>
             <td className="spdf-carry__figure spdf-carry__figure--split">
               <span className="spdf-carry__value" style={{ color }}>
-                {progressive}
+                <PdfPlayTarget href={playHref}>{progressive}</PdfPlayTarget>
               </span>
-              <span className="spdf-carry__label">Progressive play</span>
+              <span className="spdf-carry__label">
+                <PdfPlayTarget href={playHref}>Progressive play</PdfPlayTarget>
+                <PdfPlay href={playHref} />
+              </span>
               <span className="spdf-carry__rate" style={{ color }}>
                 {pct(progressive, total)}% progressive play
               </span>
@@ -280,16 +266,17 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
           <section className="spdf-section spdf-section--carrying spdf-section--pressure">
             <div className="spdf-section__top">
               <p className="spdf-section__phase">Carrying</p>
-              <h3 className="spdf-section__title">
-                <PdfClipLink href={carriesClip}>Carries</PdfClipLink>
-              </h3>
+              <h3 className="spdf-section__title">Carries</h3>
             </div>
             <div className="spdf-pressure">
               <div className="spdf-pressure__total">
                 <span className="spdf-pressure__kicker">
-                  <PdfClipLink href={carriesClip}>Total carries</PdfClipLink>
+                  <PdfPlayTarget href={carriesClip}>Total carries</PdfPlayTarget>
+                  <PdfPlay href={carriesClip} />
                 </span>
-                <span className="spdf-pressure__value">{carries.total}</span>
+                <span className="spdf-pressure__value">
+                  <PdfPlayTarget href={carriesClip}>{carries.total}</PdfPlayTarget>
+                </span>
                 <span className="spdf-pressure__caption">Carries tracked in the match</span>
               </div>
               <div className="spdf-pressure__context">
@@ -310,14 +297,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
                 <ul className="spdf-pressure__legend">
                   <li>
                     <span className="spdf-pressure__dot spdf-pressure__dot--warn" />
-                    <PdfClipLink href={transitionClip}>In transition</PdfClipLink>
+                    In transition
                     <strong>
                       {carries.inTransition} · {pct(carries.inTransition, carries.total)}%
                     </strong>
                   </li>
                   <li>
                     <span className="spdf-pressure__dot spdf-pressure__dot--blue" />
-                    <PdfClipLink href={possessionClip}>In possession</PdfClipLink>
+                    In possession
                     <strong>
                       {carries.inPossession} · {pct(carries.inPossession, carries.total)}%
                     </strong>
@@ -338,14 +325,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
                 total={carries.inTransition}
                 progressive={carries.transitionPositive}
                 situation="transition"
-                titleHref={transitionClip}
+                playHref={transitionClip}
               />
               <CarryResultPanel
                 label="In possession"
                 total={carries.inPossession}
                 progressive={carries.possessionPositive}
                 situation="possession"
-                titleHref={possessionClip}
+                playHref={possessionClip}
               />
             </div>
           </section>
@@ -363,10 +350,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
                 <table className="spdf-threat-card spdf-threat-card--shots">
                   <tbody>
                     <tr>
-                      <td className="spdf-threat-card__value">{finalThirdActions.shots}</td>
+                      <td className="spdf-threat-card__value">
+                        <PdfPlayTarget href={shotsClip}>{finalThirdActions.shots}</PdfPlayTarget>
+                      </td>
                       <td className="spdf-threat-card__copy">
                         <span className="spdf-threat-card__label">
-                          <PdfClipLink href={shotsClip}>Shots</PdfClipLink>
+                          <PdfPlayTarget href={shotsClip}>Shots</PdfPlayTarget>
+                          <PdfPlay href={shotsClip} />
                         </span>
                         <span className="spdf-threat-card__caption">Shots taken</span>
                       </td>
@@ -376,10 +366,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
                 <table className="spdf-threat-card spdf-threat-card--pass">
                   <tbody>
                     <tr>
-                      <td className="spdf-threat-card__value">{finalThirdActions.passWithShotOpportunity}</td>
+                      <td className="spdf-threat-card__value">
+                        <PdfPlayTarget href={passShotClip}>{finalThirdActions.passWithShotOpportunity}</PdfPlayTarget>
+                      </td>
                       <td className="spdf-threat-card__copy">
                         <span className="spdf-threat-card__label">
-                          <PdfClipLink href={passShotClip}>Pass with shot opportunity</PdfClipLink>
+                          <PdfPlayTarget href={passShotClip}>Pass with shot opportunity</PdfPlayTarget>
+                          <PdfPlay href={passShotClip} />
                         </span>
                         <span className="spdf-threat-card__caption">Passes leading to a shot chance</span>
                       </td>
@@ -390,8 +383,6 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
             </div>
           </PdfSection>
         </div>
-
-        <PdfVideos videos={videos ?? []} />
 
         <footer className="spdf-foot">
           <span>{BRAND.name}</span>
