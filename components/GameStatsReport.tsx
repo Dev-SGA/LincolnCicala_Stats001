@@ -380,7 +380,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
   const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
   const shotsClip = clipUrl(videos, "Shots");
-  const passShotClip = clipUrl(videos, "Passes with shot opportunity", "Pass with shot opportunity");
+  const keyPassesClip = clipUrl(videos, "Key passes", "Passes with shot opportunity", "Pass with shot opportunity");
 
   const topics: Topic[] = [];
 
@@ -493,13 +493,13 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
                 games={games}
               />,
               <CountStat
-                key="pass-shot"
-                label="Pass with shot opportunity"
+                key="key-passes"
+                label="Key passes"
                 value={finalThirdActions.passWithShotOpportunity}
                 unit="passes"
-                caption="Passes leading to a shot chance"
+                caption="Key passes in the final third"
                 highlight
-                titleHref={passShotClip}
+                titleHref={keyPassesClip}
                 games={games}
               />,
             ]}

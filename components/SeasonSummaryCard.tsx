@@ -46,12 +46,7 @@ export function SeasonSummaryCard({ stats, games }: SeasonSummaryCardProps) {
         <SeasonStat label="Lost plays" total={lost} unit="plays" games={games} />
         <SeasonStat label="Other" total={other} unit="plays" games={games} />
         <SeasonStat label="Shots" total={finalThirdActions.shots} unit="shots" games={games} />
-        <SeasonStat
-          label="Pass with shot opportunity"
-          total={finalThirdActions.passWithShotOpportunity}
-          unit="passes"
-          games={games}
-        />
+        <SeasonStat label="Key passes" total={finalThirdActions.passWithShotOpportunity} unit="passes" games={games} />
       </div>
       <p className="season-card__carry-note">
         Carries: {carries.transitionPositive + carries.possessionPositive} progressive total (

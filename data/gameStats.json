@@ -48,7 +48,7 @@
           "url": "https://drive.google.com/file/d/1iLyZlVQOayyHPOLtQ9AnkgsatRUdTTN6/view?usp=drive_link"
         },
         {
-          "label": "Passes with shot opportunity",
+          "label": "Key passes",
           "url": "https://drive.google.com/file/d/1JApuif1QZtBVC_1yeqPknMIJK7ZdbiFE/view?usp=drive_link"
         },
         {
@@ -77,7 +77,7 @@
         "inPossession": 4,
         "transitionPositive": 1,
         "possessionPositive": 3,
-        "videoLink": ""
+        "videoLink": "https://drive.google.com/file/d/1AHnV8Sl-hmo9f4FcSIxbRt9sLCBynjPv/view?usp=drive_link"
       },
       "finalThirdActions": {
         "total": 38,
@@ -88,7 +88,36 @@
         "passWithShotOpportunity": 1,
         "videoLink": ""
       },
-      "videos": []
+      "videos": [
+        {
+          "label": "Progressive plays in transition",
+          "url": "https://drive.google.com/file/d/1pYL9TwBpRazzfAQQ1cZQw4YT2SvKWJg3/view?usp=drive_link"
+        },
+        {
+          "label": "Progressive play in possession",
+          "url": "https://drive.google.com/file/d/1eiASHYsKSV1Zhpu7acL9U68Q4VImRPGn/view?usp=drive_link"
+        },
+        {
+          "label": "Progressive plays Final third",
+          "url": "https://drive.google.com/file/d/1-Ojxw5um7GEC-9eykGzqT5NmFdp4Hw-7/view?usp=drive_link"
+        },
+        {
+          "label": "Key passes",
+          "url": "https://drive.google.com/file/d/1KM7jx2Y0KgNOtgn3Uja62kLrXAFAVTaj/view?usp=drive_link"
+        },
+        {
+          "label": "Lost plays final third",
+          "url": "https://drive.google.com/file/d/1r5yfxknkUB_A-5t96kuthG2yOwADsqZj/view?usp=drive_link"
+        },
+        {
+          "label": "Carries",
+          "url": "https://drive.google.com/file/d/1AHnV8Sl-hmo9f4FcSIxbRt9sLCBynjPv/view?usp=drive_link"
+        },
+        {
+          "label": "Shots",
+          "url": "https://drive.google.com/file/d/1m_ed3fSWCT97MXqrEchfXA9aR5T7baIt/view?usp=drive_link"
+        }
+      ]
     }
   ]
 }

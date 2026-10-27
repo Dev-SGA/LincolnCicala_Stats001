@@ -223,7 +223,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
   const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
   const shotsClip = clipUrl(videos, "Shots");
-  const passShotClip = clipUrl(videos, "Passes with shot opportunity", "Pass with shot opportunity");
+  const keyPassesClip = clipUrl(videos, "Key passes", "Passes with shot opportunity", "Pass with shot opportunity");
 
   return (
     <article className="stats-pdf" aria-hidden="true">
@@ -367,14 +367,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   <tbody>
                     <tr>
                       <td className="spdf-threat-card__value">
-                        <PdfPlayTarget href={passShotClip}>{finalThirdActions.passWithShotOpportunity}</PdfPlayTarget>
+                        <PdfPlayTarget href={keyPassesClip}>{finalThirdActions.passWithShotOpportunity}</PdfPlayTarget>
                       </td>
                       <td className="spdf-threat-card__copy">
                         <span className="spdf-threat-card__label">
-                          <PdfPlayTarget href={passShotClip}>Pass with shot opportunity</PdfPlayTarget>
-                          <PdfPlay href={passShotClip} />
+                          <PdfPlayTarget href={keyPassesClip}>Key passes</PdfPlayTarget>
+                          <PdfPlay href={keyPassesClip} />
                         </span>
-                        <span className="spdf-threat-card__caption">Passes leading to a shot chance</span>
+                        <span className="spdf-threat-card__caption">Key passes in the final third</span>
                       </td>
                     </tr>
                   </tbody>
