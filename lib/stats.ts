@@ -31,6 +31,7 @@ export type MatchStats = {
   label: string;
   shortLabel: string;
   logo: string;
+  games?: number;
   carries: CarriesStats;
   finalThirdActions: FinalThirdActionsStats;
   videos?: { label: string; url: string }[];
@@ -58,6 +59,7 @@ export type GameStats = {
     subtitle: string;
     session: string;
     fileSlug?: string;
+    games?: number;
   };
   player: StatsReport["player"];
   match: {
@@ -73,12 +75,57 @@ export function getStatsReport(): StatsReport {
   return gameStats as StatsReport;
 }
 
+/** Average per recorded game, with one decimal when it is not a whole number. */
+export function perGame(total: number, games: number): string {
+  const value = games > 0 ? total / games : 0;
+  const rounded = Math.round(value * 10) / 10;
+  return rounded.toFixed(1).replace(/\.0$/, "");
+}
+
+/** Combined totals across every session match, with per-game averages in the UI. */
+export function seasonMatch(matches: MatchStats[]): MatchStats {
+  const sessions = matches.filter((match) => match.id !== "season");
+  const sumCarries = (pick: (c: CarriesStats) => number) =>
+    sessions.reduce((sum, match) => sum + pick(match.carries), 0);
+  const sumFinal = (pick: (f: FinalThirdActionsStats) => number) =>
+    sessions.reduce((sum, match) => sum + pick(match.finalThirdActions), 0);
+
+  return {
+    id: "season",
+    kind: "session",
+    label: "Season",
+    shortLabel: "Season",
+    logo: "",
+    games: sessions.length,
+    carries: {
+      total: sumCarries((c) => c.total),
+      inTransition: sumCarries((c) => c.inTransition),
+      inPossession: sumCarries((c) => c.inPossession),
+      transitionPositive: sumCarries((c) => c.transitionPositive),
+      possessionPositive: sumCarries((c) => c.possessionPositive),
+      videoLink: "",
+    },
+    finalThirdActions: {
+      total: sumFinal((f) => f.total),
+      positive: sumFinal((f) => f.positive),
+      neutral: sumFinal((f) => f.neutral),
+      lost: sumFinal((f) => f.lost),
+      shots: sumFinal((f) => f.shots),
+      passWithShotOpportunity: sumFinal((f) => f.passWithShotOpportunity),
+      videoLink: "",
+    },
+    videos: [],
+  };
+}
+
 export function toGameStats(report: StatsReport, match: MatchStats): GameStats {
+  const games = match.games ?? 1;
   return {
     meta: {
       ...report.meta,
       subtitle: match.label,
       fileSlug: `${report.meta.session}-${match.id}`,
+      games,
     },
     player: report.player,
     match: {

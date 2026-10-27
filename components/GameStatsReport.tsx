@@ -7,11 +7,15 @@ import { VideoLinksProvider } from "@/components/VideoLinksContext";
 import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
+import { CountLine } from "@/components/CountLine";
+import { SeasonSummaryCard } from "@/components/SeasonSummaryCard";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import {
   clipUrl,
   getFinalThirdBreakdown,
+  perGame,
+  seasonMatch,
   toGameStats,
   type GameStats,
   type MatchStats,
@@ -169,10 +173,12 @@ function ActionResultsMeter({
   title,
   breakdown,
   videos,
+  games,
 }: {
   title: string;
   breakdown: PlayResultBreakdown;
   videos?: GameStats["videos"];
+  games?: number;
 }) {
   const total = breakdown.positive + breakdown.neutral + breakdown.lost;
   const positivePct = percent(breakdown.positive, total);
@@ -184,7 +190,7 @@ function ActionResultsMeter({
   return (
     <div className="metric-card">
       <h3 className="metric-card__title">{title}</h3>
-      <p className="metric-card__headline">{total} actions</p>
+      <CountLine value={total} unit="actions" games={games} className="metric-card__headline" />
       <div
         className="meter"
         role="img"
@@ -227,12 +233,14 @@ function PositiveCarryStat({
   total,
   pctTone,
   titleHref,
+  games,
 }: {
   label: string;
   positive: number;
   total: number;
   pctTone: "transition" | "possession";
   titleHref?: string;
+  games?: number;
 }) {
   const pctLabel = `${percent(positive, total)}% progressive play`;
 
@@ -266,6 +274,11 @@ function PositiveCarryStat({
       >
         {pctLabel}
       </span>
+      {games && games > 1 ? (
+        <p className="metric-card__caption metric-card__caption--season">
+          {perGame(total, games)} carries avg · {perGame(positive, games)} progressive avg per game
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -273,23 +286,34 @@ function PositiveCarryStat({
 function CountStat({
   label,
   value,
+  unit,
   caption,
   highlight,
   titleHref,
+  games,
 }: {
   label: string;
   value: number;
+  unit?: string;
   caption: string;
   highlight?: boolean;
   titleHref?: string;
+  games?: number;
 }) {
+  const seasonCaption =
+    games && games > 1 ? `${caption} · ${games} matches combined` : caption;
+
   return (
     <div className={`metric-card metric-card--compact${highlight ? " metric-card--highlight" : ""}`}>
       <ClipMetricTitle label={label} href={titleHref} />
-      <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel={`Open video: ${label}`}>
-        {value}
-      </ClipAnchor>
-      <p className="metric-card__caption">{caption}</p>
+      {games && games > 1 ? (
+        <CountLine value={value} unit={unit ?? ""} games={games} className="metric-card__count-line" />
+      ) : (
+        <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel={`Open video: ${label}`}>
+          {value}
+        </ClipAnchor>
+      )}
+      <p className="metric-card__caption">{seasonCaption}</p>
     </div>
   );
 }
@@ -348,8 +372,9 @@ function MatchSwitcher({
   );
 }
 
-function buildTopics(stats: GameStats): Topic[] {
-  const { carries, finalThirdActions, videos } = stats;
+function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
+  const { carries, finalThirdActions, videos, meta } = stats;
+  const games = meta.games;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
   const carriesClip = clipUrl(videos, "Carries");
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
@@ -357,7 +382,18 @@ function buildTopics(stats: GameStats): Topic[] {
   const shotsClip = clipUrl(videos, "Shots");
   const passShotClip = clipUrl(videos, "Passes with shot opportunity", "Pass with shot opportunity");
 
-  return [
+  const topics: Topic[] = [];
+
+  if (isSeason && games && games > 1) {
+    topics.push({
+      id: "season",
+      title: "Season",
+      phase: "stats",
+      content: <SeasonSummaryCard stats={stats} games={games} />,
+    });
+  }
+
+  topics.push(
     {
       id: "carries",
       title: "Carries",
@@ -369,10 +405,16 @@ function buildTopics(stats: GameStats): Topic[] {
             items={[
               <div key="total" className="metric-card metric-card--hero metric-card--compact">
                 <ClipMetricTitle label="Total carries" href={carriesClip} />
-                <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
-                  {carries.total}
-                </ClipAnchor>
-                <p className="metric-card__caption">Carries tracked in the match</p>
+                {games && games > 1 ? (
+                  <CountLine value={carries.total} unit="carries" games={games} className="metric-card__count-line" />
+                ) : (
+                  <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
+                    {carries.total}
+                  </ClipAnchor>
+                )}
+                <p className="metric-card__caption">
+                  {games && games > 1 ? `Carries tracked across ${games} matches` : "Carries tracked in the match"}
+                </p>
               </div>,
               <SplitMeter
                 key="split"
@@ -407,6 +449,7 @@ function buildTopics(stats: GameStats): Topic[] {
               total={carries.inTransition}
               pctTone="transition"
               titleHref={transitionClip}
+              games={games}
             />,
             <PositiveCarryStat
               key="possession"
@@ -415,6 +458,7 @@ function buildTopics(stats: GameStats): Topic[] {
               total={carries.inPossession}
               pctTone="possession"
               titleHref={possessionClip}
+              games={games}
             />,
           ]}
         />
@@ -428,43 +472,55 @@ function buildTopics(stats: GameStats): Topic[] {
         <>
           <div className="metric-card metric-card--hero metric-card--compact">
             <h3 className="metric-card__title">Total final third actions</h3>
-            <span className="metric-card__value">{finalThirdActions.total}</span>
+            {games && games > 1 ? (
+              <CountLine value={finalThirdActions.total} unit="actions" games={games} className="metric-card__count-line" />
+            ) : (
+              <span className="metric-card__value">{finalThirdActions.total}</span>
+            )}
             <p className="metric-card__caption">Actions in the final third</p>
           </div>
-          <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
+          <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} games={games} />
           <MetricFlow
             items={[
               <CountStat
                 key="shots"
                 label="Shots"
                 value={finalThirdActions.shots}
+                unit="shots"
                 caption="Shots taken"
                 highlight
                 titleHref={shotsClip}
+                games={games}
               />,
               <CountStat
                 key="pass-shot"
                 label="Pass with shot opportunity"
                 value={finalThirdActions.passWithShotOpportunity}
+                unit="passes"
                 caption="Passes leading to a shot chance"
                 highlight
                 titleHref={passShotClip}
+                games={games}
               />,
             ]}
           />
         </>
       ),
     },
-  ];
+  );
+
+  return topics;
 }
 
 export function GameStatsReport({ report }: GameStatsReportProps) {
   const { player, meta, matches } = report;
+  const options = useMemo(() => [...matches, seasonMatch(matches)], [matches]);
   const initialMatchId = matches[0]?.id ?? "";
   const [matchId, setMatchId] = useState(initialMatchId);
-  const activeMatch = matches.find((match) => match.id === matchId) ?? matches[0];
+  const activeMatch = options.find((match) => match.id === matchId) ?? options[0];
   const stats = useMemo(() => (activeMatch ? toGameStats(report, activeMatch) : null), [report, activeMatch]);
-  const topics = useMemo(() => (stats ? buildTopics(stats) : []), [stats]);
+  const isSeason = activeMatch?.id === "season";
+  const topics = useMemo(() => (stats ? buildTopics(stats, isSeason) : []), [stats, isSeason]);
 
   if (!stats || !activeMatch) {
     return null;
@@ -501,7 +557,7 @@ export function GameStatsReport({ report }: GameStatsReportProps) {
 
           <main className="report-main">
             <div className="view-panel">
-              <MatchSwitcher matches={matches} activeId={activeMatch.id} onChange={setMatchId} />
+              <MatchSwitcher matches={options} activeId={activeMatch.id} onChange={setMatchId} />
               <TopicsBoard topics={topics} />
             </div>
           </main>
