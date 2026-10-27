@@ -20,7 +20,7 @@ const PLAY_TIPS = {
   progressive:
     "Progressive Play — An action that progresses the attack, creates a scoring opportunity, or breaks defensive lines in the final third.",
   neutral:
-    "Neutral Play — An action that maintains possession or position without a clear opportunity to threaten the goal.",
+    "Other — Finding a teammate without a clear opportunity to progress the ball, but with a clear option to maintain possession.",
   lost: "Lost Play — Losing possession or failing to advance through an inaccurate action or immediate pressure.",
 } as const;
 
@@ -179,7 +179,7 @@ function ActionResultsMeter({
       <div
         className="meter"
         role="img"
-        aria-label={`Progressive: ${breakdown.positive}. Neutral: ${breakdown.neutral}. Lost: ${breakdown.lost}.`}
+        aria-label={`Progressive: ${breakdown.positive}. Other: ${breakdown.neutral}. Lost: ${breakdown.lost}.`}
       >
         <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${positivePct}%` }} />
         <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
@@ -195,7 +195,7 @@ function ActionResultsMeter({
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-neutral" />
-          <PlayTip label="Neutral plays" tip={PLAY_TIPS.neutral} />
+          <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
           <strong>
             {breakdown.neutral} · {neutralPct}%
           </strong>
@@ -286,7 +286,7 @@ function CountStat({
 }
 
 export function GameStatsReport({ stats }: GameStatsReportProps) {
-  const { player, carries, finalThirdActions, meta, videos } = stats;
+  const { player, carries, finalThirdActions, meta, match, videos } = stats;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
   const carriesClip = clipUrl(videos, "Carries");
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
@@ -407,7 +407,13 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           <div className="report-header__intro">
             <p className="report-header__eyebrow">{BRAND.legal}</p>
             <h1 className="report-header__title">{meta.title}</h1>
-            <p className="report-header__meta">{meta.subtitle}</p>
+            <p className="report-header__meta">
+              {match.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={match.logo} alt="" className="club-logo club-logo--meta" />
+              ) : null}
+              {match.label}
+            </p>
           </div>
         </header>
 

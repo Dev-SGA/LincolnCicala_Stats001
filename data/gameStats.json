@@ -10,6 +10,10 @@
     "clubLogo": "/clubs/fc-cincinnati.png",
     "photo": "/player/lincoln-cicala.png"
   },
+  "match": {
+    "label": "vs Club Ohio Soccer",
+    "logo": "/clubs/club-ohio.png"
+  },
   "carries": {
     "total": 8,
     "inTransition": 5,

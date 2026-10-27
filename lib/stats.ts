@@ -18,6 +18,10 @@ export type GameStats = {
     clubLogo: string;
     photo: string;
   };
+  match: {
+    label: string;
+    logo: string;
+  };
   carries: {
     total: number;
     inTransition: number;

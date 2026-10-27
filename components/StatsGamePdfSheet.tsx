@@ -6,6 +6,7 @@ type StatsGamePdfSheetProps = {
   photoUrl: string;
   logoUrl: string;
   clubLogoUrl: string;
+  opponentLogoUrl: string;
 };
 
 function PdfPlay({ href }: { href?: string }) {
@@ -111,7 +112,7 @@ function ActionResultPanel({
         </li>
         <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
-          <span className="spdf-pass-panel__legend-label">Neutral</span>
+          <span className="spdf-pass-panel__legend-label">Other</span>
           <strong>
             {breakdown.neutral} · {pct(breakdown.neutral, total)}%
           </strong>
@@ -215,8 +216,8 @@ function PdfSection({
   );
 }
 
-export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: StatsGamePdfSheetProps) {
-  const { player, meta, carries, finalThirdActions, videos } = stats;
+export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl }: StatsGamePdfSheetProps) {
+  const { player, meta, match, carries, finalThirdActions, videos } = stats;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
   const carriesClip = clipUrl(videos, "Carries");
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
@@ -251,7 +252,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl }: Sta
             <h1 className="spdf-head__title">{meta.title}</h1>
           </div>
           <div className="spdf-head__meta">
-            <span>{meta.subtitle}</span>
+            <span className="spdf-head__match">
+              {opponentLogoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={opponentLogoUrl} alt="" className="spdf-head__logo" />
+              ) : null}
+              {match.label}
+            </span>
           </div>
         </header>
 

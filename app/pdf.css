@@ -216,6 +216,18 @@
   color: #6b8192;
 }
 
+.spdf-head__match {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spdf-head__logo {
+  display: block;
+  width: auto;
+  height: 34px;
+}
+
 .spdf-stack {
   display: flex;
   flex-direction: column;
