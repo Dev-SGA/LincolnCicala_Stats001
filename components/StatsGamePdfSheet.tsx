@@ -80,8 +80,8 @@ function ActionResultPanel({
   const total = breakdown.positive + breakdown.neutral + breakdown.lost;
   const segments = [
     { value: breakdown.positive, tone: "pass-progressive" as const },
-    { value: breakdown.neutral, tone: "pass-neutral" as const },
     { value: breakdown.lost, tone: "pass-lost" as const },
+    { value: breakdown.neutral, tone: "pass-neutral" as const },
   ];
 
   return (
@@ -111,18 +111,18 @@ function ActionResultPanel({
           </strong>
         </li>
         <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
-          <span className="spdf-pass-panel__legend-label">Other</span>
-          <strong>
-            {breakdown.neutral} · {pct(breakdown.neutral, total)}%
-          </strong>
-        </li>
-        <li>
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
           <span className="spdf-pass-panel__legend-label">Lost</span>
           <strong>
             {breakdown.lost} · {pct(breakdown.lost, total)}%
             <PdfPlay href={lostHref} />
+          </strong>
+        </li>
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
+          <span className="spdf-pass-panel__legend-label">Other</span>
+          <strong>
+            {breakdown.neutral} · {pct(breakdown.neutral, total)}%
           </strong>
         </li>
       </ul>

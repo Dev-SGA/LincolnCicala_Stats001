@@ -179,11 +179,11 @@ function ActionResultsMeter({
       <div
         className="meter"
         role="img"
-        aria-label={`Progressive: ${breakdown.positive}. Other: ${breakdown.neutral}. Lost: ${breakdown.lost}.`}
+        aria-label={`Progressive: ${breakdown.positive}. Lost: ${breakdown.lost}. Other: ${breakdown.neutral}.`}
       >
         <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${positivePct}%` }} />
-        <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
         <span className="meter__seg meter__seg--pass-lost" style={{ width: `${lostPct}%` }} />
+        <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
       </div>
       <ul className="legend">
         <li>
@@ -194,18 +194,18 @@ function ActionResultsMeter({
           </ClipAnchor>
         </li>
         <li>
-          <span className="legend__dot legend__dot--pass-neutral" />
-          <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
-          <strong>
-            {breakdown.neutral} · {neutralPct}%
-          </strong>
-        </li>
-        <li>
           <span className="legend__dot legend__dot--pass-lost" />
           <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />
           <ClipAnchor href={lostHref} className="legend__clip-stat" ariaLabel="Open video: Lost plays">
             {breakdown.lost} · {lostPct}%
           </ClipAnchor>
+        </li>
+        <li>
+          <span className="legend__dot legend__dot--pass-neutral" />
+          <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
+          <strong>
+            {breakdown.neutral} · {neutralPct}%
+          </strong>
         </li>
       </ul>
     </div>
