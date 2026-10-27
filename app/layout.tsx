@@ -4,7 +4,7 @@ import "./pdf.css";
 
 export const metadata: Metadata = {
   title: "Lincoln Cicala — Game Stats | SGA Performance",
-  description: "Individual match statistics for Lincoln Cicala (FC Cincinnati) vs Club Ohio Soccer.",
+  description: "Individual match statistics for Lincoln Cicala (FC Cincinnati) vs Club Ohio and St. Louis City.",
 };
 
 export const viewport = {

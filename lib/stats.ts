@@ -6,7 +6,37 @@ export type PlayResultBreakdown = {
   lost: number;
 };
 
-export type GameStats = {
+export type CarriesStats = {
+  total: number;
+  inTransition: number;
+  inPossession: number;
+  transitionPositive: number;
+  possessionPositive: number;
+  videoLink: string;
+};
+
+export type FinalThirdActionsStats = {
+  total: number;
+  positive: number;
+  neutral: number;
+  lost: number;
+  shots: number;
+  passWithShotOpportunity: number;
+  videoLink: string;
+};
+
+export type MatchStats = {
+  id: string;
+  kind: "session";
+  label: string;
+  shortLabel: string;
+  logo: string;
+  carries: CarriesStats;
+  finalThirdActions: FinalThirdActionsStats;
+  videos?: { label: string; url: string }[];
+};
+
+export type StatsReport = {
   meta: {
     title: string;
     subtitle: string;
@@ -18,32 +48,47 @@ export type GameStats = {
     clubLogo: string;
     photo: string;
   };
+  matches: MatchStats[];
+};
+
+/** Shape consumed by the report UI and PDF export for one match. */
+export type GameStats = {
+  meta: {
+    title: string;
+    subtitle: string;
+    session: string;
+    fileSlug?: string;
+  };
+  player: StatsReport["player"];
   match: {
     label: string;
     logo: string;
   };
-  carries: {
-    total: number;
-    inTransition: number;
-    inPossession: number;
-    transitionPositive: number;
-    possessionPositive: number;
-    videoLink: string;
-  };
-  finalThirdActions: {
-    total: number;
-    positive: number;
-    neutral: number;
-    lost: number;
-    shots: number;
-    passWithShotOpportunity: number;
-    videoLink: string;
-  };
+  carries: CarriesStats;
+  finalThirdActions: FinalThirdActionsStats;
   videos?: { label: string; url: string }[];
 };
 
-export function getGameStats(): GameStats {
-  return gameStats as GameStats;
+export function getStatsReport(): StatsReport {
+  return gameStats as StatsReport;
+}
+
+export function toGameStats(report: StatsReport, match: MatchStats): GameStats {
+  return {
+    meta: {
+      ...report.meta,
+      subtitle: match.label,
+      fileSlug: `${report.meta.session}-${match.id}`,
+    },
+    player: report.player,
+    match: {
+      label: match.label,
+      logo: match.logo,
+    },
+    carries: match.carries,
+    finalThirdActions: match.finalThirdActions,
+    videos: match.videos,
+  };
 }
 
 export function clipUrl(videos: { label: string; url: string }[] | undefined, ...aliases: string[]): string | undefined {

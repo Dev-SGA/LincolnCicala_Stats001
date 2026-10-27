@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { AthleteProfileCard } from "@/components/AthleteProfileCard";
 import { ExportPdfButton } from "@/components/ExportPdfButton";
 import { VideoLinksProvider } from "@/components/VideoLinksContext";
@@ -8,10 +9,18 @@ import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
-import { clipUrl, getFinalThirdBreakdown, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
+import {
+  clipUrl,
+  getFinalThirdBreakdown,
+  toGameStats,
+  type GameStats,
+  type MatchStats,
+  type PlayResultBreakdown,
+  type StatsReport,
+} from "@/lib/stats";
 
 type GameStatsReportProps = {
-  stats: GameStats;
+  report: StatsReport;
 };
 
 type BarTone = "accent" | "positive" | "negative" | "muted" | "warn";
@@ -285,8 +294,62 @@ function CountStat({
   );
 }
 
-export function GameStatsReport({ stats }: GameStatsReportProps) {
-  const { player, carries, finalThirdActions, meta, match, videos } = stats;
+function MatchSwitcher({
+  matches,
+  activeId,
+  onChange,
+}: {
+  matches: MatchStats[];
+  activeId: string;
+  onChange: (id: string) => void;
+}) {
+  const index = matches.findIndex((match) => match.id === activeId);
+
+  return (
+    <div className="match-nav">
+      <div className="match-nav__session" role="group" aria-label="Matches">
+        <button
+          type="button"
+          className="match-nav__arrow"
+          onClick={() => onChange(matches[index - 1].id)}
+          disabled={index <= 0}
+          aria-label="Previous match"
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        <div className="match-nav__pills">
+          {matches.map((match) => (
+            <button
+              key={match.id}
+              type="button"
+              className={`match-nav__pill${match.id === activeId ? " is-active" : ""}`}
+              aria-pressed={match.id === activeId}
+              onClick={() => onChange(match.id)}
+            >
+              {match.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={match.logo} alt="" className="club-logo club-logo--pill" />
+              ) : null}
+              {match.shortLabel}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="match-nav__arrow"
+          onClick={() => onChange(matches[index + 1].id)}
+          disabled={index < 0 || index === matches.length - 1}
+          aria-label="Next match"
+        >
+          <span aria-hidden="true">›</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function buildTopics(stats: GameStats): Topic[] {
+  const { carries, finalThirdActions, videos } = stats;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
   const carriesClip = clipUrl(videos, "Carries");
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
@@ -294,7 +357,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
   const shotsClip = clipUrl(videos, "Shots");
   const passShotClip = clipUrl(videos, "Passes with shot opportunity", "Pass with shot opportunity");
 
-  const topics: Topic[] = [
+  return [
     {
       id: "carries",
       title: "Carries",
@@ -393,11 +456,25 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
       ),
     },
   ];
+}
+
+export function GameStatsReport({ report }: GameStatsReportProps) {
+  const { player, meta, matches } = report;
+  const initialMatchId = matches[0]?.id ?? "";
+  const [matchId, setMatchId] = useState(initialMatchId);
+  const activeMatch = matches.find((match) => match.id === matchId) ?? matches[0];
+  const stats = useMemo(() => (activeMatch ? toGameStats(report, activeMatch) : null), [report, activeMatch]);
+  const topics = useMemo(() => (stats ? buildTopics(stats) : []), [stats]);
+
+  if (!stats || !activeMatch) {
+    return null;
+  }
 
   return (
     <VideoLinksProvider
-      initialCarriesVideoLink={carries.videoLink}
-      initialFinalThirdActionsVideoLink={finalThirdActions.videoLink}
+      key={activeMatch.id}
+      initialCarriesVideoLink={activeMatch.carries.videoLink}
+      initialFinalThirdActionsVideoLink={activeMatch.finalThirdActions.videoLink}
     >
       <SgaCornerBrand />
 
@@ -408,11 +485,11 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             <p className="report-header__eyebrow">{BRAND.legal}</p>
             <h1 className="report-header__title">{meta.title}</h1>
             <p className="report-header__meta">
-              {match.logo ? (
+              {stats.match.logo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={match.logo} alt="" className="club-logo club-logo--meta" />
+                <img src={stats.match.logo} alt="" className="club-logo club-logo--meta" />
               ) : null}
-              {match.label}
+              {stats.match.label}
             </p>
           </div>
         </header>
@@ -423,7 +500,10 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           </AthleteProfileCard>
 
           <main className="report-main">
-            <TopicsBoard topics={topics} />
+            <div className="view-panel">
+              <MatchSwitcher matches={matches} activeId={activeMatch.id} onChange={setMatchId} />
+              <TopicsBoard topics={topics} />
+            </div>
           </main>
         </div>
 
