@@ -5,7 +5,7 @@ import { formatCount } from "@/lib/stats";
 
 const CountDecimalsContext = createContext(false);
 
-/** Per-game Season numbers always show two decimals. */
+/** Per-game Season numbers always show one decimal. */
 export const CountDecimalsProvider = CountDecimalsContext.Provider;
 
 export function useFormatCount(): (value: number) => string {
