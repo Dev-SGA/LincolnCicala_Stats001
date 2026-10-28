@@ -7,14 +7,13 @@ import { VideoLinksProvider } from "@/components/VideoLinksContext";
 import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
-import { CountLine } from "@/components/CountLine";
+import { AvgPill, CountLine } from "@/components/CountLine";
 import { SeasonSummaryCard } from "@/components/SeasonSummaryCard";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import {
   clipUrl,
   getFinalThirdBreakdown,
-  perGame,
   seasonMatch,
   toGameStats,
   type GameStats,
@@ -186,6 +185,7 @@ function ActionResultsMeter({
   const lostPct = percent(breakdown.lost, total);
   const progressiveHref = clipUrl(videos, "Progressive plays Final third", "Progressive plays final third");
   const lostHref = clipUrl(videos, "Lost plays final third", "Lost plays Final third");
+  const isSeason = Boolean(games && games > 1);
 
   return (
     <div className="metric-card">
@@ -200,10 +200,11 @@ function ActionResultsMeter({
         <span className="meter__seg meter__seg--pass-lost" style={{ width: `${lostPct}%` }} />
         <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
       </div>
-      <ul className="legend">
+      <ul className={`legend${isSeason ? " legend--season" : ""}`}>
         <li>
           <span className="legend__dot legend__dot--pass-progressive" />
           <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} href={progressiveHref} />
+          {isSeason && games ? <AvgPill value={breakdown.positive} games={games} className="avg-pill--legend" label="/ game" /> : null}
           <ClipAnchor href={progressiveHref} className="legend__clip-stat" ariaLabel="Open video: Progressive plays">
             {breakdown.positive} · {positivePct}%
           </ClipAnchor>
@@ -211,6 +212,7 @@ function ActionResultsMeter({
         <li>
           <span className="legend__dot legend__dot--pass-lost" />
           <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />
+          {isSeason && games ? <AvgPill value={breakdown.lost} games={games} className="avg-pill--legend" label="/ game" /> : null}
           <ClipAnchor href={lostHref} className="legend__clip-stat" ariaLabel="Open video: Lost plays">
             {breakdown.lost} · {lostPct}%
           </ClipAnchor>
@@ -218,6 +220,7 @@ function ActionResultsMeter({
         <li>
           <span className="legend__dot legend__dot--pass-neutral" />
           <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
+          {isSeason && games ? <AvgPill value={breakdown.neutral} games={games} className="avg-pill--legend" label="/ game" /> : null}
           <strong>
             {breakdown.neutral} · {neutralPct}%
           </strong>
@@ -243,6 +246,7 @@ function PositiveCarryStat({
   games?: number;
 }) {
   const pctLabel = `${percent(positive, total)}% progressive play`;
+  const isSeason = Boolean(games && games > 1);
 
   return (
     <div className="metric-card">
@@ -251,6 +255,7 @@ function PositiveCarryStat({
         <div className="carry-result__figure">
           <span className="metric-card__value">{total}</span>
           <span className="carry-result__label">Total</span>
+          {isSeason && games ? <AvgPill value={total} games={games} /> : null}
         </div>
         {titleHref ? (
           <ClipAnchor href={titleHref} className="carry-result__figure carry-result__figure--clip" ariaLabel={`Open video: ${label} progressive play`}>
@@ -258,6 +263,7 @@ function PositiveCarryStat({
               {positive}
             </span>
             <span className="carry-result__label carry-result__label--clip">Progressive play</span>
+            {isSeason && games ? <AvgPill value={positive} games={games} /> : null}
           </ClipAnchor>
         ) : (
           <div className="carry-result__figure">
@@ -265,6 +271,7 @@ function PositiveCarryStat({
               {positive}
             </span>
             <span className="carry-result__label">Progressive play</span>
+            {isSeason && games ? <AvgPill value={positive} games={games} /> : null}
           </div>
         )}
       </div>
@@ -274,11 +281,6 @@ function PositiveCarryStat({
       >
         {pctLabel}
       </span>
-      {games && games > 1 ? (
-        <p className="metric-card__caption metric-card__caption--season">
-          {perGame(total, games)} carries avg · {perGame(positive, games)} progressive avg per game
-        </p>
-      ) : null}
     </div>
   );
 }
@@ -406,7 +408,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
               <div key="total" className="metric-card metric-card--hero metric-card--compact">
                 <ClipMetricTitle label="Total carries" href={carriesClip} />
                 {games && games > 1 ? (
-                  <CountLine value={carries.total} unit="carries" games={games} className="metric-card__count-line" />
+                  <CountLine value={carries.total} unit="carries" games={games} size="hero" className="metric-card__count-line" />
                 ) : (
                   <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
                     {carries.total}
@@ -473,7 +475,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
           <div className="metric-card metric-card--hero metric-card--compact">
             <h3 className="metric-card__title">Total final third actions</h3>
             {games && games > 1 ? (
-              <CountLine value={finalThirdActions.total} unit="actions" games={games} className="metric-card__count-line" />
+              <CountLine value={finalThirdActions.total} unit="actions" games={games} size="hero" className="metric-card__count-line" />
             ) : (
               <span className="metric-card__value">{finalThirdActions.total}</span>
             )}

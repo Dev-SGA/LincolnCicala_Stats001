@@ -804,82 +804,325 @@ body::before {
 }
 
 .metric-card__count-line {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
 }
+
+/* ---------- Season figures ---------- */
 
 .count-line {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 10px;
+  align-items: flex-end;
+  gap: 8px 14px;
   margin: 0;
 }
 
-.count-line--single .count-line__main {
-  font-size: inherit;
+.count-line__total {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
 }
 
-.count-line__main {
-  font-size: 22px;
+.count-line__value {
+  font-size: 52px;
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
 
-.count-line__sep {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-faint);
+.count-line--compact .count-line__value {
+  font-size: 36px;
 }
 
-.count-line__avg {
-  font-size: 14px;
+.count-line__unit {
+  font-size: 12px;
   font-weight: 700;
-  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.count-line--single .count-line__value {
+  font-size: 56px;
+}
+
+.count-line.metric-card__headline {
+  margin-bottom: 14px;
+}
+
+.count-line.metric-card__headline .count-line__value {
+  font-size: 32px;
+}
+
+.avg-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 10px 4px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--tone-accent) 42%, transparent);
+  background: color-mix(in srgb, var(--tone-accent) 16%, transparent);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.count-line .avg-pill {
+  margin-bottom: 3px;
+}
+
+.avg-pill__value {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: color-mix(in srgb, var(--sga-white) 88%, var(--tone-accent));
   font-variant-numeric: tabular-nums;
 }
 
+.avg-pill__label {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tone-accent);
+}
+
+.avg-pill--mini,
+.avg-pill--legend {
+  padding: 3px 8px 2px;
+  gap: 4px;
+}
+
+.avg-pill--mini .avg-pill__value,
+.avg-pill--legend .avg-pill__value {
+  font-size: 13px;
+}
+
+.avg-pill--mini .avg-pill__label,
+.avg-pill--legend .avg-pill__label {
+  font-size: 8.5px;
+}
+
+.carry-result__figure .avg-pill {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.legend.legend--season li {
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+}
+
+.legend.legend--season .avg-pill--legend {
+  justify-self: end;
+}
+
+.legend.legend--season .legend__clip-stat,
+.legend.legend--season strong {
+  min-width: 64px;
+  margin-left: 0;
+  white-space: nowrap;
+}
+
+/* Season summary card */
+
 .season-card__head {
-  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.season-card__head .metric-card__title {
+  margin-bottom: 4px;
 }
 
 .season-card__meta {
-  margin: 6px 0 0;
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
+}
+
+.season-card__games {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--sga-blue) 18%, transparent);
+  white-space: nowrap;
+}
+
+.season-card__games-value {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.season-card__games-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.season-card__primary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .season-card__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px 20px;
+  gap: 12px;
+}
+
+.season-card__grid + .season-card__grid {
+  margin-top: 12px;
+}
+
+.season-card__grid--outcomes {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.season-stat {
+  min-width: 0;
+}
+
+.season-stat {
+  position: relative;
+  padding: 14px 16px 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--sga-white) 4%, transparent);
+  overflow: hidden;
+}
+
+.season-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--tone-accent);
+  opacity: 0.75;
+}
+
+.season-stat--primary {
+  padding: 18px 20px 18px 22px;
+  border-color: color-mix(in srgb, var(--tone-accent) 45%, var(--line));
+  background:
+    radial-gradient(360px 120px at 100% 0%, color-mix(in srgb, var(--sga-blue) 26%, transparent), transparent 70%),
+    color-mix(in srgb, var(--sga-blue) 10%, var(--surface-sunken));
+}
+
+.season-stat--positive::before {
+  background: var(--tone-positive);
+}
+
+.season-stat--negative::before {
+  background: var(--tone-negative);
+}
+
+.season-stat--muted::before {
+  background: color-mix(in srgb, var(--sga-white) 45%, transparent);
+}
+
+.season-stat--positive .count-line__value {
+  color: var(--tone-positive);
+}
+
+.season-stat--negative .count-line__value {
+  color: var(--tone-negative);
 }
 
 .season-stat__label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
-.season-stat__count .count-line__main {
-  font-size: 20px;
+.season-stat--primary .season-stat__label {
+  color: var(--tone-accent);
+  font-size: 12px;
 }
 
-.season-card__carry-note {
-  margin: 18px 0 0;
+.season-stat__count {
+  row-gap: 6px;
+}
+
+.season-stat--primary .count-line__value {
+  font-size: 56px;
+}
+
+.season-card__breakdown {
+  margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
-  font-size: 13px;
-  line-height: 1.5;
+}
+
+.season-card__breakdown-title {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.season-card__breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px 0;
+}
+
+.season-mini {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 5px;
+  align-items: center;
+  padding: 4px 20px;
+  border-left: 1px solid var(--line);
+}
+
+.season-mini:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.season-mini__value {
+  grid-row: 1 / span 2;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.season-mini__label {
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.season-mini .avg-pill {
+  justify-self: start;
 }
 
 .share-list {
