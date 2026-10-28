@@ -1,4 +1,4 @@
-import { formatCount } from "@/lib/stats";
+import { useFormatCount } from "@/components/CountFormat";
 
 type CountLineProps = {
   value: number;
@@ -10,12 +10,13 @@ type CountLineProps = {
 
 /** Season readout: big figure with its unit label. */
 export function CountLine({ value, unit, className, size = "compact" }: CountLineProps) {
+  const fmt = useFormatCount();
   const classes = ["count-line", `count-line--${size}`, "count-line--single", className ?? ""].filter(Boolean).join(" ");
 
   return (
     <div className={classes}>
       <div className="count-line__total">
-        <span className="count-line__value">{formatCount(value)}</span>
+        <span className="count-line__value">{fmt(value)}</span>
         <span className="count-line__unit">{unit}</span>
       </div>
     </div>

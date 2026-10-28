@@ -121,8 +121,9 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
   };
 }
 
-/** Whole numbers stay as they are; averages show one decimal. */
-export function formatCount(value: number): string {
+/** Whole numbers stay as they are; averages show one decimal, or always two when `fixed` (per-game Season). */
+export function formatCount(value: number, fixed = false): string {
+  if (fixed) return value.toFixed(2);
   if (Number.isInteger(value)) return String(value);
   return (Math.round(value * 10) / 10).toFixed(1).replace(/\.0$/, "");
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
+import { CountDecimalsProvider } from "@/components/CountFormat";
 import { StatsGamePdfSheet } from "@/components/StatsGamePdfSheet";
 import { useVideoLinks } from "@/components/VideoLinksContext";
 import { BRAND } from "@/lib/brand";
@@ -31,13 +32,15 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
 
     try {
       root.render(
-        <StatsGamePdfSheet
-          stats={exportStats}
-          photoUrl={`${origin}${stats.player.photo}`}
-          logoUrl={`${origin}${BRAND.logoTrimmed}`}
-          clubLogoUrl={`${origin}${stats.player.clubLogo}`}
-          opponentLogoUrl={stats.match.logo ? `${origin}${stats.match.logo}` : ""}
-        />,
+        <CountDecimalsProvider value={Boolean(stats.meta.perGame)}>
+          <StatsGamePdfSheet
+            stats={exportStats}
+            photoUrl={`${origin}${stats.player.photo}`}
+            logoUrl={`${origin}${BRAND.logoTrimmed}`}
+            clubLogoUrl={`${origin}${stats.player.clubLogo}`}
+            opponentLogoUrl={stats.match.logo ? `${origin}${stats.match.logo}` : ""}
+          />
+        </CountDecimalsProvider>,
       );
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));

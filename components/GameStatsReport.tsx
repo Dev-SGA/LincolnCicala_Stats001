@@ -8,7 +8,7 @@ import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { CountLine } from "@/components/CountLine";
-import { SeasonSummaryCard } from "@/components/SeasonSummaryCard";
+import { CountDecimalsProvider, useFormatCount } from "@/components/CountFormat";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import {
@@ -139,6 +139,7 @@ function SplitMeter({
   primaryHref?: string;
   secondaryHref?: string;
 }) {
+  const fmt = useFormatCount();
   const total = primary + secondary;
   const primaryPct = percent(primary, total);
 
@@ -155,14 +156,14 @@ function SplitMeter({
           <span className={`legend__dot legend__dot--${primaryTone}`} />
           <ClipLegendLabel label={primaryLabel} href={primaryHref} />
           <strong>
-            {formatCount(primary)} · {percent(primary, total)}%
+            {fmt(primary)} · {percent(primary, total)}%
           </strong>
         </li>
         <li>
           <span className={`legend__dot legend__dot--${secondaryTone}`} />
           <ClipLegendLabel label={secondaryLabel} href={secondaryHref} />
           <strong>
-            {formatCount(secondary)} · {percent(secondary, total)}%
+            {fmt(secondary)} · {percent(secondary, total)}%
           </strong>
         </li>
       </ul>
@@ -181,6 +182,7 @@ function ActionResultsMeter({
   videos?: GameStats["videos"];
   games?: number;
 }) {
+  const fmt = useFormatCount();
   const total = breakdown.positive + breakdown.neutral + breakdown.lost;
   const positivePct = percent(breakdown.positive, total);
   const neutralPct = percent(breakdown.neutral, total);
@@ -206,21 +208,21 @@ function ActionResultsMeter({
           <span className="legend__dot legend__dot--pass-progressive" />
           <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} href={progressiveHref} />
           <ClipAnchor href={progressiveHref} className="legend__clip-stat" ariaLabel="Open video: Progressive plays">
-            {formatCount(breakdown.positive)} · {positivePct}%
+            {fmt(breakdown.positive)} · {positivePct}%
           </ClipAnchor>
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-lost" />
           <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />
           <ClipAnchor href={lostHref} className="legend__clip-stat" ariaLabel="Open video: Lost plays">
-            {formatCount(breakdown.lost)} · {lostPct}%
+            {fmt(breakdown.lost)} · {lostPct}%
           </ClipAnchor>
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-neutral" />
           <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
           <strong>
-            {formatCount(breakdown.neutral)} · {neutralPct}%
+            {fmt(breakdown.neutral)} · {neutralPct}%
           </strong>
         </li>
       </ul>
@@ -243,6 +245,7 @@ function PositiveCarryStat({
   titleHref?: string;
   games?: number;
 }) {
+  const fmt = useFormatCount();
   const pctLabel = `${percent(positive, total)}% progressive play`;
 
   return (
@@ -250,20 +253,20 @@ function PositiveCarryStat({
       <ClipMetricTitle label={label} href={titleHref} />
       <div className="carry-result">
         <div className="carry-result__figure">
-          <span className="metric-card__value">{formatCount(total)}</span>
+          <span className="metric-card__value">{fmt(total)}</span>
           <span className="carry-result__label">Total</span>
         </div>
         {titleHref ? (
           <ClipAnchor href={titleHref} className="carry-result__figure carry-result__figure--clip" ariaLabel={`Open video: ${label} progressive play`}>
             <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-              {formatCount(positive)}
+              {fmt(positive)}
             </span>
             <span className="carry-result__label carry-result__label--clip">Progressive play</span>
           </ClipAnchor>
         ) : (
           <div className="carry-result__figure">
             <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-              {formatCount(positive)}
+              {fmt(positive)}
             </span>
             <span className="carry-result__label">Progressive play</span>
           </div>
@@ -399,6 +402,7 @@ function MatchSwitcher({
 }
 
 function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
+  const fmt = (value: number) => formatCount(value, stats.meta.perGame);
   const { carries, finalThirdActions, videos, meta } = stats;
   const games = meta.games;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
@@ -409,15 +413,6 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
   const keyPassesClip = clipUrl(videos, "Key passes", "Passes with shot opportunity", "Pass with shot opportunity");
 
   const topics: Topic[] = [];
-
-  if (isSeason && games && games > 1) {
-    topics.push({
-      id: "season",
-      title: "Season",
-      phase: "stats",
-      content: <SeasonSummaryCard stats={stats} games={games} />,
-    });
-  }
 
   topics.push(
     {
@@ -445,7 +440,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
               <SplitMeter
                 key="split"
                 title="Phase context"
-                headline={`${formatCount(carries.inTransition)} in transition · ${formatCount(carries.inPossession)} in possession`}
+                headline={`${fmt(carries.inTransition)} in transition · ${fmt(carries.inPossession)} in possession`}
                 primary={carries.inTransition}
                 secondary={carries.inPossession}
                 primaryLabel="In transition"
@@ -592,7 +587,9 @@ export function GameStatsReport({ report }: GameStatsReportProps) {
               <MatchSwitcher matches={options} activeId={activeMatch.id} onChange={setMatchId}>
                 {isSeason ? <SeasonModeToggle mode={seasonMode} onChange={setSeasonMode} /> : null}
               </MatchSwitcher>
-              <TopicsBoard topics={topics} />
+              <CountDecimalsProvider value={Boolean(stats.meta.perGame)}>
+                <TopicsBoard topics={topics} />
+              </CountDecimalsProvider>
             </div>
           </main>
         </div>
