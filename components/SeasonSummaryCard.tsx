@@ -1,5 +1,5 @@
-import { AvgPill, CountLine } from "@/components/CountLine";
-import type { GameStats } from "@/lib/stats";
+import { CountLine } from "@/components/CountLine";
+import { formatCount, type GameStats } from "@/lib/stats";
 
 type SeasonSummaryCardProps = {
   stats: GameStats;
@@ -12,14 +12,12 @@ function SeasonStat({
   label,
   total,
   unit,
-  games,
   primary,
   tone,
 }: {
   label: string;
   total: number;
   unit: string;
-  games: number;
   primary?: boolean;
   tone?: Tone;
 }) {
@@ -29,17 +27,16 @@ function SeasonStat({
   return (
     <div className={classes}>
       <span className="season-stat__label">{label}</span>
-      <CountLine value={total} unit={unit} games={games} size={primary ? "hero" : "compact"} className="season-stat__count" />
+      <CountLine value={total} unit={unit} size={primary ? "hero" : "compact"} className="season-stat__count" />
     </div>
   );
 }
 
-function CarryMini({ label, value, games }: { label: string; value: number; games: number }) {
+function CarryMini({ label, value }: { label: string; value: number }) {
   return (
     <div className="season-mini">
-      <span className="season-mini__value">{value}</span>
+      <span className="season-mini__value">{formatCount(value)}</span>
       <span className="season-mini__label">{label}</span>
-      <AvgPill value={value} games={games} className="avg-pill--mini" />
     </div>
   );
 }
@@ -56,7 +53,7 @@ export function SeasonSummaryCard({ stats, games }: SeasonSummaryCardProps) {
       <div className="season-card__head">
         <div>
           <h3 className="metric-card__title">Season</h3>
-          <p className="season-card__meta">Totals with per-game averages</p>
+          <p className="season-card__meta">{stats.meta.perGame ? "Averages per game" : "Totals"}</p>
         </div>
         <span className="season-card__games">
           <span className="season-card__games-value">{games}</span>
@@ -65,27 +62,27 @@ export function SeasonSummaryCard({ stats, games }: SeasonSummaryCardProps) {
       </div>
 
       <div className="season-card__primary">
-        <SeasonStat label="Carries" total={carries.total} unit="carries" games={games} primary />
-        <SeasonStat label="Final third actions" total={finalThirdActions.total} unit="actions" games={games} primary />
+        <SeasonStat label="Carries" total={carries.total} unit="carries" primary />
+        <SeasonStat label="Final third actions" total={finalThirdActions.total} unit="actions" primary />
       </div>
 
       <div className="season-card__grid season-card__grid--outcomes">
-        <SeasonStat label="Progressive plays" total={progressive} unit="plays" games={games} tone="positive" />
-        <SeasonStat label="Lost plays" total={lost} unit="plays" games={games} tone="negative" />
-        <SeasonStat label="Other" total={other} unit="plays" games={games} tone="muted" />
+        <SeasonStat label="Progressive plays" total={progressive} unit="plays" tone="positive" />
+        <SeasonStat label="Lost plays" total={lost} unit="plays" tone="negative" />
+        <SeasonStat label="Other" total={other} unit="plays" tone="muted" />
       </div>
 
       <div className="season-card__grid">
-        <SeasonStat label="Shots" total={finalThirdActions.shots} unit="shots" games={games} tone="accent" />
-        <SeasonStat label="Key passes" total={finalThirdActions.passWithShotOpportunity} unit="passes" games={games} tone="accent" />
+        <SeasonStat label="Shots" total={finalThirdActions.shots} unit="shots" tone="accent" />
+        <SeasonStat label="Key passes" total={finalThirdActions.passWithShotOpportunity} unit="passes" tone="accent" />
       </div>
 
       <div className="season-card__breakdown">
         <span className="season-card__breakdown-title">Carries breakdown</span>
         <div className="season-card__breakdown-grid">
-          <CarryMini label="Progressive carries" value={progressiveCarries} games={games} />
-          <CarryMini label="In transition" value={carries.inTransition} games={games} />
-          <CarryMini label="In possession" value={carries.inPossession} games={games} />
+          <CarryMini label="Progressive carries" value={progressiveCarries} />
+          <CarryMini label="In transition" value={carries.inTransition} />
+          <CarryMini label="In possession" value={carries.inPossession} />
         </div>
       </div>
     </div>

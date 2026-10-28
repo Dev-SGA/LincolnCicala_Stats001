@@ -1606,3 +1606,8 @@ body::before {
   }
 }
 
+
+.season-mode .match-nav__pill {
+  padding: 7px 12px;
+  font-size: 11px;
+}

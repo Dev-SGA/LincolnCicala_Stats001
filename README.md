@@ -2,6 +2,8 @@
 
 App Next.js (Vercel) para exibir estatísticas individuais de **Lincoln Cicala** (FC Cincinnati) durante um jogo.
 
+A visão **Season** soma todas as partidas. A chave **Total / Per game** troca os números absolutos entre os totais e a média por jogo (as porcentagens não mudam); o PDF segue o modo escolhido.
+
 Estrutura alinhada ao repositório do Hudson Cicala, com visual SGA (tema escuro, tipografia Source Sans 3 + Good Times).
 
 ## Desenvolvimento

@@ -1,5 +1,5 @@
 import { BRAND, carryProgressiveRateColor, type CarryProgressiveSituation } from "@/lib/brand";
-import { clipUrl, getFinalThirdBreakdown, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
+import { clipUrl, formatCount, getFinalThirdBreakdown, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
 
 type StatsGamePdfSheetProps = {
   stats: GameStats;
@@ -53,7 +53,7 @@ function StatTiles({
           key={item.label}
           className={`spdf-stat${item.emphasizeDetail ? " spdf-stat--emphasis" : ""}${item.highlight ? " spdf-stat--highlight" : ""}`}
         >
-          <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
+          <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{formatCount(item.value)}</span>
           <span className="spdf-stat__label">{item.label}</span>
           {item.detail ? (
             <span className={`spdf-stat__detail${item.emphasizeDetail ? " spdf-stat__detail--emphasis" : ""}`}>
@@ -88,7 +88,7 @@ function ActionResultPanel({
     <div className="spdf-pass-panel">
       <div className="spdf-pass-panel__head">
         <p className="spdf-pass-panel__title">{title}</p>
-        <span className="spdf-pass-panel__total">{total} actions</span>
+        <span className="spdf-pass-panel__total">{formatCount(total)} actions</span>
       </div>
       <div className="spdf-pass-panel__track">
         {segments.map((segment, index) =>
@@ -106,7 +106,7 @@ function ActionResultPanel({
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
           <span className="spdf-pass-panel__legend-label">Progressive plays</span>
           <strong>
-            {breakdown.positive} · {pct(breakdown.positive, total)}%
+            {formatCount(breakdown.positive)} · {pct(breakdown.positive, total)}%
             <PdfPlay href={progressiveHref} />
           </strong>
         </li>
@@ -114,7 +114,7 @@ function ActionResultPanel({
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
           <span className="spdf-pass-panel__legend-label">Lost</span>
           <strong>
-            {breakdown.lost} · {pct(breakdown.lost, total)}%
+            {formatCount(breakdown.lost)} · {pct(breakdown.lost, total)}%
             <PdfPlay href={lostHref} />
           </strong>
         </li>
@@ -122,7 +122,7 @@ function ActionResultPanel({
           <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
           <span className="spdf-pass-panel__legend-label">Other</span>
           <strong>
-            {breakdown.neutral} · {pct(breakdown.neutral, total)}%
+            {formatCount(breakdown.neutral)} · {pct(breakdown.neutral, total)}%
           </strong>
         </li>
       </ul>
@@ -152,12 +152,12 @@ function CarryResultPanel({
         <tbody>
           <tr>
             <td className="spdf-carry__figure">
-              <span className="spdf-carry__value">{total}</span>
+              <span className="spdf-carry__value">{formatCount(total)}</span>
               <span className="spdf-carry__label">Total</span>
             </td>
             <td className="spdf-carry__figure spdf-carry__figure--split">
               <span className="spdf-carry__value" style={{ color }}>
-                <PdfPlayTarget href={playHref}>{progressive}</PdfPlayTarget>
+                <PdfPlayTarget href={playHref}>{formatCount(progressive)}</PdfPlayTarget>
               </span>
               <span className="spdf-carry__label">
                 <PdfPlayTarget href={playHref}>Progressive play</PdfPlayTarget>
@@ -206,7 +206,7 @@ function PdfSection({
       </div>
       <div className="spdf-section__content">
         <div className="spdf-section__kpi">
-          <span className="spdf-section__value">{kpi}</span>
+          <span className="spdf-section__value">{formatCount(kpi)}</span>
           <span className="spdf-section__unit">{unit}</span>
         </div>
         <div className="spdf-section__panel">{children}</div>
@@ -275,14 +275,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   <PdfPlay href={carriesClip} />
                 </span>
                 <span className="spdf-pressure__value">
-                  <PdfPlayTarget href={carriesClip}>{carries.total}</PdfPlayTarget>
+                  <PdfPlayTarget href={carriesClip}>{formatCount(carries.total)}</PdfPlayTarget>
                 </span>
                 <span className="spdf-pressure__caption">Carries tracked in the match</span>
               </div>
               <div className="spdf-pressure__context">
                 <p className="spdf-pressure__kicker">Phase context</p>
                 <p className="spdf-pressure__headline">
-                  {carries.inTransition} in transition · {carries.inPossession} in possession
+                  {formatCount(carries.inTransition)} in transition · {formatCount(carries.inPossession)} in possession
                 </p>
                 <div className="spdf-pressure__track">
                   <span
@@ -299,14 +299,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                     <span className="spdf-pressure__dot spdf-pressure__dot--warn" />
                     In transition
                     <strong>
-                      {carries.inTransition} · {pct(carries.inTransition, carries.total)}%
+                      {formatCount(carries.inTransition)} · {pct(carries.inTransition, carries.total)}%
                     </strong>
                   </li>
                   <li>
                     <span className="spdf-pressure__dot spdf-pressure__dot--blue" />
                     In possession
                     <strong>
-                      {carries.inPossession} · {pct(carries.inPossession, carries.total)}%
+                      {formatCount(carries.inPossession)} · {pct(carries.inPossession, carries.total)}%
                     </strong>
                   </li>
                 </ul>
@@ -351,7 +351,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   <tbody>
                     <tr>
                       <td className="spdf-threat-card__value">
-                        <PdfPlayTarget href={shotsClip}>{finalThirdActions.shots}</PdfPlayTarget>
+                        <PdfPlayTarget href={shotsClip}>{formatCount(finalThirdActions.shots)}</PdfPlayTarget>
                       </td>
                       <td className="spdf-threat-card__copy">
                         <span className="spdf-threat-card__label">
@@ -367,7 +367,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   <tbody>
                     <tr>
                       <td className="spdf-threat-card__value">
-                        <PdfPlayTarget href={keyPassesClip}>{finalThirdActions.passWithShotOpportunity}</PdfPlayTarget>
+                        <PdfPlayTarget href={keyPassesClip}>{formatCount(finalThirdActions.passWithShotOpportunity)}</PdfPlayTarget>
                       </td>
                       <td className="spdf-threat-card__copy">
                         <span className="spdf-threat-card__label">

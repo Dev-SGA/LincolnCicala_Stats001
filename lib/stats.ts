@@ -32,6 +32,8 @@ export type MatchStats = {
   shortLabel: string;
   logo: string;
   games?: number;
+  /** Season numbers divided by the games played. */
+  perGame?: boolean;
   carries: CarriesStats;
   finalThirdActions: FinalThirdActionsStats;
   videos?: { label: string; url: string }[];
@@ -60,6 +62,7 @@ export type GameStats = {
     session: string;
     fileSlug?: string;
     games?: number;
+    perGame?: boolean;
   };
   player: StatsReport["player"];
   match: {
@@ -118,14 +121,43 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
   };
 }
 
+/** Whole numbers stay as they are; averages show one decimal. */
+export function formatCount(value: number): string {
+  if (Number.isInteger(value)) return String(value);
+  return (Math.round(value * 10) / 10).toFixed(1).replace(/\.0$/, "");
+}
+
+function scaleNumbers<T>(value: T, factor: number): T {
+  if (typeof value === "number") return (value * factor) as T;
+  if (Array.isArray(value) || value === null || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, item]) => [key, scaleNumbers(item, factor)]),
+  ) as T;
+}
+
+/** Season match with every absolute number divided by the games played. Shares stay the same. */
+export function perGameMatch(season: MatchStats): MatchStats {
+  const games = season.games ?? 0;
+  const factor = games > 0 ? 1 / games : 0;
+
+  return {
+    ...season,
+    label: "Season · Per game",
+    carries: scaleNumbers(season.carries, factor),
+    finalThirdActions: scaleNumbers(season.finalThirdActions, factor),
+    perGame: true,
+  };
+}
+
 export function toGameStats(report: StatsReport, match: MatchStats): GameStats {
   const games = match.games ?? 1;
   return {
     meta: {
       ...report.meta,
       subtitle: match.label,
-      fileSlug: `${report.meta.session}-${match.id}`,
+      fileSlug: `${report.meta.session}-${match.id}${match.perGame ? "-per-game" : ""}`,
       games,
+      perGame: match.perGame,
     },
     player: report.player,
     match: {

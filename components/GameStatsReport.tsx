@@ -7,13 +7,15 @@ import { VideoLinksProvider } from "@/components/VideoLinksContext";
 import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
-import { AvgPill, CountLine } from "@/components/CountLine";
+import { CountLine } from "@/components/CountLine";
 import { SeasonSummaryCard } from "@/components/SeasonSummaryCard";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import {
   clipUrl,
+  formatCount,
   getFinalThirdBreakdown,
+  perGameMatch,
   seasonMatch,
   toGameStats,
   type GameStats,
@@ -153,14 +155,14 @@ function SplitMeter({
           <span className={`legend__dot legend__dot--${primaryTone}`} />
           <ClipLegendLabel label={primaryLabel} href={primaryHref} />
           <strong>
-            {primary} · {percent(primary, total)}%
+            {formatCount(primary)} · {percent(primary, total)}%
           </strong>
         </li>
         <li>
           <span className={`legend__dot legend__dot--${secondaryTone}`} />
           <ClipLegendLabel label={secondaryLabel} href={secondaryHref} />
           <strong>
-            {secondary} · {percent(secondary, total)}%
+            {formatCount(secondary)} · {percent(secondary, total)}%
           </strong>
         </li>
       </ul>
@@ -185,12 +187,11 @@ function ActionResultsMeter({
   const lostPct = percent(breakdown.lost, total);
   const progressiveHref = clipUrl(videos, "Progressive plays Final third", "Progressive plays final third");
   const lostHref = clipUrl(videos, "Lost plays final third", "Lost plays Final third");
-  const isSeason = Boolean(games && games > 1);
 
   return (
     <div className="metric-card">
       <h3 className="metric-card__title">{title}</h3>
-      <CountLine value={total} unit="actions" games={games} className="metric-card__headline" />
+      <CountLine value={total} unit="actions" className="metric-card__headline" />
       <div
         className="meter"
         role="img"
@@ -200,29 +201,26 @@ function ActionResultsMeter({
         <span className="meter__seg meter__seg--pass-lost" style={{ width: `${lostPct}%` }} />
         <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
       </div>
-      <ul className={`legend${isSeason ? " legend--season" : ""}`}>
+      <ul className="legend">
         <li>
           <span className="legend__dot legend__dot--pass-progressive" />
           <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} href={progressiveHref} />
-          {isSeason && games ? <AvgPill value={breakdown.positive} games={games} className="avg-pill--legend" label="/ game" /> : null}
           <ClipAnchor href={progressiveHref} className="legend__clip-stat" ariaLabel="Open video: Progressive plays">
-            {breakdown.positive} · {positivePct}%
+            {formatCount(breakdown.positive)} · {positivePct}%
           </ClipAnchor>
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-lost" />
           <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />
-          {isSeason && games ? <AvgPill value={breakdown.lost} games={games} className="avg-pill--legend" label="/ game" /> : null}
           <ClipAnchor href={lostHref} className="legend__clip-stat" ariaLabel="Open video: Lost plays">
-            {breakdown.lost} · {lostPct}%
+            {formatCount(breakdown.lost)} · {lostPct}%
           </ClipAnchor>
         </li>
         <li>
           <span className="legend__dot legend__dot--pass-neutral" />
           <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
-          {isSeason && games ? <AvgPill value={breakdown.neutral} games={games} className="avg-pill--legend" label="/ game" /> : null}
           <strong>
-            {breakdown.neutral} · {neutralPct}%
+            {formatCount(breakdown.neutral)} · {neutralPct}%
           </strong>
         </li>
       </ul>
@@ -246,32 +244,28 @@ function PositiveCarryStat({
   games?: number;
 }) {
   const pctLabel = `${percent(positive, total)}% progressive play`;
-  const isSeason = Boolean(games && games > 1);
 
   return (
     <div className="metric-card">
       <ClipMetricTitle label={label} href={titleHref} />
       <div className="carry-result">
         <div className="carry-result__figure">
-          <span className="metric-card__value">{total}</span>
+          <span className="metric-card__value">{formatCount(total)}</span>
           <span className="carry-result__label">Total</span>
-          {isSeason && games ? <AvgPill value={total} games={games} /> : null}
         </div>
         {titleHref ? (
           <ClipAnchor href={titleHref} className="carry-result__figure carry-result__figure--clip" ariaLabel={`Open video: ${label} progressive play`}>
             <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-              {positive}
+              {formatCount(positive)}
             </span>
             <span className="carry-result__label carry-result__label--clip">Progressive play</span>
-            {isSeason && games ? <AvgPill value={positive} games={games} /> : null}
           </ClipAnchor>
         ) : (
           <div className="carry-result__figure">
             <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-              {positive}
+              {formatCount(positive)}
             </span>
             <span className="carry-result__label">Progressive play</span>
-            {isSeason && games ? <AvgPill value={positive} games={games} /> : null}
           </div>
         )}
       </div>
@@ -293,6 +287,7 @@ function CountStat({
   highlight,
   titleHref,
   games,
+  perGame,
 }: {
   label: string;
   value: number;
@@ -301,15 +296,16 @@ function CountStat({
   highlight?: boolean;
   titleHref?: string;
   games?: number;
+  perGame?: boolean;
 }) {
   const seasonCaption =
-    games && games > 1 ? `${caption} · ${games} matches combined` : caption;
+    games && games > 1 ? `${caption} · ${perGame ? `average per game across ${games} matches` : `${games} matches combined`}` : caption;
 
   return (
     <div className={`metric-card metric-card--compact${highlight ? " metric-card--highlight" : ""}`}>
       <ClipMetricTitle label={label} href={titleHref} />
       {games && games > 1 ? (
-        <CountLine value={value} unit={unit ?? ""} games={games} className="metric-card__count-line" />
+        <CountLine value={value} unit={unit ?? ""} className="metric-card__count-line" />
       ) : (
         <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel={`Open video: ${label}`}>
           {value}
@@ -320,14 +316,41 @@ function CountStat({
   );
 }
 
+type SeasonMode = "total" | "perGame";
+
+function SeasonModeToggle({ mode, onChange }: { mode: SeasonMode; onChange: (mode: SeasonMode) => void }) {
+  const items: { id: SeasonMode; label: string }[] = [
+    { id: "total", label: "Total" },
+    { id: "perGame", label: "Per game" },
+  ];
+
+  return (
+    <div className="match-nav__pills season-mode" role="group" aria-label="Season numbers">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          className={`match-nav__pill${item.id === mode ? " is-active" : ""}`}
+          aria-pressed={item.id === mode}
+          onClick={() => onChange(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function MatchSwitcher({
   matches,
   activeId,
   onChange,
+  children,
 }: {
   matches: MatchStats[];
   activeId: string;
   onChange: (id: string) => void;
+  children?: React.ReactNode;
 }) {
   const index = matches.findIndex((match) => match.id === activeId);
 
@@ -370,6 +393,7 @@ function MatchSwitcher({
           <span aria-hidden="true">›</span>
         </button>
       </div>
+      {children}
     </div>
   );
 }
@@ -408,20 +432,20 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
               <div key="total" className="metric-card metric-card--hero metric-card--compact">
                 <ClipMetricTitle label="Total carries" href={carriesClip} />
                 {games && games > 1 ? (
-                  <CountLine value={carries.total} unit="carries" games={games} size="hero" className="metric-card__count-line" />
+                  <CountLine value={carries.total} unit="carries" size="hero" className="metric-card__count-line" />
                 ) : (
                   <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
                     {carries.total}
                   </ClipAnchor>
                 )}
                 <p className="metric-card__caption">
-                  {games && games > 1 ? `Carries tracked across ${games} matches` : "Carries tracked in the match"}
+                  {games && games > 1 ? (meta.perGame ? `Average carries per game across ${games} matches` : `Carries tracked across ${games} matches`) : "Carries tracked in the match"}
                 </p>
               </div>,
               <SplitMeter
                 key="split"
                 title="Phase context"
-                headline={`${carries.inTransition} in transition · ${carries.inPossession} in possession`}
+                headline={`${formatCount(carries.inTransition)} in transition · ${formatCount(carries.inPossession)} in possession`}
                 primary={carries.inTransition}
                 secondary={carries.inPossession}
                 primaryLabel="In transition"
@@ -475,7 +499,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
           <div className="metric-card metric-card--hero metric-card--compact">
             <h3 className="metric-card__title">Total final third actions</h3>
             {games && games > 1 ? (
-              <CountLine value={finalThirdActions.total} unit="actions" games={games} size="hero" className="metric-card__count-line" />
+              <CountLine value={finalThirdActions.total} unit="actions" size="hero" className="metric-card__count-line" />
             ) : (
               <span className="metric-card__value">{finalThirdActions.total}</span>
             )}
@@ -493,6 +517,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
                 highlight
                 titleHref={shotsClip}
                 games={games}
+                perGame={meta.perGame}
               />,
               <CountStat
                 key="key-passes"
@@ -503,6 +528,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
                 highlight
                 titleHref={keyPassesClip}
                 games={games}
+                perGame={meta.perGame}
               />,
             ]}
           />
@@ -516,7 +542,11 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
 
 export function GameStatsReport({ report }: GameStatsReportProps) {
   const { player, meta, matches } = report;
-  const options = useMemo(() => [...matches, seasonMatch(matches)], [matches]);
+  const [seasonMode, setSeasonMode] = useState<SeasonMode>("total");
+  const options = useMemo(() => {
+    const season = seasonMatch(matches);
+    return [...matches, seasonMode === "perGame" ? perGameMatch(season) : season];
+  }, [matches, seasonMode]);
   const initialMatchId = matches[0]?.id ?? "";
   const [matchId, setMatchId] = useState(initialMatchId);
   const activeMatch = options.find((match) => match.id === matchId) ?? options[0];
@@ -559,7 +589,9 @@ export function GameStatsReport({ report }: GameStatsReportProps) {
 
           <main className="report-main">
             <div className="view-panel">
-              <MatchSwitcher matches={options} activeId={activeMatch.id} onChange={setMatchId} />
+              <MatchSwitcher matches={options} activeId={activeMatch.id} onChange={setMatchId}>
+                {isSeason ? <SeasonModeToggle mode={seasonMode} onChange={setSeasonMode} /> : null}
+              </MatchSwitcher>
               <TopicsBoard topics={topics} />
             </div>
           </main>
