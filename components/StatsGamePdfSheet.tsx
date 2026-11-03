@@ -1,6 +1,6 @@
 import { useFormatCount } from "@/components/CountFormat";
 import { BRAND, carryProgressiveRateColor, type CarryProgressiveSituation } from "@/lib/brand";
-import { clipUrl, getFinalThirdBreakdown, perGame, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
+import { clipUrl, getFinalThirdBreakdown, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
 
 type StatsGamePdfSheetProps = {
   stats: GameStats;
@@ -135,7 +135,6 @@ function SummaryStatCard({
   totalLabel,
   rate,
   rateLabel,
-  perGameLabel,
   segments,
   wide,
 }: {
@@ -144,76 +143,55 @@ function SummaryStatCard({
   totalLabel: string;
   rate?: number;
   rateLabel?: string;
-  perGameLabel?: string;
   segments: { label: string; value: string; share: number; tone: PrintTone; href?: string }[];
   wide?: boolean;
 }) {
   const fmt = useFormatCount();
 
   return (
-    <section className={`spdf-section spdf-section--carrying spdf-section--summary${wide ? " spdf-section--wide" : ""}`}>
+    <section className={`spdf-section spdf-section--summary${wide ? " spdf-section--wide" : ""}`}>
       <h3 className="spdf-section__title">{title}</h3>
-      <div className={`spdf-summary-kpis${rate == null ? " spdf-summary-kpis--single" : ""}`}>
-        <div className="spdf-summary-kpi">
-          <span className="spdf-summary-kpi__value">{fmt(total)}</span>
-          <span className="spdf-summary-kpi__label">{totalLabel}</span>
-          {perGameLabel ? <span className="spdf-summary-kpi__per">{perGameLabel}</span> : null}
-        </div>
-        {rate != null ? (
-          <div className="spdf-summary-kpi spdf-summary-kpi--rate">
-            <span className="spdf-summary-kpi__value">{rate}%</span>
-            <span className="spdf-summary-kpi__label">{rateLabel}</span>
+      <div className="spdf-summary-body">
+        <div className={`spdf-summary-kpis${rate == null ? " spdf-summary-kpis--single" : ""}`}>
+          <div className="spdf-summary-kpi">
+            <span className="spdf-summary-kpi__value">{fmt(total)}</span>
+            <span className="spdf-summary-kpi__label">{totalLabel}</span>
           </div>
-        ) : null}
+          {rate != null ? (
+            <div className="spdf-summary-kpi spdf-summary-kpi--rate">
+              <span className="spdf-summary-kpi__value">{rate}%</span>
+              <span className="spdf-summary-kpi__label">{rateLabel}</span>
+            </div>
+          ) : null}
+        </div>
+        <SummaryMeter segments={segments} />
       </div>
-      <SummaryMeter segments={segments} />
     </section>
   );
 }
 
-function SummaryNumberCard({
+function SummaryPairCard({
   title,
-  value,
-  perGameLabel,
-  playHref,
+  items,
 }: {
   title: string;
-  value: number;
-  perGameLabel?: string;
-  playHref?: string;
+  items: { label: string; value: number; href?: string }[];
 }) {
   const fmt = useFormatCount();
 
   return (
-    <section className="spdf-section spdf-section--carrying spdf-section--summary spdf-section--number">
-      <h3 className="spdf-section__title">
-        {title}
-        <PdfPlay href={playHref} />
-      </h3>
-      <div className="spdf-number">
-        <span className="spdf-number__value">{fmt(value)}</span>
-        {perGameLabel ? <span className="spdf-number__per">{perGameLabel}</span> : null}
-      </div>
-    </section>
-  );
-}
-
-function GoalsAssistsCard({ goals, assists, games }: { goals: number; assists: number; games?: number }) {
-  const fmt = useFormatCount();
-  const items = [
-    { label: "Goals", value: goals },
-    { label: "Assists", value: assists },
-  ];
-
-  return (
-    <section className="spdf-section spdf-section--carrying spdf-section--summary spdf-section--goals">
-      <h3 className="spdf-section__title">Goals &amp; Assists</h3>
+    <section className="spdf-section spdf-section--summary spdf-section--pair">
+      <h3 className="spdf-section__title">{title}</h3>
       <div className="spdf-summary-kpis">
         {items.map((item) => (
           <div key={item.label} className="spdf-summary-kpi">
-            <span className="spdf-summary-kpi__value">{fmt(item.value)}</span>
-            <span className="spdf-summary-kpi__label">{item.label}</span>
-            {games ? <span className="spdf-summary-kpi__per">{perGame(item.value, games)} per game</span> : null}
+            <span className="spdf-summary-kpi__value">
+              <PdfPlayTarget href={item.href}>{fmt(item.value)}</PdfPlayTarget>
+            </span>
+            <span className="spdf-summary-kpi__label">
+              {item.label}
+              <PdfPlay href={item.href} />
+            </span>
           </div>
         ))}
       </div>
@@ -225,9 +203,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
   const fmt = useFormatCount();
   const summary = stats.summary;
   if (!summary) return null;
-  const games = stats.meta.games ?? 1;
-  const summaryGames = stats.meta.perGame ? 1 : (stats.meta.summaryGames ?? games);
-  const matchGames = stats.meta.perGame ? 1 : games;
   const offensiveTotal = summary.offensiveWon + summary.offensiveLost;
   const regains = summary.interceptions + summary.recoveries;
 
@@ -243,7 +218,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             totalLabel="Total passes"
             rate={pct(summary.accurate, summary.passes)}
             rateLabel="Accurate"
-            perGameLabel={`${perGame(summary.passes, summaryGames)} per game`}
             segments={[
               { label: "Accurate", value: fmt(summary.accurate), share: summary.accurate, tone: "pass-progressive" },
               { label: "Inaccurate", value: fmt(summary.inaccurate), share: summary.inaccurate, tone: "grey" },
@@ -255,7 +229,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             totalLabel="Total duels"
             rate={pct(summary.offensiveWon, offensiveTotal)}
             rateLabel="Won rate"
-            perGameLabel={`${perGame(offensiveTotal, summaryGames)} per game`}
             segments={[
               {
                 label: "Won",
@@ -273,24 +246,28 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
               },
             ]}
           />
-          <SummaryNumberCard
-            title="Key passes"
-            value={summary.keyPasses}
-            perGameLabel={`${perGame(summary.keyPasses, summaryGames)} per game`}
-            playHref={clipUrl(stats.videos, "Key passes", "Passes with shot opportunity")}
+          <SummaryPairCard
+            title="Key passes | Shots"
+            items={[
+              {
+                label: "Key passes",
+                value: summary.keyPasses,
+                href: clipUrl(stats.videos, "Key passes", "Passes with shot opportunity"),
+              },
+              { label: "Shots", value: stats.finalThirdActions.shots, href: clipUrl(stats.videos, "Shots") },
+            ]}
           />
-          <SummaryNumberCard
-            title="Shots"
-            value={stats.finalThirdActions.shots}
-            perGameLabel={`${perGame(stats.finalThirdActions.shots, matchGames)} per game`}
-            playHref={clipUrl(stats.videos, "Shots")}
+          <SummaryPairCard
+            title="Goals & Assists"
+            items={[
+              { label: "Goals", value: summary.goals },
+              { label: "Assists", value: summary.assists },
+            ]}
           />
-          <GoalsAssistsCard goals={summary.goals} assists={summary.assists} games={summaryGames} />
           <SummaryStatCard
             title="Tackles"
             total={regains}
             totalLabel="Total tackles"
-            perGameLabel={`${perGame(regains, summaryGames)} per game`}
             wide
             segments={[
               {
@@ -575,7 +552,7 @@ function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"
   const locationTotal = insideBox + outsideBox;
 
   return (
-    <div className="spdf-ft-shot-row">
+    <>
       <PdfShotGroup
         title="Shot accuracy"
         total={accuracyTotal}
@@ -595,7 +572,7 @@ function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"
           { label: "Outside the box", value: outsideBox, tone: "pass-neutral" },
         ]}
       />
-    </div>
+    </>
   );
 }
 
@@ -661,17 +638,18 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   <span className="spdf-ft-kpi__unit">Actions</span>
                   <span className="spdf-ft-kpi__caption">Final third actions in the match</span>
                 </div>
-                <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
-                {summary ? (
-                  <PdfKeyPassesPanel
-                    keyPasses={summary.keyPasses}
-                    totalPasses={summary.passes}
-                    playHref={keyPassesClip}
-                  />
-                ) : null}
-                {hasShotDetail ? (
-                  <PdfShotsRow shots={finalThirdActions} playHref={shotsClip} />
-                ) : (
+                <div className={`spdf-ft-grid${summary || hasShotDetail ? "" : " spdf-ft-grid--single"}`}>
+                  <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
+                  {summary ? (
+                    <PdfKeyPassesPanel
+                      keyPasses={summary.keyPasses}
+                      totalPasses={summary.passes}
+                      playHref={keyPassesClip}
+                    />
+                  ) : null}
+                  {hasShotDetail ? <PdfShotsRow shots={finalThirdActions} playHref={shotsClip} /> : null}
+                </div>
+                {hasShotDetail ? null : (
                   <div className="spdf-threat-row">
                     <table className="spdf-threat-card spdf-threat-card--shots">
                       <tbody>
