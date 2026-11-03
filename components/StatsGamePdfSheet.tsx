@@ -432,6 +432,9 @@ function CarryResultPanel({
               <span className="spdf-carry__rate" style={{ color }}>
                 {pct(progressive, total)}% progressive play
               </span>
+              <span className="spdf-carry__bar">
+                <span className="spdf-carry__bar-fill" style={{ width: `${pct(progressive, total)}%`, background: color }} />
+              </span>
             </td>
           </tr>
         </tbody>
