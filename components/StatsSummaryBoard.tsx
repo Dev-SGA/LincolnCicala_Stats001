@@ -107,18 +107,22 @@ function StatsFigure({
   unit,
   games,
   rate,
+  href,
 }: {
   label: string;
   value: number;
   unit?: string;
   games?: number;
   rate?: boolean;
+  href?: string;
 }) {
   const fmt = useFormatCount();
 
   return (
     <div className={`stats-figure${rate ? " stats-figure--rate" : ""}`}>
-      <span className="stats-figure__label">{label}</span>
+      <span className="stats-figure__label">
+        <ClipLabel label={label} href={href} />
+      </span>
       {games && games > 1 && unit ? (
         <CountLine value={value} unit={unit} />
       ) : (
@@ -238,8 +242,14 @@ export function StatsSummaryBoard({
       <section className="stats-topic">
         <h3 className="stats-topic__title">Key Passes | Shots</h3>
         <div className="stats-topic__panel stats-topic__panel--duo">
-          <StatsFigure label="Key passes" value={summary.keyPasses} unit="key passes" games={games} />
-          <StatsFigure label="Shots" value={shots} unit="shots" games={games} />
+          <StatsFigure
+            label="Key passes"
+            value={summary.keyPasses}
+            unit="key passes"
+            games={games}
+            href={clipUrl(videos, "Key passes", "Passes with shot opportunity")}
+          />
+          <StatsFigure label="Shots" value={shots} unit="shots" games={games} href={clipUrl(videos, "Shots")} />
         </div>
       </section>
       <section className="stats-topic">
