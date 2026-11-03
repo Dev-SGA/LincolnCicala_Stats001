@@ -12,7 +12,7 @@ export type Topic = {
 };
 
 const PHASE_LABEL: Record<Phase, string> = {
-  stats: "Season",
+  stats: "Summary",
   carrying: "Carrying",
   "final-third": "Final Third",
   defensive: "Defensive Phase",

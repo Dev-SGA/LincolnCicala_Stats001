@@ -6,7 +6,7 @@ import { CountDecimalsProvider } from "@/components/CountFormat";
 import { StatsGamePdfSheet } from "@/components/StatsGamePdfSheet";
 import { useVideoLinks } from "@/components/VideoLinksContext";
 import { BRAND } from "@/lib/brand";
-import { exportStatsSlideToPdf } from "@/lib/exportPdf";
+import { exportStatsSlidesToPdf } from "@/lib/exportPdf";
 import type { GameStats } from "@/lib/stats";
 
 type ExportPdfButtonProps = {
@@ -46,8 +46,10 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
       });
 
-      const sheet = host.querySelector(".stats-pdf");
-      if (!(sheet instanceof HTMLElement)) {
+      const sheets = Array.from(host.querySelectorAll(".stats-pdf")).filter(
+        (node): node is HTMLElement => node instanceof HTMLElement,
+      );
+      if (sheets.length === 0) {
         throw new Error("Could not prepare the PDF layout.");
       }
 
@@ -58,7 +60,7 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
         .replace(/^-|-$/g, "");
       const fileSlug = stats.meta.fileSlug?.trim() || stats.meta.session?.trim() || "001";
 
-      await exportStatsSlideToPdf(sheet, `${safeName || "athlete"}-stats-${fileSlug}.pdf`);
+      await exportStatsSlidesToPdf(sheets, `${safeName || "athlete"}-stats-${fileSlug}.pdf`);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "PDF export failed.");
     } finally {

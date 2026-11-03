@@ -1,6 +1,6 @@
 import { useFormatCount } from "@/components/CountFormat";
 import { BRAND, carryProgressiveRateColor, type CarryProgressiveSituation } from "@/lib/brand";
-import { clipUrl, getFinalThirdBreakdown, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
+import { clipUrl, getFinalThirdBreakdown, perGame, type GameStats, type PlayResultBreakdown } from "@/lib/stats";
 
 type StatsGamePdfSheetProps = {
   stats: GameStats;
@@ -31,8 +31,269 @@ function PdfPlayTarget({ href, children }: { href?: string; children: React.Reac
 
 type Tone = "blue" | "red" | "strong-red" | "warn" | "pass-progressive" | "pass-neutral" | "pass-lost";
 
+type PrintTone = "green" | "yellow" | "blue" | "mint" | "grey" | "pass-progressive" | "pass-lost";
+
 function pct(value: number, total: number): number {
   return total > 0 ? Math.round((value / total) * 100) : 0;
+}
+
+function PdfSide({
+  photoUrl,
+  logoUrl,
+  clubLogoUrl,
+  name,
+  club,
+}: {
+  photoUrl: string;
+  logoUrl: string;
+  clubLogoUrl: string;
+  name: string;
+  club: string;
+}) {
+  return (
+    <aside className="spdf-side">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={logoUrl} alt="" className="spdf-side__logo" />
+      <div className="spdf-side__photo" data-pdf-bg={photoUrl} style={{ backgroundImage: `url(${photoUrl})` }} />
+      <div className="spdf-side__identity">
+        <p className="spdf-side__label">Athlete</p>
+        <h2 className="spdf-side__name">{name}</h2>
+        <p className="spdf-side__club">
+          {clubLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={clubLogoUrl} alt="" className="spdf-side__club-logo" />
+          ) : null}
+          {club}
+        </p>
+      </div>
+      <p className="spdf-side__slogan">{BRAND.slogan}</p>
+    </aside>
+  );
+}
+
+function PdfHeader({ title, subtitle, opponentLogoUrl }: { title: string; subtitle: string; opponentLogoUrl: string }) {
+  return (
+    <header className="spdf-head">
+      <div>
+        <p className="spdf-head__eyebrow">{BRAND.legal}</p>
+        <h1 className="spdf-head__title">{title}</h1>
+      </div>
+      <div className="spdf-head__meta">
+        <span className="spdf-head__match">
+          {opponentLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={opponentLogoUrl} alt="" className="spdf-head__logo" />
+          ) : null}
+          <span>{subtitle}</span>
+        </span>
+      </div>
+    </header>
+  );
+}
+
+function SummaryMeter({
+  segments,
+}: {
+  segments: { label: string; value: string; share: number; tone: PrintTone; href?: string }[];
+}) {
+  const total = segments.reduce((sum, segment) => sum + segment.share, 0);
+
+  return (
+    <div className="spdf-summary-meter">
+      <div className="spdf-pressure__track">
+        {total === 0 ? (
+          <span className="spdf-pressure__seg spdf-pressure__seg--grey" style={{ width: "100%" }} />
+        ) : (
+          segments.map((segment) => (
+            <span
+              key={segment.label}
+              className={`spdf-pressure__seg spdf-pressure__seg--${segment.tone}`}
+              style={{ width: `${(segment.share / total) * 100}%` }}
+            />
+          ))
+        )}
+      </div>
+      <ul className="spdf-pressure__legend">
+        {segments.map((segment) => (
+          <li key={segment.label}>
+            <span className={`spdf-pressure__dot spdf-pressure__dot--${segment.tone}`} />
+            <span>
+              {segment.label}
+              <PdfPlay href={segment.href} />
+            </span>
+            <strong className={`spdf-tone spdf-tone--${segment.tone}`}>{segment.value}</strong>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function SummaryStatCard({
+  title,
+  total,
+  totalLabel,
+  rate,
+  rateLabel,
+  perGameLabel,
+  segments,
+}: {
+  title: string;
+  total: number;
+  totalLabel: string;
+  rate?: number;
+  rateLabel?: string;
+  perGameLabel?: string;
+  segments: { label: string; value: string; share: number; tone: PrintTone; href?: string }[];
+}) {
+  const fmt = useFormatCount();
+
+  return (
+    <section className="spdf-section spdf-section--carrying spdf-section--summary">
+      <h3 className="spdf-section__title">{title}</h3>
+      <div className={`spdf-summary-kpis${rate == null ? " spdf-summary-kpis--single" : ""}`}>
+        <div className="spdf-summary-kpi">
+          <span className="spdf-summary-kpi__value">{fmt(total)}</span>
+          <span className="spdf-summary-kpi__label">{totalLabel}</span>
+          {perGameLabel ? <span className="spdf-summary-kpi__per">{perGameLabel}</span> : null}
+        </div>
+        {rate != null ? (
+          <div className="spdf-summary-kpi spdf-summary-kpi--rate">
+            <span className="spdf-summary-kpi__value">{rate}%</span>
+            <span className="spdf-summary-kpi__label">{rateLabel}</span>
+          </div>
+        ) : null}
+      </div>
+      <SummaryMeter segments={segments} />
+    </section>
+  );
+}
+
+function GoalsAssistsCard({ goals, assists, games }: { goals: number; assists: number; games?: number }) {
+  const fmt = useFormatCount();
+  const items = [
+    { label: "Goals", value: goals },
+    { label: "Assists", value: assists },
+  ];
+
+  return (
+    <section className="spdf-section spdf-section--carrying spdf-section--summary spdf-section--goals">
+      <h3 className="spdf-section__title">Goals &amp; Assists</h3>
+      <div className="spdf-summary-kpis">
+        {items.map((item) => (
+          <div key={item.label} className="spdf-summary-kpi">
+            <span className="spdf-summary-kpi__value">{fmt(item.value)}</span>
+            <span className="spdf-summary-kpi__label">{item.label}</span>
+            {games ? <span className="spdf-summary-kpi__per">{perGame(item.value, games)} per game</span> : null}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl }: StatsGamePdfSheetProps) {
+  const fmt = useFormatCount();
+  const summary = stats.summary;
+  if (!summary) return null;
+  const games = stats.meta.games;
+  const offensiveTotal = summary.offensiveWon + summary.offensiveLost;
+  const regains = summary.interceptions + summary.recoveries;
+  const otherPasses = Math.max(summary.passes - summary.keyPasses, 0);
+
+  return (
+    <article className="stats-pdf" aria-hidden="true">
+      <PdfSide photoUrl={photoUrl} logoUrl={logoUrl} clubLogoUrl={clubLogoUrl} name={stats.player.name} club={stats.player.club} />
+      <div className="spdf-main">
+        <PdfHeader title={stats.meta.title} subtitle={stats.meta.subtitle} opponentLogoUrl={opponentLogoUrl} />
+        <div className="spdf-summary">
+          <SummaryStatCard
+            title="General passing"
+            total={summary.passes}
+            totalLabel="Total passes"
+            rate={pct(summary.accurate, summary.passes)}
+            rateLabel="Accurate"
+            perGameLabel={games ? `${perGame(summary.passes, games)} per game` : undefined}
+            segments={[
+              { label: "Accurate", value: fmt(summary.accurate), share: summary.accurate, tone: "pass-progressive" },
+              { label: "Inaccurate", value: fmt(summary.inaccurate), share: summary.inaccurate, tone: "grey" },
+            ]}
+          />
+          <SummaryStatCard
+            title="Offensive duels"
+            total={offensiveTotal}
+            totalLabel="Total duels"
+            rate={pct(summary.offensiveWon, offensiveTotal)}
+            rateLabel="Won rate"
+            perGameLabel={games ? `${perGame(offensiveTotal, games)} per game` : undefined}
+            segments={[
+              {
+                label: "Won",
+                value: fmt(summary.offensiveWon),
+                share: summary.offensiveWon,
+                tone: "pass-progressive",
+                href: clipUrl(stats.videos, "Off. Duels Won", "Off Duels Won", "Offensive duels won"),
+              },
+              {
+                label: "Lost",
+                value: fmt(summary.offensiveLost),
+                share: summary.offensiveLost,
+                tone: "grey",
+                href: clipUrl(stats.videos, "Off. Duels Lost", "Off Duels Lost", "Offensive duels lost"),
+              },
+            ]}
+          />
+          <SummaryStatCard
+            title="Tackles"
+            total={regains}
+            totalLabel="Total tackles"
+            perGameLabel={games ? `${perGame(regains, games)} per game` : undefined}
+            segments={[
+              {
+                label: "Interceptions",
+                value: fmt(summary.interceptions),
+                share: summary.interceptions,
+                tone: "blue",
+                href: clipUrl(stats.videos, "Interceptions"),
+              },
+              {
+                label: "Recoveries",
+                value: fmt(summary.recoveries),
+                share: summary.recoveries,
+                tone: "mint",
+                href: clipUrl(stats.videos, "Recoveries"),
+              },
+            ]}
+          />
+          <SummaryStatCard
+            title="Key passes"
+            total={summary.keyPasses}
+            totalLabel="Key passes"
+            rate={pct(summary.keyPasses, summary.passes)}
+            rateLabel="Of all passes"
+            perGameLabel={games ? `${perGame(summary.keyPasses, games)} per game` : undefined}
+            segments={[
+              {
+                label: "Key passes",
+                value: fmt(summary.keyPasses),
+                share: summary.keyPasses,
+                tone: "pass-progressive",
+                href: clipUrl(stats.videos, "Key passes", "Passes with shot opportunity"),
+              },
+              { label: "Other passes", value: fmt(otherPasses), share: otherPasses, tone: "grey" },
+            ]}
+          />
+          <GoalsAssistsCard goals={summary.goals} assists={summary.assists} games={games} />
+        </div>
+        <footer className="spdf-foot">
+          <span>{BRAND.name}</span>
+          <span>
+            {stats.player.name} · {stats.meta.subtitle}
+          </span>
+        </footer>
+      </div>
+    </article>
+  );
 }
 
 function StatTiles({
@@ -232,171 +493,150 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
   const keyPassesClip = clipUrl(videos, "Key passes", "Passes with shot opportunity", "Pass with shot opportunity");
 
   return (
-    <article className="stats-pdf" aria-hidden="true">
-      <aside className="spdf-side">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoUrl} alt="" className="spdf-side__logo" />
-        <div className="spdf-side__photo" data-pdf-bg={photoUrl} style={{ backgroundImage: `url(${photoUrl})` }} />
-        <div className="spdf-side__identity">
-          <p className="spdf-side__label">Athlete</p>
-          <h2 className="spdf-side__name">{player.name}</h2>
-          <p className="spdf-side__club">
-            {clubLogoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={clubLogoUrl} alt="" className="spdf-side__club-logo" />
-            ) : null}
-            {player.club}
-          </p>
-        </div>
-        <p className="spdf-side__slogan">{BRAND.slogan}</p>
-      </aside>
+    <>
+      <SummaryPdfPage
+        stats={stats}
+        photoUrl={photoUrl}
+        logoUrl={logoUrl}
+        clubLogoUrl={clubLogoUrl}
+        opponentLogoUrl={opponentLogoUrl}
+      />
+      <article className="stats-pdf" aria-hidden="true">
+        <PdfSide photoUrl={photoUrl} logoUrl={logoUrl} clubLogoUrl={clubLogoUrl} name={player.name} club={player.club} />
 
-      <div className="spdf-main">
-        <header className="spdf-head">
-          <div>
-            <p className="spdf-head__eyebrow">{BRAND.legal}</p>
-            <h1 className="spdf-head__title">{meta.title}</h1>
-          </div>
-          <div className="spdf-head__meta">
-            <span className="spdf-head__match">
-              {opponentLogoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={opponentLogoUrl} alt="" className="spdf-head__logo" />
-              ) : null}
-              {match.label}
-            </span>
-          </div>
-        </header>
+        <div className="spdf-main">
+          <PdfHeader title={meta.title} subtitle={match.label} opponentLogoUrl={opponentLogoUrl} />
 
-        <div className="spdf-stack">
-          <section className="spdf-section spdf-section--carrying spdf-section--pressure">
-            <div className="spdf-section__top">
-              <p className="spdf-section__phase">Carrying</p>
-              <h3 className="spdf-section__title">Carries</h3>
-            </div>
-            <div className="spdf-pressure">
-              <div className="spdf-pressure__total">
-                <span className="spdf-pressure__kicker">
-                  <PdfPlayTarget href={carriesClip}>Total carries</PdfPlayTarget>
-                  <PdfPlay href={carriesClip} />
-                </span>
-                <span className="spdf-pressure__value">
-                  <PdfPlayTarget href={carriesClip}>{fmt(carries.total)}</PdfPlayTarget>
-                </span>
-                <span className="spdf-pressure__caption">Carries tracked in the match</span>
+          <div className="spdf-stack">
+            <section className="spdf-section spdf-section--carrying spdf-section--pressure">
+              <div className="spdf-section__top">
+                <p className="spdf-section__phase">Carrying</p>
+                <h3 className="spdf-section__title">Carries</h3>
               </div>
-              <div className="spdf-pressure__context">
-                <p className="spdf-pressure__kicker">Phase context</p>
-                <p className="spdf-pressure__headline">
-                  {fmt(carries.inTransition)} in transition · {fmt(carries.inPossession)} in possession
-                </p>
-                <div className="spdf-pressure__track">
-                  <span
-                    className="spdf-pressure__seg spdf-pressure__seg--warn"
-                    style={{ width: `${pct(carries.inTransition, carries.total)}%` }}
-                  />
-                  <span
-                    className="spdf-pressure__seg spdf-pressure__seg--blue"
-                    style={{ width: `${pct(carries.inPossession, carries.total)}%` }}
-                  />
+              <div className="spdf-pressure">
+                <div className="spdf-pressure__total">
+                  <span className="spdf-pressure__kicker">
+                    <PdfPlayTarget href={carriesClip}>Total carries</PdfPlayTarget>
+                    <PdfPlay href={carriesClip} />
+                  </span>
+                  <span className="spdf-pressure__value">
+                    <PdfPlayTarget href={carriesClip}>{fmt(carries.total)}</PdfPlayTarget>
+                  </span>
+                  <span className="spdf-pressure__caption">Carries tracked in the match</span>
                 </div>
-                <ul className="spdf-pressure__legend">
-                  <li>
-                    <span className="spdf-pressure__dot spdf-pressure__dot--warn" />
-                    In transition
-                    <strong>
-                      {fmt(carries.inTransition)} · {pct(carries.inTransition, carries.total)}%
-                    </strong>
-                  </li>
-                  <li>
-                    <span className="spdf-pressure__dot spdf-pressure__dot--blue" />
-                    In possession
-                    <strong>
-                      {fmt(carries.inPossession)} · {pct(carries.inPossession, carries.total)}%
-                    </strong>
-                  </li>
-                </ul>
+                <div className="spdf-pressure__context">
+                  <p className="spdf-pressure__kicker">Phase context</p>
+                  <p className="spdf-pressure__headline">
+                    {fmt(carries.inTransition)} in transition · {fmt(carries.inPossession)} in possession
+                  </p>
+                  <div className="spdf-pressure__track">
+                    <span
+                      className="spdf-pressure__seg spdf-pressure__seg--warn"
+                      style={{ width: `${pct(carries.inTransition, carries.total)}%` }}
+                    />
+                    <span
+                      className="spdf-pressure__seg spdf-pressure__seg--blue"
+                      style={{ width: `${pct(carries.inPossession, carries.total)}%` }}
+                    />
+                  </div>
+                  <ul className="spdf-pressure__legend">
+                    <li>
+                      <span className="spdf-pressure__dot spdf-pressure__dot--warn" />
+                      In transition
+                      <strong>
+                        {fmt(carries.inTransition)} · {pct(carries.inTransition, carries.total)}%
+                      </strong>
+                    </li>
+                    <li>
+                      <span className="spdf-pressure__dot spdf-pressure__dot--blue" />
+                      In possession
+                      <strong>
+                        {fmt(carries.inPossession)} · {pct(carries.inPossession, carries.total)}%
+                      </strong>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className="spdf-section spdf-section--carrying spdf-section--md">
-            <div className="spdf-section__top">
-              <p className="spdf-section__phase">Carrying</p>
-              <h3 className="spdf-section__title">Carries Results</h3>
-            </div>
-            <div className="spdf-carry-row">
-              <CarryResultPanel
-                label="In transition"
-                total={carries.inTransition}
-                progressive={carries.transitionPositive}
-                situation="transition"
-                playHref={transitionClip}
-              />
-              <CarryResultPanel
-                label="In possession"
-                total={carries.inPossession}
-                progressive={carries.possessionPositive}
-                situation="possession"
-                playHref={possessionClip}
-              />
-            </div>
-          </section>
-
-          <PdfSection
-            title="Final Third Actions"
-            kpi={finalThirdActions.total}
-            unit="Actions"
-            size="lg"
-            phase="final-third"
-          >
-            <div className="spdf-final-third-panel">
-              <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
-              <div className="spdf-threat-row">
-                <table className="spdf-threat-card spdf-threat-card--shots">
-                  <tbody>
-                    <tr>
-                      <td className="spdf-threat-card__value">
-                        <PdfPlayTarget href={shotsClip}>{fmt(finalThirdActions.shots)}</PdfPlayTarget>
-                      </td>
-                      <td className="spdf-threat-card__copy">
-                        <span className="spdf-threat-card__label">
-                          <PdfPlayTarget href={shotsClip}>Shots</PdfPlayTarget>
-                          <PdfPlay href={shotsClip} />
-                        </span>
-                        <span className="spdf-threat-card__caption">Shots taken</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <table className="spdf-threat-card spdf-threat-card--pass">
-                  <tbody>
-                    <tr>
-                      <td className="spdf-threat-card__value">
-                        <PdfPlayTarget href={keyPassesClip}>{fmt(finalThirdActions.passWithShotOpportunity)}</PdfPlayTarget>
-                      </td>
-                      <td className="spdf-threat-card__copy">
-                        <span className="spdf-threat-card__label">
-                          <PdfPlayTarget href={keyPassesClip}>Key passes</PdfPlayTarget>
-                          <PdfPlay href={keyPassesClip} />
-                        </span>
-                        <span className="spdf-threat-card__caption">Key passes in the final third</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <section className="spdf-section spdf-section--carrying spdf-section--md">
+              <div className="spdf-section__top">
+                <p className="spdf-section__phase">Carrying</p>
+                <h3 className="spdf-section__title">Carries Results</h3>
               </div>
-            </div>
-          </PdfSection>
+              <div className="spdf-carry-row">
+                <CarryResultPanel
+                  label="In transition"
+                  total={carries.inTransition}
+                  progressive={carries.transitionPositive}
+                  situation="transition"
+                  playHref={transitionClip}
+                />
+                <CarryResultPanel
+                  label="In possession"
+                  total={carries.inPossession}
+                  progressive={carries.possessionPositive}
+                  situation="possession"
+                  playHref={possessionClip}
+                />
+              </div>
+            </section>
+
+            <PdfSection
+              title="Final Third Actions"
+              kpi={finalThirdActions.total}
+              unit="Actions"
+              size="lg"
+              phase="final-third"
+            >
+              <div className="spdf-final-third-panel">
+                <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
+                <div className="spdf-threat-row">
+                  <table className="spdf-threat-card spdf-threat-card--shots">
+                    <tbody>
+                      <tr>
+                        <td className="spdf-threat-card__value">
+                          <PdfPlayTarget href={shotsClip}>{fmt(finalThirdActions.shots)}</PdfPlayTarget>
+                        </td>
+                        <td className="spdf-threat-card__copy">
+                          <span className="spdf-threat-card__label">
+                            <PdfPlayTarget href={shotsClip}>Shots</PdfPlayTarget>
+                            <PdfPlay href={shotsClip} />
+                          </span>
+                          <span className="spdf-threat-card__caption">Shots taken</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <table className="spdf-threat-card spdf-threat-card--pass">
+                    <tbody>
+                      <tr>
+                        <td className="spdf-threat-card__value">
+                          <PdfPlayTarget href={keyPassesClip}>{fmt(finalThirdActions.passWithShotOpportunity)}</PdfPlayTarget>
+                        </td>
+                        <td className="spdf-threat-card__copy">
+                          <span className="spdf-threat-card__label">
+                            <PdfPlayTarget href={keyPassesClip}>Key passes</PdfPlayTarget>
+                            <PdfPlay href={keyPassesClip} />
+                          </span>
+                          <span className="spdf-threat-card__caption">Key passes in the final third</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </PdfSection>
+          </div>
+
+          <footer className="spdf-foot">
+            <span>{BRAND.name}</span>
+            <span>
+              {player.name} · {meta.title}
+            </span>
+          </footer>
         </div>
-
-        <footer className="spdf-foot">
-          <span>{BRAND.name}</span>
-          <span>
-            {player.name} · {meta.title}
-          </span>
-        </footer>
-      </div>
-    </article>
+      </article>
+    </>
   );
 }

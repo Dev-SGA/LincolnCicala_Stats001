@@ -118,6 +118,43 @@
           "url": "https://drive.google.com/file/d/1m_ed3fSWCT97MXqrEchfXA9aR5T7baIt/view?usp=drive_link"
         }
       ]
+    },
+    {
+      "id": "sporting-kansas-city",
+      "kind": "session",
+      "label": "vs Sporting Kansas City",
+      "shortLabel": "Sporting KC",
+      "logo": "/clubs/sporting-kansas-city.png",
+      "summary": {
+        "passes": 39,
+        "accurate": 28,
+        "inaccurate": 11,
+        "keyPasses": 4,
+        "offensiveWon": 3,
+        "offensiveLost": 4,
+        "interceptions": 4,
+        "recoveries": 6,
+        "goals": 0,
+        "assists": 1
+      },
+      "carries": {
+        "total": 7,
+        "inTransition": 4,
+        "inPossession": 3,
+        "transitionPositive": 3,
+        "possessionPositive": 2,
+        "videoLink": ""
+      },
+      "finalThirdActions": {
+        "total": 22,
+        "positive": 6,
+        "neutral": 13,
+        "lost": 3,
+        "shots": 0,
+        "passWithShotOpportunity": 4,
+        "videoLink": ""
+      },
+      "videos": []
     }
   ]
 }

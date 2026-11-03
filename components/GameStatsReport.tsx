@@ -9,6 +9,7 @@ import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { CountLine } from "@/components/CountLine";
 import { CountDecimalsProvider, useFormatCount } from "@/components/CountFormat";
+import { StatsSummaryBoard } from "@/components/StatsSummaryBoard";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import {
@@ -403,7 +404,7 @@ function MatchSwitcher({
 
 function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
   const fmt = (value: number) => formatCount(value, stats.meta.perGame);
-  const { carries, finalThirdActions, videos, meta } = stats;
+  const { carries, finalThirdActions, videos, meta, summary } = stats;
   const games = meta.games;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
   const carriesClip = clipUrl(videos, "Carries");
@@ -414,77 +415,106 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
 
   const topics: Topic[] = [];
 
+  if (summary) {
+    topics.push({
+      id: "stats",
+      title: "Stats",
+      phase: "stats",
+      content: <StatsSummaryBoard summary={summary} games={games} videos={videos} />,
+    });
+  }
+
+  const carriesOverview = (
+    <MetricFlow
+      className="metric-flow--pressure"
+      items={[
+        <div key="total" className="metric-card metric-card--hero metric-card--compact">
+          <ClipMetricTitle label="Total carries" href={carriesClip} />
+          {games && games > 1 ? (
+            <CountLine value={carries.total} unit="carries" size="hero" className="metric-card__count-line" />
+          ) : (
+            <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
+              {carries.total}
+            </ClipAnchor>
+          )}
+          <p className="metric-card__caption">
+            {games && games > 1 ? (meta.perGame ? `Average carries per game across ${games} matches` : `Carries tracked across ${games} matches`) : "Carries tracked in the match"}
+          </p>
+        </div>,
+        <SplitMeter
+          key="split"
+          title="Phase context"
+          headline={`${fmt(carries.inTransition)} in transition · ${fmt(carries.inPossession)} in possession`}
+          primary={carries.inTransition}
+          secondary={carries.inPossession}
+          primaryLabel="In transition"
+          secondaryLabel="In possession"
+          primaryTone="warn"
+          secondaryTone="accent"
+          major
+          primaryHref={transitionClip}
+          secondaryHref={possessionClip}
+        />,
+      ]}
+    />
+  );
+
+  const carriesResults = (
+    <MetricFlow
+      items={[
+        <PositiveCarryStat
+          key="transition"
+          label="In transition"
+          positive={carries.transitionPositive}
+          total={carries.inTransition}
+          pctTone="transition"
+          titleHref={transitionClip}
+          games={games}
+        />,
+        <PositiveCarryStat
+          key="possession"
+          label="In possession"
+          positive={carries.possessionPositive}
+          total={carries.inPossession}
+          pctTone="possession"
+          titleHref={possessionClip}
+          games={games}
+        />,
+      ]}
+    />
+  );
+
   topics.push(
-    {
-      id: "carries",
-      title: "Carries",
-      phase: "carrying",
-      content: (
-        <>
-          <MetricFlow
-            className="metric-flow--pressure"
-            items={[
-              <div key="total" className="metric-card metric-card--hero metric-card--compact">
-                <ClipMetricTitle label="Total carries" href={carriesClip} />
-                {games && games > 1 ? (
-                  <CountLine value={carries.total} unit="carries" size="hero" className="metric-card__count-line" />
-                ) : (
-                  <ClipAnchor href={carriesClip} className="metric-card__value clip-link--value" ariaLabel="Open video: Total carries">
-                    {carries.total}
-                  </ClipAnchor>
-                )}
-                <p className="metric-card__caption">
-                  {games && games > 1 ? (meta.perGame ? `Average carries per game across ${games} matches` : `Carries tracked across ${games} matches`) : "Carries tracked in the match"}
-                </p>
-              </div>,
-              <SplitMeter
-                key="split"
-                title="Phase context"
-                headline={`${fmt(carries.inTransition)} in transition · ${fmt(carries.inPossession)} in possession`}
-                primary={carries.inTransition}
-                secondary={carries.inPossession}
-                primaryLabel="In transition"
-                secondaryLabel="In possession"
-                primaryTone="warn"
-                secondaryTone="accent"
-                major
-                primaryHref={transitionClip}
-                secondaryHref={possessionClip}
-              />,
-            ]}
-          />
-        </>
-      ),
-    },
-    {
+    summary
+      ? {
+          id: "carries",
+          title: "Carries",
+          phase: "carrying",
+          content: (
+            <>
+              {carriesOverview}
+              {carriesResults}
+            </>
+          ),
+        }
+      : {
+          id: "carries",
+          title: "Carries",
+          phase: "carrying",
+          content: <>{carriesOverview}</>,
+        },
+  );
+
+  if (!summary) {
+    topics.push({
       id: "carries-results",
       title: "Carries Results",
       phase: "carrying",
-      content: (
-        <MetricFlow
-          items={[
-            <PositiveCarryStat
-              key="transition"
-              label="In transition"
-              positive={carries.transitionPositive}
-              total={carries.inTransition}
-              pctTone="transition"
-              titleHref={transitionClip}
-              games={games}
-            />,
-            <PositiveCarryStat
-              key="possession"
-              label="In possession"
-              positive={carries.possessionPositive}
-              total={carries.inPossession}
-              pctTone="possession"
-              titleHref={possessionClip}
-              games={games}
-            />,
-          ]}
-        />
-      ),
-    },
+      content: carriesResults,
+    });
+  }
+
+  topics.push(
     {
       id: "final-third",
       title: "Final Third Actions",

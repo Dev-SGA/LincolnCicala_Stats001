@@ -25,6 +25,20 @@ export type FinalThirdActionsStats = {
   videoLink: string;
 };
 
+/** High-level match numbers shown in the "Stats" summary topic. */
+export type MatchSummary = {
+  passes: number;
+  accurate: number;
+  inaccurate: number;
+  keyPasses: number;
+  offensiveWon: number;
+  offensiveLost: number;
+  interceptions: number;
+  recoveries: number;
+  goals: number;
+  assists: number;
+};
+
 export type MatchStats = {
   id: string;
   kind: "session";
@@ -34,6 +48,7 @@ export type MatchStats = {
   games?: number;
   /** Season numbers divided by the games played. */
   perGame?: boolean;
+  summary?: MatchSummary;
   carries: CarriesStats;
   finalThirdActions: FinalThirdActionsStats;
   videos?: { label: string; url: string }[];
@@ -69,6 +84,7 @@ export type GameStats = {
     label: string;
     logo: string;
   };
+  summary?: MatchSummary;
   carries: CarriesStats;
   finalThirdActions: FinalThirdActionsStats;
   videos?: { label: string; url: string }[];
@@ -85,6 +101,23 @@ export function perGame(total: number, games: number): string {
   return rounded.toFixed(1).replace(/\.0$/, "");
 }
 
+/** Sum every field of a summary; partial summaries stay undefined so the topic is skipped. */
+function combineSummaries(summaries: MatchSummary[]): MatchSummary | undefined {
+  if (summaries.length === 0) return undefined;
+  return summaries.reduce((sum, item) => ({
+    passes: sum.passes + item.passes,
+    accurate: sum.accurate + item.accurate,
+    inaccurate: sum.inaccurate + item.inaccurate,
+    keyPasses: sum.keyPasses + item.keyPasses,
+    offensiveWon: sum.offensiveWon + item.offensiveWon,
+    offensiveLost: sum.offensiveLost + item.offensiveLost,
+    interceptions: sum.interceptions + item.interceptions,
+    recoveries: sum.recoveries + item.recoveries,
+    goals: sum.goals + item.goals,
+    assists: sum.assists + item.assists,
+  }));
+}
+
 /** Combined totals across every session match, with per-game averages in the UI. */
 export function seasonMatch(matches: MatchStats[]): MatchStats {
   const sessions = matches.filter((match) => match.id !== "season");
@@ -92,6 +125,7 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
     sessions.reduce((sum, match) => sum + pick(match.carries), 0);
   const sumFinal = (pick: (f: FinalThirdActionsStats) => number) =>
     sessions.reduce((sum, match) => sum + pick(match.finalThirdActions), 0);
+  const summaries = sessions.flatMap((match) => (match.summary ? [match.summary] : []));
 
   return {
     id: "season",
@@ -100,6 +134,7 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
     shortLabel: "Season",
     logo: "",
     games: sessions.length,
+    summary: summaries.length === sessions.length ? combineSummaries(summaries) : undefined,
     carries: {
       total: sumCarries((c) => c.total),
       inTransition: sumCarries((c) => c.inTransition),
@@ -144,6 +179,7 @@ export function perGameMatch(season: MatchStats): MatchStats {
   return {
     ...season,
     label: "Season · Per game",
+    summary: scaleNumbers(season.summary, factor),
     carries: scaleNumbers(season.carries, factor),
     finalThirdActions: scaleNumbers(season.finalThirdActions, factor),
     perGame: true,
@@ -165,6 +201,7 @@ export function toGameStats(report: StatsReport, match: MatchStats): GameStats {
       label: match.label,
       logo: match.logo,
     },
+    summary: match.summary,
     carries: match.carries,
     finalThirdActions: match.finalThirdActions,
     videos: match.videos,

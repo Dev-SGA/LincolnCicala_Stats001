@@ -373,6 +373,64 @@
   background: #297cc1;
 }
 
+.spdf-pressure__seg--green,
+.spdf-pressure__dot--green {
+  background: #05712d;
+}
+
+.spdf-pressure__seg--mint,
+.spdf-pressure__dot--mint {
+  background: #5ec8c5;
+}
+
+.spdf-pressure__seg--yellow,
+.spdf-pressure__dot--yellow {
+  background: #e0a82e;
+}
+
+.spdf-pressure__seg--grey,
+.spdf-pressure__dot--grey {
+  background: #c5d0d8;
+}
+
+.spdf-pressure__seg--pass-progressive,
+.spdf-pressure__dot--pass-progressive {
+  background: #4d8f6e;
+}
+
+.spdf-pressure__seg--pass-lost,
+.spdf-pressure__dot--pass-lost {
+  background: #e0a82e;
+}
+
+.spdf-pressure__legend strong.spdf-tone--green {
+  color: #05712d;
+}
+
+.spdf-pressure__legend strong.spdf-tone--mint {
+  color: #0c7f78;
+}
+
+.spdf-pressure__legend strong.spdf-tone--yellow {
+  color: #a97412;
+}
+
+.spdf-pressure__legend strong.spdf-tone--blue {
+  color: #044f80;
+}
+
+.spdf-pressure__legend strong.spdf-tone--grey {
+  color: #6b8192;
+}
+
+.spdf-pressure__legend strong.spdf-tone--pass-progressive {
+  color: #4d8f6e;
+}
+
+.spdf-pressure__legend strong.spdf-tone--pass-lost {
+  color: #a97412;
+}
+
 .spdf-section {
   display: flex;
   flex-direction: column;
@@ -1096,6 +1154,7 @@
   display: flex;
   justify-content: space-between;
   gap: 16px;
+  margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid #e3eaf0;
   font-size: 10px;
@@ -1103,4 +1162,184 @@
   letter-spacing: 0.04em;
   color: #8a9dab;
   flex-shrink: 0;
+}
+
+/* ---------- Summary page ---------- */
+
+.spdf-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr auto;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 10px;
+}
+
+.spdf-section--summary {
+  height: auto;
+  padding: 10px 12px;
+}
+
+.spdf-section--goals {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+}
+
+.spdf-section--goals .spdf-section__title {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.spdf-section--goals .spdf-summary-kpis {
+  flex: 1 1 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+.spdf-section--goals .spdf-summary-kpi {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 6px 12px;
+}
+
+.spdf-section--goals .spdf-summary-kpi__value {
+  font-size: 22px;
+}
+
+.spdf-section--goals .spdf-summary-kpi__per {
+  margin-left: auto;
+}
+
+.spdf-section--summary:not(.spdf-section--goals) .spdf-summary-kpis {
+  flex: 1 1 auto;
+}
+
+.spdf-section--summary .spdf-section__title {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+}
+
+.spdf-summary-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.spdf-summary-kpis--single {
+  grid-template-columns: 1fr;
+}
+
+.spdf-summary-kpi {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d4e8f7;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.spdf-summary-kpi__value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #072334;
+}
+
+.spdf-summary-kpi--rate .spdf-summary-kpi__value {
+  color: #297cc1;
+}
+
+.spdf-summary-kpi__label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b8192;
+}
+
+.spdf-summary-kpi__per {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9aabba;
+}
+
+.spdf-summary-meter {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 6px;
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid #d4e8f7;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.spdf-summary-meter .spdf-pressure__track {
+  height: 10px;
+  background: #e3eaf0;
+}
+
+.spdf-summary-meter .spdf-pressure__legend {
+  margin: 0;
+}
+
+/* Larger type on the stats summary cards. */
+.spdf-section--summary .spdf-section__title {
+  font-size: 16px;
+}
+
+.spdf-section--summary .spdf-summary-kpi__value {
+  font-size: 40px;
+}
+
+.spdf-section--summary .spdf-summary-kpi__label {
+  font-size: 11px;
+}
+
+.spdf-section--goals .spdf-summary-kpi__value {
+  font-size: 28px;
+}
+
+.spdf-summary-meter {
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.spdf-summary-meter .spdf-pressure__track {
+  height: 16px;
+}
+
+.spdf-summary-meter .spdf-pressure__legend li {
+  font-size: 13px;
+}
+
+.spdf-summary-meter .spdf-pressure__legend strong {
+  font-size: 15px;
+}
+
+.spdf-summary-meter .spdf-pressure__dot {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+}
+
+.spdf-summary-meter .spdf-play,
+.spdf-summary-meter .spdf-play__icon {
+  width: 16px;
+  height: 16px;
 }

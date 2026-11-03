@@ -12,8 +12,10 @@
   /* Grade hues lifted toward white so they stay legible on navy */
   --tone-accent: #5aa2e0;
   --tone-positive: #3fb56b;
+  --tone-recover: #5ec8c5;
   --tone-negative: #e0616b;
   --tone-warn: #e08a4f;
+  --tone-burnt-yellow: #e0a82e;
   --tone-muted: color-mix(in srgb, var(--sga-white) 26%, var(--sga-navy));
   --tone-pass-progressive: #4d8f6e;
   --tone-pass-neutral: #b4bcc6;
@@ -1025,6 +1027,12 @@ body::before {
   background: var(--tone-warn);
 }
 
+.meter__seg--recover,
+.ranked__fill--recover,
+.legend__dot--recover {
+  background: var(--tone-recover);
+}
+
 .meter__seg--pass-progressive,
 .legend__dot--pass-progressive {
   background: var(--tone-pass-progressive);
@@ -1132,6 +1140,172 @@ body::before {
 .legend strong {
   font-size: 15px;
   font-weight: 800;
+}
+
+.stats-board-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stats-topic__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tone-accent);
+}
+
+.stats-topic__title::before {
+  content: "";
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.stats-topic__panel {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.15fr) minmax(120px, 0.7fr) minmax(220px, 1.7fr);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--sga-navy) 42%, var(--surface-sunken));
+  overflow: hidden;
+}
+
+.stats-topic__panel--pair {
+  grid-template-columns: minmax(180px, 0.9fr) minmax(240px, 1.8fr);
+}
+
+.stats-topic__panel--duo {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stats-topic__panel--duo .stats-figure:last-child {
+  border-right: 0;
+}
+
+.stats-figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px 18px;
+  border-right: 1px solid var(--line);
+}
+
+.stats-figure__label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.stats-figure:last-child {
+  border-right: 0;
+}
+
+.stats-figure__value {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-figure--rate .stats-figure__value {
+  font-size: 36px;
+  color: var(--tone-accent);
+}
+
+.stats-figure .count-line {
+  margin: 0;
+}
+
+.stats-viz {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px 18px;
+}
+
+.stats-viz .stats-bar {
+  width: 100%;
+  height: 12px;
+  margin: 0;
+  gap: 2px;
+}
+
+.stats-viz .stats-bar__seg--negative,
+.stats-viz .legend__dot--negative {
+  background: var(--tone-burnt-yellow);
+}
+
+.stats-viz .stats-bar__seg--muted,
+.stats-viz .legend__dot--muted {
+  background: #b7c2cb;
+}
+
+.stats-viz__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.stats-viz__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stats-viz__legend strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.stats-bar {
+  display: flex;
+  height: 8px;
+  margin-top: auto;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sga-white) 8%, transparent);
+}
+
+.stats-bar__seg--positive {
+  background: var(--tone-positive);
+}
+
+.stats-bar__seg--negative {
+  background: var(--tone-negative);
+}
+
+.stats-bar__seg--accent {
+  background: var(--tone-accent);
+}
+
+.stats-bar__seg--recover {
+  background: var(--tone-recover);
+}
+
+.stats-bar__seg--muted {
+  background: color-mix(in srgb, var(--sga-white) 22%, transparent);
 }
 
 .split-layout {
@@ -1396,6 +1570,17 @@ body::before {
 
   .topic__body {
     padding: 16px;
+  }
+
+  .stats-topic__panel,
+  .stats-topic__panel--pair,
+  .stats-topic__panel--duo {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-figure {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
   }
 }
 
