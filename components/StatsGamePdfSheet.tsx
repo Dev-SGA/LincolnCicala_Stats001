@@ -395,12 +395,14 @@ function ActionResultPanel({
 function CarryResultPanel({
   label,
   total,
+  ofTotal,
   progressive,
   situation,
   playHref,
 }: {
   label: string;
   total: number;
+  ofTotal: number;
   progressive: number;
   situation: CarryProgressiveSituation;
   playHref?: string;
@@ -417,6 +419,7 @@ function CarryResultPanel({
             <td className="spdf-carry__figure">
               <span className="spdf-carry__value">{fmt(total)}</span>
               <span className="spdf-carry__label">Total</span>
+              <span className="spdf-carry__share">{pct(total, ofTotal)}% of carries</span>
             </td>
             <td className="spdf-carry__figure spdf-carry__figure--split">
               <span className="spdf-carry__value" style={{ color }}>
@@ -549,7 +552,6 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
   const fmt = useFormatCount();
   const { player, meta, match, carries, finalThirdActions, videos } = stats;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
-  const carriesClip = clipUrl(videos, "Carries");
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
   const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
   const shotsClip = clipUrl(videos, "Shots");
@@ -572,57 +574,6 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
           <PdfHeader title={meta.title} subtitle={match.label} opponentLogoUrl={opponentLogoUrl} />
 
           <div className="spdf-stack">
-            <section className="spdf-section spdf-section--carrying spdf-section--pressure">
-              <div className="spdf-section__top">
-                <p className="spdf-section__phase">Carrying</p>
-                <h3 className="spdf-section__title">Carries</h3>
-              </div>
-              <div className="spdf-pressure">
-                <div className="spdf-pressure__total">
-                  <span className="spdf-pressure__kicker">
-                    <PdfPlayTarget href={carriesClip}>Total carries</PdfPlayTarget>
-                    <PdfPlay href={carriesClip} />
-                  </span>
-                  <span className="spdf-pressure__value">
-                    <PdfPlayTarget href={carriesClip}>{fmt(carries.total)}</PdfPlayTarget>
-                  </span>
-                  <span className="spdf-pressure__caption">Carries tracked in the match</span>
-                </div>
-                <div className="spdf-pressure__context">
-                  <p className="spdf-pressure__kicker">Phase context</p>
-                  <p className="spdf-pressure__headline">
-                    {fmt(carries.inTransition)} in transition · {fmt(carries.inPossession)} in possession
-                  </p>
-                  <div className="spdf-pressure__track">
-                    <span
-                      className="spdf-pressure__seg spdf-pressure__seg--warn"
-                      style={{ width: `${pct(carries.inTransition, carries.total)}%` }}
-                    />
-                    <span
-                      className="spdf-pressure__seg spdf-pressure__seg--blue"
-                      style={{ width: `${pct(carries.inPossession, carries.total)}%` }}
-                    />
-                  </div>
-                  <ul className="spdf-pressure__legend">
-                    <li>
-                      <span className="spdf-pressure__dot spdf-pressure__dot--warn" />
-                      In transition
-                      <strong>
-                        {fmt(carries.inTransition)} · {pct(carries.inTransition, carries.total)}%
-                      </strong>
-                    </li>
-                    <li>
-                      <span className="spdf-pressure__dot spdf-pressure__dot--blue" />
-                      In possession
-                      <strong>
-                        {fmt(carries.inPossession)} · {pct(carries.inPossession, carries.total)}%
-                      </strong>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
             <section className="spdf-section spdf-section--carrying spdf-section--md">
               <div className="spdf-section__top">
                 <p className="spdf-section__phase">Carrying</p>
@@ -632,6 +583,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                 <CarryResultPanel
                   label="In transition"
                   total={carries.inTransition}
+                  ofTotal={carries.total}
                   progressive={carries.transitionPositive}
                   situation="transition"
                   playHref={transitionClip}
@@ -639,6 +591,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                 <CarryResultPanel
                   label="In possession"
                   total={carries.inPossession}
+                  ofTotal={carries.total}
                   progressive={carries.possessionPositive}
                   situation="possession"
                   playHref={possessionClip}

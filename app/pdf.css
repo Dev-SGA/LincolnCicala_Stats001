@@ -236,10 +236,6 @@
   min-height: 0;
 }
 
-.spdf-stack .spdf-section--pressure {
-  flex: 0.72 1 0;
-}
-
 .spdf-stack .spdf-section--md {
   flex: 0.9 1 0;
 }
@@ -828,6 +824,15 @@
   margin-top: 6px;
   font-size: 11px;
   font-weight: 800;
+}
+
+.spdf-carry__share {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #6b8192;
 }
 
 .spdf-final-third-panel {
