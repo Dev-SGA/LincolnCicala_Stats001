@@ -509,7 +509,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
       id: "stats",
       title: "Stats",
       phase: "stats",
-      content: <StatsSummaryBoard summary={summary} games={games} videos={videos} />,
+      content: <StatsSummaryBoard summary={summary} shots={finalThirdActions.shots} games={games} videos={videos} />,
     });
   }
 

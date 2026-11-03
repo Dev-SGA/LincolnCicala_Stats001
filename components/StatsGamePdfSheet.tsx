@@ -137,6 +137,7 @@ function SummaryStatCard({
   rateLabel,
   perGameLabel,
   segments,
+  wide,
 }: {
   title: string;
   total: number;
@@ -145,11 +146,12 @@ function SummaryStatCard({
   rateLabel?: string;
   perGameLabel?: string;
   segments: { label: string; value: string; share: number; tone: PrintTone; href?: string }[];
+  wide?: boolean;
 }) {
   const fmt = useFormatCount();
 
   return (
-    <section className="spdf-section spdf-section--carrying spdf-section--summary">
+    <section className={`spdf-section spdf-section--carrying spdf-section--summary${wide ? " spdf-section--wide" : ""}`}>
       <h3 className="spdf-section__title">{title}</h3>
       <div className={`spdf-summary-kpis${rate == null ? " spdf-summary-kpis--single" : ""}`}>
         <div className="spdf-summary-kpi">
@@ -165,6 +167,33 @@ function SummaryStatCard({
         ) : null}
       </div>
       <SummaryMeter segments={segments} />
+    </section>
+  );
+}
+
+function SummaryNumberCard({
+  title,
+  value,
+  perGameLabel,
+  playHref,
+}: {
+  title: string;
+  value: number;
+  perGameLabel?: string;
+  playHref?: string;
+}) {
+  const fmt = useFormatCount();
+
+  return (
+    <section className="spdf-section spdf-section--carrying spdf-section--summary spdf-section--number">
+      <h3 className="spdf-section__title">
+        {title}
+        <PdfPlay href={playHref} />
+      </h3>
+      <div className="spdf-number">
+        <span className="spdf-number__value">{fmt(value)}</span>
+        {perGameLabel ? <span className="spdf-number__per">{perGameLabel}</span> : null}
+      </div>
     </section>
   );
 }
@@ -199,7 +228,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
   const games = stats.meta.games;
   const offensiveTotal = summary.offensiveWon + summary.offensiveLost;
   const regains = summary.interceptions + summary.recoveries;
-  const otherPasses = Math.max(summary.passes - summary.keyPasses, 0);
 
   return (
     <article className="stats-pdf" aria-hidden="true">
@@ -243,11 +271,24 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
               },
             ]}
           />
+          <SummaryNumberCard
+            title="Key passes"
+            value={summary.keyPasses}
+            perGameLabel={games ? `${perGame(summary.keyPasses, games)} per game` : undefined}
+            playHref={clipUrl(stats.videos, "Key passes", "Passes with shot opportunity")}
+          />
+          <SummaryNumberCard
+            title="Shots"
+            value={stats.finalThirdActions.shots}
+            perGameLabel={games ? `${perGame(stats.finalThirdActions.shots, games)} per game` : undefined}
+            playHref={clipUrl(stats.videos, "Shots")}
+          />
           <SummaryStatCard
             title="Tackles"
             total={regains}
             totalLabel="Total tackles"
             perGameLabel={games ? `${perGame(regains, games)} per game` : undefined}
+            wide
             segments={[
               {
                 label: "Interceptions",
@@ -263,22 +304,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
                 tone: "mint",
                 href: clipUrl(stats.videos, "Recoveries"),
               },
-            ]}
-          />
-          <SummaryStatCard
-            title="Key passes"
-            total={summary.keyPasses}
-            totalLabel="Key passes"
-            perGameLabel={games ? `${perGame(summary.keyPasses, games)} per game` : undefined}
-            segments={[
-              {
-                label: "Key passes",
-                value: fmt(summary.keyPasses),
-                share: summary.keyPasses,
-                tone: "pass-progressive",
-                href: clipUrl(stats.videos, "Key passes", "Passes with shot opportunity"),
-              },
-              { label: "Other passes", value: fmt(otherPasses), share: otherPasses, tone: "grey" },
             ]}
           />
           <GoalsAssistsCard goals={summary.goals} assists={summary.assists} games={games} />
@@ -443,6 +468,53 @@ function CarryResultPanel({
   );
 }
 
+function PdfKeyPassesPanel({
+  keyPasses,
+  totalPasses,
+  playHref,
+}: {
+  keyPasses: number;
+  totalPasses: number;
+  playHref?: string;
+}) {
+  const fmt = useFormatCount();
+  const otherPasses = Math.max(totalPasses - keyPasses, 0);
+  const keyPct = pct(keyPasses, totalPasses);
+
+  return (
+    <div className="spdf-pass-panel">
+      <div className="spdf-pass-panel__head">
+        <p className="spdf-pass-panel__title">
+          Key passes
+          <PdfPlay href={playHref} />
+        </p>
+        <span className="spdf-pass-panel__total">{fmt(keyPasses)} key passes</span>
+      </div>
+      <div className="spdf-pass-panel__track">
+        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-progressive" style={{ width: `${keyPct}%` }} />
+        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-neutral" style={{ width: `${100 - keyPct}%` }} />
+      </div>
+      <ul className="spdf-pass-panel__legend">
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
+          <span className="spdf-pass-panel__legend-label">Key passes</span>
+          <strong>
+            {fmt(keyPasses)} · {keyPct}%
+            <PdfPlay href={playHref} />
+          </strong>
+        </li>
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
+          <span className="spdf-pass-panel__legend-label">Other passes</span>
+          <strong>
+            {fmt(otherPasses)} · {pct(otherPasses, totalPasses)}%
+          </strong>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function PdfShotGroup({
   title,
   total,
@@ -521,7 +593,7 @@ function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"
 
 export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl }: StatsGamePdfSheetProps) {
   const fmt = useFormatCount();
-  const { player, meta, match, carries, finalThirdActions, videos } = stats;
+  const { player, meta, match, carries, finalThirdActions, videos, summary } = stats;
   const finalThirdBreakdown = getFinalThirdBreakdown(stats);
   const transitionClip = clipUrl(videos, "Progressive plays in transition", "In transition");
   const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
@@ -582,6 +654,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   <span className="spdf-ft-kpi__caption">Final third actions in the match</span>
                 </div>
                 <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
+                {summary ? (
+                  <PdfKeyPassesPanel
+                    keyPasses={finalThirdActions.passWithShotOpportunity}
+                    totalPasses={summary.passes}
+                    playHref={keyPassesClip}
+                  />
+                ) : null}
                 {hasShotDetail ? (
                   <PdfShotsRow shots={finalThirdActions} playHref={shotsClip} />
                 ) : (

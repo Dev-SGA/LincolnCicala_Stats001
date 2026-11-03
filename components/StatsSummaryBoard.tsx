@@ -187,16 +187,17 @@ function StatsRateTopic({
 
 export function StatsSummaryBoard({
   summary,
+  shots,
   games,
   videos,
 }: {
   summary: MatchSummary;
+  shots: number;
   games?: number;
   videos?: MatchStats["videos"];
 }) {
   const offensiveTotal = summary.offensiveWon + summary.offensiveLost;
   const regains = summary.interceptions + summary.recoveries;
-  const otherPasses = Math.max(summary.passes - summary.keyPasses, 0);
 
   return (
     <div className="stats-board-v2">
@@ -235,6 +236,13 @@ export function StatsSummaryBoard({
         showShare={false}
       />
       <section className="stats-topic">
+        <h3 className="stats-topic__title">Key Passes | Shots</h3>
+        <div className="stats-topic__panel stats-topic__panel--duo">
+          <StatsFigure label="Key passes" value={summary.keyPasses} unit="key passes" games={games} />
+          <StatsFigure label="Shots" value={shots} unit="shots" games={games} />
+        </div>
+      </section>
+      <section className="stats-topic">
         <h3 className="stats-topic__title">Tackles</h3>
         <div className="stats-topic__panel stats-topic__panel--pair">
           <StatsFigure label="Total tackles" value={regains} unit="tackles" games={games} />
@@ -247,22 +255,6 @@ export function StatsSummaryBoard({
             secondaryTone="recover"
             primaryHref={clipUrl(videos, "Interceptions")}
             secondaryHref={clipUrl(videos, "Recoveries")}
-          />
-        </div>
-      </section>
-      <section className="stats-topic">
-        <h3 className="stats-topic__title">Key Passes</h3>
-        <div className="stats-topic__panel stats-topic__panel--pair">
-          <StatsFigure label="Key passes" value={summary.keyPasses} unit="key passes" games={games} />
-          <StatsSplit
-            primary={summary.keyPasses}
-            secondary={otherPasses}
-            primaryLabel="Key passes"
-            secondaryLabel="Other passes"
-            primaryTone="positive"
-            secondaryTone="muted"
-            primaryHref={clipUrl(videos, "Key passes", "Passes with shot opportunity")}
-            showShare={false}
           />
         </div>
       </section>
