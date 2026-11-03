@@ -443,111 +443,79 @@ function CarryResultPanel({
   );
 }
 
-function PdfShotsPanel({ shots, playHref }: { shots: GameStats["finalThirdActions"]; playHref?: string }) {
+function PdfShotGroup({
+  title,
+  total,
+  rows,
+  playHref,
+}: {
+  title: string;
+  total: number;
+  rows: { label: string; value: number; tone: Tone }[];
+  playHref?: string;
+}) {
   const fmt = useFormatCount();
-  const total = shots.shots;
-  const onTarget = shots.shotsOnTarget ?? 0;
-  const offTarget = shots.shotsOffTarget ?? Math.max(total - onTarget, 0);
-  const insideBox = shots.shotsInsideBox ?? 0;
-  const outsideBox = shots.shotsOutsideBox ?? Math.max(total - insideBox, 0);
-  const onTargetPct = pct(onTarget, total);
-  const insideBoxPct = pct(insideBox, total);
 
   return (
     <div className="spdf-pass-panel">
       <div className="spdf-pass-panel__head">
         <p className="spdf-pass-panel__title">
-          Shots
+          {title}
           <PdfPlay href={playHref} />
         </p>
         <span className="spdf-pass-panel__total">{fmt(total)} shots</span>
       </div>
-      <span className="spdf-shots-group__label">Accuracy</span>
       <div className="spdf-pass-panel__track">
-        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-progressive" style={{ width: `${onTargetPct}%` }} />
-        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-lost" style={{ width: `${100 - onTargetPct}%` }} />
+        {rows.map((row) => (
+          <span
+            key={row.label}
+            className={`spdf-pass-panel__seg spdf-pass-panel__seg--${row.tone}`}
+            style={{ width: `${pct(row.value, total)}%` }}
+          />
+        ))}
       </div>
       <ul className="spdf-pass-panel__legend">
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
-          <span className="spdf-pass-panel__legend-label">On target</span>
-          <strong>
-            {fmt(onTarget)} · {onTargetPct}%
-          </strong>
-        </li>
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
-          <span className="spdf-pass-panel__legend-label">Off target</span>
-          <strong>
-            {fmt(offTarget)} · {pct(offTarget, total)}%
-          </strong>
-        </li>
-      </ul>
-      <span className="spdf-shots-group__label">Shot location</span>
-      <div className="spdf-pass-panel__track">
-        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--blue" style={{ width: `${insideBoxPct}%` }} />
-        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-neutral" style={{ width: `${100 - insideBoxPct}%` }} />
-      </div>
-      <ul className="spdf-pass-panel__legend">
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--blue" />
-          <span className="spdf-pass-panel__legend-label">Inside the box</span>
-          <strong>
-            {fmt(insideBox)} · {insideBoxPct}%
-          </strong>
-        </li>
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
-          <span className="spdf-pass-panel__legend-label">Outside the box</span>
-          <strong>
-            {fmt(outsideBox)} · {pct(outsideBox, total)}%
-          </strong>
-        </li>
+        {rows.map((row) => (
+          <li key={row.label}>
+            <span className={`spdf-pass-panel__dot spdf-pass-panel__dot--${row.tone}`} />
+            <span className="spdf-pass-panel__legend-label">{row.label}</span>
+            <strong>
+              {fmt(row.value)} · {pct(row.value, total)}%
+            </strong>
+          </li>
+        ))}
       </ul>
     </div>
   );
 }
 
-type PdfPhase = "carrying" | "final-third";
+function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"]; playHref?: string }) {
+  const total = shots.shots;
+  const onTarget = shots.shotsOnTarget ?? 0;
+  const offTarget = shots.shotsOffTarget ?? Math.max(total - onTarget, 0);
+  const insideBox = shots.shotsInsideBox ?? 0;
+  const outsideBox = shots.shotsOutsideBox ?? Math.max(total - insideBox, 0);
 
-const PDF_PHASE_LABEL: Record<PdfPhase, string> = {
-  carrying: "Carrying",
-  "final-third": "Final Third",
-};
-
-function PdfSection({
-  title,
-  kpi,
-  unit,
-  children,
-  footer,
-  size = "md",
-  phase = "carrying",
-}: {
-  title: string;
-  kpi: number;
-  unit: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-  size?: "md" | "lg";
-  phase?: PdfPhase;
-}) {
-  const fmt = useFormatCount();
   return (
-    <section className={`spdf-section spdf-section--${phase} spdf-section--${size}`}>
-      <div className="spdf-section__top">
-        <p className="spdf-section__phase">{PDF_PHASE_LABEL[phase]}</p>
-        <h3 className="spdf-section__title">{title}</h3>
-      </div>
-      <div className="spdf-section__content">
-        <div className="spdf-section__kpi">
-          <span className="spdf-section__value">{fmt(kpi)}</span>
-          <span className="spdf-section__unit">{unit}</span>
-        </div>
-        <div className="spdf-section__panel">{children}</div>
-      </div>
-      {footer ? <div className="spdf-section__footer">{footer}</div> : null}
-    </section>
+    <div className="spdf-ft-shot-row">
+      <PdfShotGroup
+        title="Shot accuracy"
+        total={total}
+        playHref={playHref}
+        rows={[
+          { label: "On target", value: onTarget, tone: "pass-progressive" },
+          { label: "Off target", value: offTarget, tone: "pass-lost" },
+        ]}
+      />
+      <PdfShotGroup
+        title="Shot location"
+        total={total}
+        rows={[
+          { label: "Inside the box", value: insideBox, tone: "blue" },
+          { label: "Outside the box", value: outsideBox, tone: "pass-neutral" },
+        ]}
+      />
+    </div>
   );
 }
 
@@ -602,17 +570,20 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
               </div>
             </section>
 
-            <PdfSection
-              title="Final Third Actions"
-              kpi={finalThirdActions.total}
-              unit="Actions"
-              size="lg"
-              phase="final-third"
-            >
-              <div className={`spdf-final-third-panel${hasShotDetail ? " spdf-final-third-panel--split" : ""}`}>
+            <section className="spdf-section spdf-section--final-third spdf-section--lg">
+              <div className="spdf-section__top">
+                <p className="spdf-section__phase">Final Third</p>
+                <h3 className="spdf-section__title">Final Third Actions</h3>
+              </div>
+              <div className="spdf-final-third-panel">
+                <div className="spdf-pass-panel spdf-ft-kpi">
+                  <span className="spdf-ft-kpi__value">{fmt(finalThirdActions.total)}</span>
+                  <span className="spdf-ft-kpi__unit">Actions</span>
+                  <span className="spdf-ft-kpi__caption">Final third actions in the match</span>
+                </div>
                 <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
                 {hasShotDetail ? (
-                  <PdfShotsPanel shots={finalThirdActions} playHref={shotsClip} />
+                  <PdfShotsRow shots={finalThirdActions} playHref={shotsClip} />
                 ) : (
                   <div className="spdf-threat-row">
                     <table className="spdf-threat-card spdf-threat-card--shots">
@@ -650,7 +621,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                   </div>
                 )}
               </div>
-            </PdfSection>
+            </section>
           </div>
 
           <footer className="spdf-foot">
