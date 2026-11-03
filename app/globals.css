@@ -19,7 +19,7 @@
   --tone-muted: color-mix(in srgb, var(--sga-white) 26%, var(--sga-navy));
   --tone-pass-progressive: #4d8f6e;
   --tone-pass-neutral: #b4bcc6;
-  --tone-pass-lost: #b86b6b;
+  --tone-pass-lost: #e0a82e;
 
   --bg: var(--sga-navy);
   --bg-deep: color-mix(in srgb, var(--sga-navy) 72%, #000000);

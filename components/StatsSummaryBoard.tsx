@@ -250,23 +250,22 @@ export function StatsSummaryBoard({
           />
         </div>
       </section>
-      <StatsRateTopic
-        title="Key Passes"
-        total={summary.keyPasses}
-        totalLabel="Key passes"
-        totalUnit="key passes"
-        games={games}
-        rate={percent(summary.keyPasses, summary.passes)}
-        rateLabel="Of all passes"
-        primary={summary.keyPasses}
-        secondary={otherPasses}
-        primaryLabel="Key passes"
-        secondaryLabel="Other passes"
-        primaryTone="positive"
-        secondaryTone="muted"
-        primaryHref={clipUrl(videos, "Key passes", "Passes with shot opportunity")}
-        showShare={false}
-      />
+      <section className="stats-topic">
+        <h3 className="stats-topic__title">Key Passes</h3>
+        <div className="stats-topic__panel stats-topic__panel--pair">
+          <StatsFigure label="Key passes" value={summary.keyPasses} unit="key passes" games={games} />
+          <StatsSplit
+            primary={summary.keyPasses}
+            secondary={otherPasses}
+            primaryLabel="Key passes"
+            secondaryLabel="Other passes"
+            primaryTone="positive"
+            secondaryTone="muted"
+            primaryHref={clipUrl(videos, "Key passes", "Passes with shot opportunity")}
+            showShare={false}
+          />
+        </div>
+      </section>
       <section className="stats-topic">
         <h3 className="stats-topic__title">Goals &amp; Assists</h3>
         <div className="stats-topic__panel stats-topic__panel--duo">

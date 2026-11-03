@@ -269,8 +269,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             title="Key passes"
             total={summary.keyPasses}
             totalLabel="Key passes"
-            rate={pct(summary.keyPasses, summary.passes)}
-            rateLabel="Of all passes"
             perGameLabel={games ? `${perGame(summary.keyPasses, games)} per game` : undefined}
             segments={[
               {

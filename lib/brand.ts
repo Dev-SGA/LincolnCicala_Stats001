@@ -19,7 +19,7 @@ export const CARRY_PROGRESSIVE_RATE_COLORS = {
   /** In transition (e.g. 80% progressive play) */
   transition: "#528f66",
   /** In possession (e.g. 33% progressive play) */
-  possession: "#a89028",
+  possession: "#528f66",
 } as const;
 
 export type CarryProgressiveSituation = keyof typeof CARRY_PROGRESSIVE_RATE_COLORS;
