@@ -837,6 +837,12 @@
   width: 100%;
 }
 
+.spdf-final-third-panel--split {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+}
+
 .spdf-threat-row {
   display: flex;
   gap: 10px;

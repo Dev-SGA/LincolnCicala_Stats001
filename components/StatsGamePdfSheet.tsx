@@ -653,7 +653,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
               size="lg"
               phase="final-third"
             >
-              <div className="spdf-final-third-panel">
+              <div className={`spdf-final-third-panel${hasShotDetail ? " spdf-final-third-panel--split" : ""}`}>
                 <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
                 {hasShotDetail ? (
                   <PdfShotsPanel shots={finalThirdActions} playHref={shotsClip} />
