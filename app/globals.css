@@ -1300,6 +1300,27 @@ body::before {
   background: color-mix(in srgb, var(--sga-white) 22%, transparent);
 }
 
+.shots-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.shots-group__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.shots-group .legend {
+  margin-top: 8px;
+}
+
 .split-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

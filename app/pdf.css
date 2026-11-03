@@ -664,6 +664,15 @@
   background: #297cc1;
 }
 
+.spdf-shots-group__label {
+  margin-top: 2px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a9dab;
+}
+
 .spdf-pass-panel__legend-label {
   font-size: 9px;
   font-weight: 700;

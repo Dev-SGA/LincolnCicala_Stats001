@@ -456,6 +456,7 @@ function PdfShotsPanel({ shots, playHref }: { shots: GameStats["finalThirdAction
         </p>
         <span className="spdf-pass-panel__total">{fmt(total)} shots</span>
       </div>
+      <span className="spdf-shots-group__label">Accuracy</span>
       <div className="spdf-pass-panel__track">
         <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-progressive" style={{ width: `${onTargetPct}%` }} />
         <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-lost" style={{ width: `${100 - onTargetPct}%` }} />
@@ -476,6 +477,7 @@ function PdfShotsPanel({ shots, playHref }: { shots: GameStats["finalThirdAction
           </strong>
         </li>
       </ul>
+      <span className="spdf-shots-group__label">Shot location</span>
       <div className="spdf-pass-panel__track">
         <span className="spdf-pass-panel__seg spdf-pass-panel__seg--blue" style={{ width: `${insideBoxPct}%` }} />
         <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-neutral" style={{ width: `${100 - insideBoxPct}%` }} />
