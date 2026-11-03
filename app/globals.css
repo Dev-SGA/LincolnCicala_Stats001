@@ -518,26 +518,21 @@ body::before {
 }
 
 .topic--stats {
-  --topic-color: var(--accent);
-  background: color-mix(in srgb, var(--sga-blue) 22%, var(--surface));
-  border-left-color: var(--accent);
-}
-
-.topic--stats .topic__phase {
-  color: var(--tone-accent);
-}
-
-.topic--build-up,
-.topic--carrying {
-  --topic-color: var(--accent);
-  background: color-mix(in srgb, var(--sga-blue) 14%, var(--surface));
-}
-
-.topic--final-third,
-.topic--defensive {
   --topic-color: #7a8f9f;
   background: color-mix(in srgb, var(--sga-white) 8%, var(--surface));
   border-left-color: #7a8f9f;
+}
+
+.topic--stats .topic__phase {
+  color: var(--text-faint);
+}
+
+.topic--build-up,
+.topic--carrying,
+.topic--final-third,
+.topic--defensive {
+  --topic-color: var(--accent);
+  background: color-mix(in srgb, var(--sga-blue) 14%, var(--surface));
 }
 
 .topic__trigger-text {
@@ -555,13 +550,10 @@ body::before {
 }
 
 .topic--build-up .topic__phase,
-.topic--carrying .topic__phase {
-  color: var(--tone-accent);
-}
-
+.topic--carrying .topic__phase,
 .topic--final-third .topic__phase,
 .topic--defensive .topic__phase {
-  color: var(--text-faint);
+  color: var(--tone-accent);
 }
 
 .topic__trigger {

@@ -441,15 +441,11 @@
 }
 
 .spdf-section--build-up,
-.spdf-section--carrying {
-  background: #eef6fc;
-  border: 1px solid #d4e8f7;
-}
-
+.spdf-section--carrying,
 .spdf-section--final-third,
 .spdf-section--defensive {
-  background: #f2f4f6;
-  border: 1px solid #dde3e8;
+  background: #eef6fc;
+  border: 1px solid #d4e8f7;
 }
 
 .spdf-section__phase {
@@ -461,13 +457,10 @@
 }
 
 .spdf-section--build-up .spdf-section__phase,
-.spdf-section--carrying .spdf-section__phase {
-  color: #297cc1;
-}
-
+.spdf-section--carrying .spdf-section__phase,
 .spdf-section--final-third .spdf-section__phase,
 .spdf-section--defensive .spdf-section__phase {
-  color: #6b8192;
+  color: #297cc1;
 }
 
 .spdf-section__top {
@@ -488,13 +481,24 @@
 }
 
 .spdf-section--build-up .spdf-section__title,
-.spdf-section--carrying .spdf-section__title {
+.spdf-section--carrying .spdf-section__title,
+.spdf-section--final-third .spdf-section__title,
+.spdf-section--defensive .spdf-section__title {
   color: #044f80;
 }
 
-.spdf-section--final-third .spdf-section__title,
-.spdf-section--defensive .spdf-section__title {
+.spdf-section--summary {
+  background: #f2f4f6;
+  border: 1px solid #dde3e8;
+}
+
+.spdf-section--summary .spdf-section__title {
   color: #4a5c6a;
+}
+
+.spdf-section--summary .spdf-summary-kpi,
+.spdf-section--summary .spdf-summary-meter {
+  border-color: #dde3e8;
 }
 
 .spdf-section__content {
