@@ -21,6 +21,11 @@ export type FinalThirdActionsStats = {
   neutral: number;
   lost: number;
   shots: number;
+  /** Shot map, only tracked for some matches. */
+  shotsOnTarget?: number;
+  shotsOffTarget?: number;
+  shotsInsideBox?: number;
+  shotsOutsideBox?: number;
   passWithShotOpportunity: number;
   videoLink: string;
 };
@@ -149,6 +154,14 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
       neutral: sumFinal((f) => f.neutral),
       lost: sumFinal((f) => f.lost),
       shots: sumFinal((f) => f.shots),
+      ...(sessions.every((match) => match.finalThirdActions.shotsOnTarget != null)
+        ? {
+            shotsOnTarget: sumFinal((f) => f.shotsOnTarget ?? 0),
+            shotsOffTarget: sumFinal((f) => f.shotsOffTarget ?? 0),
+            shotsInsideBox: sumFinal((f) => f.shotsInsideBox ?? 0),
+            shotsOutsideBox: sumFinal((f) => f.shotsOutsideBox ?? 0),
+          }
+        : {}),
       passWithShotOpportunity: sumFinal((f) => f.passWithShotOpportunity),
       videoLink: "",
     },

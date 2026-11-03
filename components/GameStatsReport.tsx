@@ -283,6 +283,86 @@ function PositiveCarryStat({
   );
 }
 
+function ShotsBreakdownCard({
+  shots,
+  titleHref,
+  games,
+}: {
+  shots: GameStats["finalThirdActions"];
+  titleHref?: string;
+  games?: number;
+}) {
+  const fmt = useFormatCount();
+  const total = shots.shots;
+  const onTarget = shots.shotsOnTarget ?? 0;
+  const offTarget = shots.shotsOffTarget ?? Math.max(total - onTarget, 0);
+  const insideBox = shots.shotsInsideBox ?? 0;
+  const outsideBox = shots.shotsOutsideBox ?? Math.max(total - insideBox, 0);
+  const onTargetPct = percent(onTarget, total);
+  const insideBoxPct = percent(insideBox, total);
+
+  return (
+    <div className="metric-card">
+      <ClipMetricTitle label="Shots" href={titleHref} />
+      {games && games > 1 ? (
+        <CountLine value={total} unit="shots" className="metric-card__count-line" />
+      ) : (
+        <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel="Open video: Shots">
+          {fmt(total)}
+        </ClipAnchor>
+      )}
+      <div
+        className="meter"
+        role="img"
+        aria-label={`On target: ${onTarget}. Off target: ${offTarget}.`}
+      >
+        <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${onTargetPct}%` }} />
+        <span className="meter__seg meter__seg--pass-lost" style={{ width: `${100 - onTargetPct}%` }} />
+      </div>
+      <ul className="legend">
+        <li>
+          <span className="legend__dot legend__dot--pass-progressive" />
+          <ClipLegendLabel label="On target" href={titleHref} />
+          <strong>
+            {fmt(onTarget)} · {onTargetPct}%
+          </strong>
+        </li>
+        <li>
+          <span className="legend__dot legend__dot--pass-lost" />
+          <ClipLegendLabel label="Off target" href={titleHref} />
+          <strong>
+            {fmt(offTarget)} · {percent(offTarget, total)}%
+          </strong>
+        </li>
+      </ul>
+      <div
+        className="meter"
+        role="img"
+        aria-label={`Inside the box: ${insideBox}. Outside the box: ${outsideBox}.`}
+      >
+        <span className="meter__seg meter__seg--accent" style={{ width: `${insideBoxPct}%` }} />
+        <span className="meter__seg meter__seg--muted" style={{ width: `${100 - insideBoxPct}%` }} />
+      </div>
+      <ul className="legend">
+        <li>
+          <span className="legend__dot legend__dot--accent" />
+          <ClipLegendLabel label="Inside the box" href={titleHref} />
+          <strong>
+            {fmt(insideBox)} · {insideBoxPct}%
+          </strong>
+        </li>
+        <li>
+          <span className="legend__dot legend__dot--muted" />
+          <ClipLegendLabel label="Outside the box" href={titleHref} />
+          <strong>
+            {fmt(outsideBox)} · {percent(outsideBox, total)}%
+          </strong>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function CountStat({
   label,
   value,
@@ -412,6 +492,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
   const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
   const shotsClip = clipUrl(videos, "Shots");
   const keyPassesClip = clipUrl(videos, "Key passes", "Passes with shot opportunity", "Pass with shot opportunity");
+  const hasShotDetail = finalThirdActions.shotsOnTarget != null;
 
   const topics: Topic[] = [];
 
@@ -531,32 +612,36 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
             <p className="metric-card__caption">Actions in the final third</p>
           </div>
           <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} games={games} />
-          <MetricFlow
-            items={[
-              <CountStat
-                key="shots"
-                label="Shots"
-                value={finalThirdActions.shots}
-                unit="shots"
-                caption="Shots taken"
-                highlight
-                titleHref={shotsClip}
-                games={games}
-                perGame={meta.perGame}
-              />,
-              <CountStat
-                key="key-passes"
-                label="Key passes"
-                value={finalThirdActions.passWithShotOpportunity}
-                unit="passes"
-                caption="Key passes in the final third"
-                highlight
-                titleHref={keyPassesClip}
-                games={games}
-                perGame={meta.perGame}
-              />,
-            ]}
-          />
+          {hasShotDetail ? (
+            <ShotsBreakdownCard shots={finalThirdActions} titleHref={shotsClip} games={games} />
+          ) : (
+            <MetricFlow
+              items={[
+                <CountStat
+                  key="shots"
+                  label="Shots"
+                  value={finalThirdActions.shots}
+                  unit="shots"
+                  caption="Shots taken"
+                  highlight
+                  titleHref={shotsClip}
+                  games={games}
+                  perGame={meta.perGame}
+                />,
+                <CountStat
+                  key="key-passes"
+                  label="Key passes"
+                  value={finalThirdActions.passWithShotOpportunity}
+                  unit="passes"
+                  caption="Key passes in the final third"
+                  highlight
+                  titleHref={keyPassesClip}
+                  games={games}
+                  perGame={meta.perGame}
+                />,
+              ]}
+            />
+          )}
         </>
       ),
     },

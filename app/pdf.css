@@ -618,6 +618,10 @@
   background: #b86b6b;
 }
 
+.spdf-pass-panel__seg--blue {
+  background: #297cc1;
+}
+
 .spdf-pass-panel__legend {
   margin: 0;
   padding: 0;
@@ -650,6 +654,10 @@
 
 .spdf-pass-panel__dot--pass-lost {
   background: #b86b6b;
+}
+
+.spdf-pass-panel__dot--blue {
+  background: #297cc1;
 }
 
 .spdf-pass-panel__legend-label {

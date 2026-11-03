@@ -439,6 +439,69 @@ function CarryResultPanel({
   );
 }
 
+function PdfShotsPanel({ shots, playHref }: { shots: GameStats["finalThirdActions"]; playHref?: string }) {
+  const fmt = useFormatCount();
+  const total = shots.shots;
+  const onTarget = shots.shotsOnTarget ?? 0;
+  const offTarget = shots.shotsOffTarget ?? Math.max(total - onTarget, 0);
+  const insideBox = shots.shotsInsideBox ?? 0;
+  const outsideBox = shots.shotsOutsideBox ?? Math.max(total - insideBox, 0);
+  const onTargetPct = pct(onTarget, total);
+  const insideBoxPct = pct(insideBox, total);
+
+  return (
+    <div className="spdf-pass-panel">
+      <div className="spdf-pass-panel__head">
+        <p className="spdf-pass-panel__title">
+          Shots
+          <PdfPlay href={playHref} />
+        </p>
+        <span className="spdf-pass-panel__total">{fmt(total)} shots</span>
+      </div>
+      <div className="spdf-pass-panel__track">
+        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-progressive" style={{ width: `${onTargetPct}%` }} />
+        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-lost" style={{ width: `${100 - onTargetPct}%` }} />
+      </div>
+      <ul className="spdf-pass-panel__legend">
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
+          <span className="spdf-pass-panel__legend-label">On target</span>
+          <strong>
+            {fmt(onTarget)} · {onTargetPct}%
+          </strong>
+        </li>
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
+          <span className="spdf-pass-panel__legend-label">Off target</span>
+          <strong>
+            {fmt(offTarget)} · {pct(offTarget, total)}%
+          </strong>
+        </li>
+      </ul>
+      <div className="spdf-pass-panel__track">
+        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--blue" style={{ width: `${insideBoxPct}%` }} />
+        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-neutral" style={{ width: `${100 - insideBoxPct}%` }} />
+      </div>
+      <ul className="spdf-pass-panel__legend">
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--blue" />
+          <span className="spdf-pass-panel__legend-label">Inside the box</span>
+          <strong>
+            {fmt(insideBox)} · {insideBoxPct}%
+          </strong>
+        </li>
+        <li>
+          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
+          <span className="spdf-pass-panel__legend-label">Outside the box</span>
+          <strong>
+            {fmt(outsideBox)} · {pct(outsideBox, total)}%
+          </strong>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 type PdfPhase = "carrying" | "final-third";
 
 const PDF_PHASE_LABEL: Record<PdfPhase, string> = {
@@ -491,6 +554,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
   const possessionClip = clipUrl(videos, "Progressive play in possession", "In possession");
   const shotsClip = clipUrl(videos, "Shots");
   const keyPassesClip = clipUrl(videos, "Key passes", "Passes with shot opportunity", "Pass with shot opportunity");
+  const hasShotDetail = finalThirdActions.shotsOnTarget != null;
 
   return (
     <>
@@ -591,40 +655,44 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
             >
               <div className="spdf-final-third-panel">
                 <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
-                <div className="spdf-threat-row">
-                  <table className="spdf-threat-card spdf-threat-card--shots">
-                    <tbody>
-                      <tr>
-                        <td className="spdf-threat-card__value">
-                          <PdfPlayTarget href={shotsClip}>{fmt(finalThirdActions.shots)}</PdfPlayTarget>
-                        </td>
-                        <td className="spdf-threat-card__copy">
-                          <span className="spdf-threat-card__label">
-                            <PdfPlayTarget href={shotsClip}>Shots</PdfPlayTarget>
-                            <PdfPlay href={shotsClip} />
-                          </span>
-                          <span className="spdf-threat-card__caption">Shots taken</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <table className="spdf-threat-card spdf-threat-card--pass">
-                    <tbody>
-                      <tr>
-                        <td className="spdf-threat-card__value">
-                          <PdfPlayTarget href={keyPassesClip}>{fmt(finalThirdActions.passWithShotOpportunity)}</PdfPlayTarget>
-                        </td>
-                        <td className="spdf-threat-card__copy">
-                          <span className="spdf-threat-card__label">
-                            <PdfPlayTarget href={keyPassesClip}>Key passes</PdfPlayTarget>
-                            <PdfPlay href={keyPassesClip} />
-                          </span>
-                          <span className="spdf-threat-card__caption">Key passes in the final third</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                {hasShotDetail ? (
+                  <PdfShotsPanel shots={finalThirdActions} playHref={shotsClip} />
+                ) : (
+                  <div className="spdf-threat-row">
+                    <table className="spdf-threat-card spdf-threat-card--shots">
+                      <tbody>
+                        <tr>
+                          <td className="spdf-threat-card__value">
+                            <PdfPlayTarget href={shotsClip}>{fmt(finalThirdActions.shots)}</PdfPlayTarget>
+                          </td>
+                          <td className="spdf-threat-card__copy">
+                            <span className="spdf-threat-card__label">
+                              <PdfPlayTarget href={shotsClip}>Shots</PdfPlayTarget>
+                              <PdfPlay href={shotsClip} />
+                            </span>
+                            <span className="spdf-threat-card__caption">Shots taken</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <table className="spdf-threat-card spdf-threat-card--pass">
+                      <tbody>
+                        <tr>
+                          <td className="spdf-threat-card__value">
+                            <PdfPlayTarget href={keyPassesClip}>{fmt(finalThirdActions.passWithShotOpportunity)}</PdfPlayTarget>
+                          </td>
+                          <td className="spdf-threat-card__copy">
+                            <span className="spdf-threat-card__label">
+                              <PdfPlayTarget href={keyPassesClip}>Key passes</PdfPlayTarget>
+                              <PdfPlay href={keyPassesClip} />
+                            </span>
+                            <span className="spdf-threat-card__caption">Key passes in the final third</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </PdfSection>
           </div>
