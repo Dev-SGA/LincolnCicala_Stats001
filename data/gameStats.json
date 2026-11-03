@@ -150,10 +150,10 @@
         "positive": 6,
         "neutral": 13,
         "lost": 3,
-        "shots": 6,
-        "shotsOnTarget": 5,
+        "shots": 5,
+        "shotsOnTarget": 4,
         "shotsOffTarget": 1,
-        "shotsInsideBox": 4,
+        "shotsInsideBox": 3,
         "shotsOutsideBox": 2,
         "passWithShotOpportunity": 4,
         "videoLink": ""
