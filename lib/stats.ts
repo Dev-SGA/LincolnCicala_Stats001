@@ -54,6 +54,10 @@ export type MatchStats = {
   /** Season numbers divided by the games played. */
   perGame?: boolean;
   summary?: MatchSummary;
+  /** Games that contributed summary data (Season only). */
+  summaryGames?: number;
+  /** Games that contributed shot detail data (Season only). */
+  shotGames?: number;
   carries: CarriesStats;
   finalThirdActions: FinalThirdActionsStats;
   videos?: { label: string; url: string }[];
@@ -83,6 +87,7 @@ export type GameStats = {
     fileSlug?: string;
     games?: number;
     perGame?: boolean;
+    summaryGames?: number;
   };
   player: StatsReport["player"];
   match: {
@@ -139,7 +144,11 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
     shortLabel: "Season",
     logo: "",
     games: sessions.length,
-    summary: summaries.length === sessions.length ? combineSummaries(summaries) : undefined,
+    summary: summaries.length > 0 ? combineSummaries(summaries) : undefined,
+    summaryGames: summaries.length > 0 ? summaries.length : undefined,
+    shotGames: sessions.some((match) => match.finalThirdActions.shotsOnTarget != null)
+      ? sessions.filter((match) => match.finalThirdActions.shotsOnTarget != null).length
+      : undefined,
     carries: {
       total: sumCarries((c) => c.total),
       inTransition: sumCarries((c) => c.inTransition),
@@ -154,7 +163,7 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
       neutral: sumFinal((f) => f.neutral),
       lost: sumFinal((f) => f.lost),
       shots: sumFinal((f) => f.shots),
-      ...(sessions.every((match) => match.finalThirdActions.shotsOnTarget != null)
+      ...(sessions.some((match) => match.finalThirdActions.shotsOnTarget != null)
         ? {
             shotsOnTarget: sumFinal((f) => f.shotsOnTarget ?? 0),
             shotsOffTarget: sumFinal((f) => f.shotsOffTarget ?? 0),
@@ -192,9 +201,19 @@ export function perGameMatch(season: MatchStats): MatchStats {
   return {
     ...season,
     label: "Season · Per game",
-    summary: scaleNumbers(season.summary, factor),
+    summary: scaleNumbers(season.summary, season.summaryGames ? 1 / season.summaryGames : factor),
     carries: scaleNumbers(season.carries, factor),
-    finalThirdActions: scaleNumbers(season.finalThirdActions, factor),
+    finalThirdActions: {
+      ...scaleNumbers(season.finalThirdActions, factor),
+      ...(season.shotGames
+        ? {
+            shotsOnTarget: (season.finalThirdActions.shotsOnTarget ?? 0) / season.shotGames,
+            shotsOffTarget: (season.finalThirdActions.shotsOffTarget ?? 0) / season.shotGames,
+            shotsInsideBox: (season.finalThirdActions.shotsInsideBox ?? 0) / season.shotGames,
+            shotsOutsideBox: (season.finalThirdActions.shotsOutsideBox ?? 0) / season.shotGames,
+          }
+        : {}),
+    },
     perGame: true,
   };
 }
@@ -208,6 +227,7 @@ export function toGameStats(report: StatsReport, match: MatchStats): GameStats {
       fileSlug: `${report.meta.session}-${match.id}${match.perGame ? "-per-game" : ""}`,
       games,
       perGame: match.perGame,
+      summaryGames: match.summaryGames,
     },
     player: report.player,
     match: {

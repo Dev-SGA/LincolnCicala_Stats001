@@ -243,6 +243,13 @@ export function StatsSummaryBoard({
         </div>
       </section>
       <section className="stats-topic">
+        <h3 className="stats-topic__title">Goals &amp; Assists</h3>
+        <div className="stats-topic__panel stats-topic__panel--duo">
+          <StatsFigure label="Goals" value={summary.goals} unit="goals" games={games} />
+          <StatsFigure label="Assists" value={summary.assists} unit="assists" games={games} />
+        </div>
+      </section>
+      <section className="stats-topic">
         <h3 className="stats-topic__title">Tackles</h3>
         <div className="stats-topic__panel stats-topic__panel--pair">
           <StatsFigure label="Total tackles" value={regains} unit="tackles" games={games} />
@@ -256,13 +263,6 @@ export function StatsSummaryBoard({
             primaryHref={clipUrl(videos, "Interceptions")}
             secondaryHref={clipUrl(videos, "Recoveries")}
           />
-        </div>
-      </section>
-      <section className="stats-topic">
-        <h3 className="stats-topic__title">Goals &amp; Assists</h3>
-        <div className="stats-topic__panel stats-topic__panel--duo">
-          <StatsFigure label="Goals" value={summary.goals} unit="goals" games={games} />
-          <StatsFigure label="Assists" value={summary.assists} unit="assists" games={games} />
         </div>
       </section>
     </div>

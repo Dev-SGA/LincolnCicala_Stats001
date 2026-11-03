@@ -231,6 +231,55 @@ function ActionResultsMeter({
   );
 }
 
+function KeyPassesCard({
+  keyPasses,
+  totalPasses,
+  titleHref,
+  games,
+}: {
+  keyPasses: number;
+  totalPasses: number;
+  titleHref?: string;
+  games?: number;
+}) {
+  const fmt = useFormatCount();
+  const otherPasses = Math.max(totalPasses - keyPasses, 0);
+  const keyPct = percent(keyPasses, totalPasses);
+
+  return (
+    <div className="metric-card">
+      <ClipMetricTitle label="Key passes" href={titleHref} />
+      {games && games > 1 ? (
+        <CountLine value={keyPasses} unit="key passes" className="metric-card__count-line" />
+      ) : (
+        <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel="Open video: Key passes">
+          {fmt(keyPasses)}
+        </ClipAnchor>
+      )}
+      <div className="meter" role="img" aria-label={`Key passes: ${keyPasses}. Other passes: ${otherPasses}.`}>
+        <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${keyPct}%` }} />
+        <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${100 - keyPct}%` }} />
+      </div>
+      <ul className="legend">
+        <li>
+          <span className="legend__dot legend__dot--pass-progressive" />
+          <ClipLegendLabel label="Key passes" href={titleHref} />
+          <strong>
+            {fmt(keyPasses)} · {keyPct}%
+          </strong>
+        </li>
+        <li>
+          <span className="legend__dot legend__dot--pass-neutral" />
+          <ClipLegendLabel label="Other passes" />
+          <strong>
+            {fmt(otherPasses)} · {percent(otherPasses, totalPasses)}%
+          </strong>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function PositiveCarryStat({
   label,
   positive,
@@ -293,13 +342,15 @@ function ShotsBreakdownCard({
   games?: number;
 }) {
   const fmt = useFormatCount();
-  const total = shots.shots;
   const onTarget = shots.shotsOnTarget ?? 0;
-  const offTarget = shots.shotsOffTarget ?? Math.max(total - onTarget, 0);
+  const offTarget = shots.shotsOffTarget ?? Math.max(shots.shots - onTarget, 0);
   const insideBox = shots.shotsInsideBox ?? 0;
-  const outsideBox = shots.shotsOutsideBox ?? Math.max(total - insideBox, 0);
-  const onTargetPct = percent(onTarget, total);
-  const insideBoxPct = percent(insideBox, total);
+  const outsideBox = shots.shotsOutsideBox ?? Math.max(shots.shots - insideBox, 0);
+  const accuracyTotal = onTarget + offTarget;
+  const locationTotal = insideBox + outsideBox;
+  const total = accuracyTotal;
+  const onTargetPct = percent(onTarget, accuracyTotal);
+  const insideBoxPct = percent(insideBox, locationTotal);
 
   return (
     <div className="metric-card">
@@ -334,7 +385,7 @@ function ShotsBreakdownCard({
               <span className="legend__dot legend__dot--pass-lost" />
               <ClipLegendLabel label="Off target" href={titleHref} />
               <strong>
-                {fmt(offTarget)} · {percent(offTarget, total)}%
+                {fmt(offTarget)} · {percent(offTarget, accuracyTotal)}%
               </strong>
             </li>
           </ul>
@@ -361,7 +412,7 @@ function ShotsBreakdownCard({
               <span className="legend__dot legend__dot--muted" />
               <ClipLegendLabel label="Outside the box" href={titleHref} />
               <strong>
-                {fmt(outsideBox)} · {percent(outsideBox, total)}%
+                {fmt(outsideBox)} · {percent(outsideBox, locationTotal)}%
               </strong>
             </li>
           </ul>
@@ -620,6 +671,14 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
             <p className="metric-card__caption">Actions in the final third</p>
           </div>
           <ActionResultsMeter title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} games={games} />
+          {summary ? (
+            <KeyPassesCard
+              keyPasses={summary.keyPasses}
+              totalPasses={summary.passes}
+              titleHref={keyPassesClip}
+              games={games}
+            />
+          ) : null}
           {hasShotDetail ? (
             <ShotsBreakdownCard shots={finalThirdActions} titleHref={shotsClip} games={games} />
           ) : (

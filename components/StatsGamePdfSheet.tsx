@@ -225,7 +225,9 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
   const fmt = useFormatCount();
   const summary = stats.summary;
   if (!summary) return null;
-  const games = stats.meta.games;
+  const games = stats.meta.games ?? 1;
+  const summaryGames = stats.meta.perGame ? 1 : (stats.meta.summaryGames ?? games);
+  const matchGames = stats.meta.perGame ? 1 : games;
   const offensiveTotal = summary.offensiveWon + summary.offensiveLost;
   const regains = summary.interceptions + summary.recoveries;
 
@@ -241,7 +243,7 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             totalLabel="Total passes"
             rate={pct(summary.accurate, summary.passes)}
             rateLabel="Accurate"
-            perGameLabel={games ? `${perGame(summary.passes, games)} per game` : undefined}
+            perGameLabel={`${perGame(summary.passes, summaryGames)} per game`}
             segments={[
               { label: "Accurate", value: fmt(summary.accurate), share: summary.accurate, tone: "pass-progressive" },
               { label: "Inaccurate", value: fmt(summary.inaccurate), share: summary.inaccurate, tone: "grey" },
@@ -253,7 +255,7 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             totalLabel="Total duels"
             rate={pct(summary.offensiveWon, offensiveTotal)}
             rateLabel="Won rate"
-            perGameLabel={games ? `${perGame(offensiveTotal, games)} per game` : undefined}
+            perGameLabel={`${perGame(offensiveTotal, summaryGames)} per game`}
             segments={[
               {
                 label: "Won",
@@ -274,20 +276,21 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
           <SummaryNumberCard
             title="Key passes"
             value={summary.keyPasses}
-            perGameLabel={games ? `${perGame(summary.keyPasses, games)} per game` : undefined}
+            perGameLabel={`${perGame(summary.keyPasses, summaryGames)} per game`}
             playHref={clipUrl(stats.videos, "Key passes", "Passes with shot opportunity")}
           />
           <SummaryNumberCard
             title="Shots"
             value={stats.finalThirdActions.shots}
-            perGameLabel={games ? `${perGame(stats.finalThirdActions.shots, games)} per game` : undefined}
+            perGameLabel={`${perGame(stats.finalThirdActions.shots, matchGames)} per game`}
             playHref={clipUrl(stats.videos, "Shots")}
           />
+          <GoalsAssistsCard goals={summary.goals} assists={summary.assists} games={summaryGames} />
           <SummaryStatCard
             title="Tackles"
             total={regains}
             totalLabel="Total tackles"
-            perGameLabel={games ? `${perGame(regains, games)} per game` : undefined}
+            perGameLabel={`${perGame(regains, summaryGames)} per game`}
             wide
             segments={[
               {
@@ -306,7 +309,6 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
               },
             ]}
           />
-          <GoalsAssistsCard goals={summary.goals} assists={summary.assists} games={games} />
         </div>
         <footer className="spdf-foot">
           <span>{BRAND.name}</span>
@@ -518,15 +520,18 @@ function PdfKeyPassesPanel({
 function PdfShotGroup({
   title,
   total,
+  shareTotal,
   rows,
   playHref,
 }: {
   title: string;
   total: number;
+  shareTotal?: number;
   rows: { label: string; value: number; tone: Tone }[];
   playHref?: string;
 }) {
   const fmt = useFormatCount();
+  const share = shareTotal ?? total;
 
   return (
     <div className="spdf-pass-panel">
@@ -542,7 +547,7 @@ function PdfShotGroup({
           <span
             key={row.label}
             className={`spdf-pass-panel__seg spdf-pass-panel__seg--${row.tone}`}
-            style={{ width: `${pct(row.value, total)}%` }}
+            style={{ width: `${pct(row.value, share)}%` }}
           />
         ))}
       </div>
@@ -552,7 +557,7 @@ function PdfShotGroup({
             <span className={`spdf-pass-panel__dot spdf-pass-panel__dot--${row.tone}`} />
             <span className="spdf-pass-panel__legend-label">{row.label}</span>
             <strong>
-              {fmt(row.value)} · {pct(row.value, total)}%
+              {fmt(row.value)} · {pct(row.value, share)}%
             </strong>
           </li>
         ))}
@@ -562,17 +567,19 @@ function PdfShotGroup({
 }
 
 function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"]; playHref?: string }) {
-  const total = shots.shots;
   const onTarget = shots.shotsOnTarget ?? 0;
-  const offTarget = shots.shotsOffTarget ?? Math.max(total - onTarget, 0);
+  const offTarget = shots.shotsOffTarget ?? Math.max(shots.shots - onTarget, 0);
   const insideBox = shots.shotsInsideBox ?? 0;
-  const outsideBox = shots.shotsOutsideBox ?? Math.max(total - insideBox, 0);
+  const outsideBox = shots.shotsOutsideBox ?? Math.max(shots.shots - insideBox, 0);
+  const accuracyTotal = onTarget + offTarget;
+  const locationTotal = insideBox + outsideBox;
 
   return (
     <div className="spdf-ft-shot-row">
       <PdfShotGroup
         title="Shot accuracy"
-        total={total}
+        total={accuracyTotal}
+        shareTotal={accuracyTotal}
         playHref={playHref}
         rows={[
           { label: "On target", value: onTarget, tone: "pass-progressive" },
@@ -581,7 +588,8 @@ function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"
       />
       <PdfShotGroup
         title="Shot location"
-        total={total}
+        total={locationTotal}
+        shareTotal={locationTotal}
         rows={[
           { label: "Inside the box", value: insideBox, tone: "blue" },
           { label: "Outside the box", value: outsideBox, tone: "pass-neutral" },
@@ -656,7 +664,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl, clubLogoUrl, oppon
                 <ActionResultPanel title="Outcome breakdown" breakdown={finalThirdBreakdown} videos={videos} />
                 {summary ? (
                   <PdfKeyPassesPanel
-                    keyPasses={finalThirdActions.passWithShotOpportunity}
+                    keyPasses={summary.keyPasses}
                     totalPasses={summary.passes}
                     playHref={keyPassesClip}
                   />
