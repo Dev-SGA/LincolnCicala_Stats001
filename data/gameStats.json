@@ -204,6 +204,80 @@
           "url": "https://drive.google.com/file/d/1eK4oLgJuhEfcKSWK_P0IBPRh-mTunK9X/view"
         }
       ]
+    },
+    {
+      "id": "midwest-united",
+      "kind": "session",
+      "label": "vs Midwest United",
+      "shortLabel": "Midwest United",
+      "logo": "",
+      "summary": {
+        "passes": 67,
+        "accurate": 57,
+        "inaccurate": 10,
+        "keyPasses": 3,
+        "offensiveWon": 6,
+        "offensiveLost": 12,
+        "interceptions": 5,
+        "recoveries": 2,
+        "goals": 0,
+        "assists": 0
+      },
+      "carries": {
+        "total": 7,
+        "inTransition": 3,
+        "inPossession": 4,
+        "transitionPositive": 1,
+        "possessionPositive": 2,
+        "videoLink": ""
+      },
+      "finalThirdActions": {
+        "total": 33,
+        "positive": 8,
+        "neutral": 15,
+        "lost": 10,
+        "shots": 4,
+        "passWithShotOpportunity": 3,
+        "videoLink": ""
+      },
+      "videos": []
+    },
+    {
+      "id": "vardar-soccer",
+      "kind": "session",
+      "label": "vs Vardar Soccer",
+      "shortLabel": "Vardar",
+      "logo": "",
+      "summary": {
+        "passes": 72,
+        "accurate": 58,
+        "inaccurate": 14,
+        "keyPasses": 0,
+        "offensiveWon": 1,
+        "offensiveLost": 10,
+        "interceptions": 4,
+        "recoveries": 3,
+        "goals": 0,
+        "assists": 0
+      },
+      "carries": {
+        "total": 0,
+        "inTransition": 0,
+        "inPossession": 0,
+        "transitionPositive": 0,
+        "possessionPositive": 0,
+        "videoLink": ""
+      },
+      "finalThirdActions": {
+        "total": 17,
+        "positive": 2,
+        "neutral": 13,
+        "lost": 2,
+        "shots": 1,
+        "passWithShotOpportunity": 0,
+        "videoLink": ""
+      },
+      "videos": []
     }
   ]
 }
