@@ -255,7 +255,13 @@ export function StatsSummaryBoard({
       <section className="stats-topic">
         <h3 className="stats-topic__title">Goals &amp; Assists</h3>
         <div className="stats-topic__panel stats-topic__panel--duo">
-          <StatsFigure label="Goals" value={summary.goals} unit="goals" games={games} />
+          <StatsFigure
+            label="Goals"
+            value={summary.goals}
+            unit="goals"
+            games={games}
+            href={clipUrl(videos, "Goals")}
+          />
           <StatsFigure
             label="Assists"
             value={summary.assists}

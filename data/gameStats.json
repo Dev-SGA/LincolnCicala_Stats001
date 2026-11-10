@@ -242,7 +242,20 @@
         "shotsOnTarget": 2,
         "shotsOffTarget": 2
       },
-      "videos": []
+      "videos": [
+        { "label": "Shots", "url": "https://drive.google.com/file/d/1rD-iR4iezB2nWDgRKRQgOtl8ZDEL2Ob_/view" },
+        { "label": "Recoveries", "url": "https://drive.google.com/file/d/19ImGgc7eaKuSRxzZlUUvQsY9SIKWatZw/view" },
+        { "label": "Progressive plays Final third", "url": "https://drive.google.com/file/d/192yV-f9U76k-C9RtyQF1_vLj9KFjHPO-/view" },
+        { "label": "Off. Duels Won", "url": "https://drive.google.com/file/d/1b4WS9NC2T5DXxszSKrcOMIC--_Hrh06I/view" },
+        { "label": "Off. Duels Lost", "url": "https://drive.google.com/file/d/11bIgz5copkrgit2vU0SW9Sg7eoV8zZ65/view" },
+        { "label": "Lost plays final third", "url": "https://drive.google.com/file/d/1Il4XJdco2jIsRk8PxB2iWze--1mZZu9D/view" },
+        { "label": "Key passes", "url": "https://drive.google.com/file/d/1ZgSzhORlB8DW7YTA_PbknTd-qgJsiriD/view" },
+        { "label": "Interceptions", "url": "https://drive.google.com/file/d/1TzQXfg3NtLSfsaoqS50P_ZMkC9huglEK/view" },
+        { "label": "Goals", "url": "https://drive.google.com/file/d/12v-AnuTJwBTEoyzASXmevDNgApKJsMBx/view" },
+        { "label": "Progressive plays in transition", "url": "https://drive.google.com/file/d/1sWXJdO-JNAH3Dp7ls9RI9aHQcx1rsBln/view" },
+        { "label": "Progressive play in possession", "url": "https://drive.google.com/file/d/1JVIPgMxmOZKjv2T5Aw77bwn1DPFvYqeL/view" },
+        { "label": "Assists", "url": "https://drive.google.com/file/d/1evar5ApObqzd_RUGpCjDWPUWcXVg-IRv/view" }
+      ]
     },
     {
       "id": "vardar-soccer",

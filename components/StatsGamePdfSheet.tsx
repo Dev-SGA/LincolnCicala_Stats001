@@ -260,7 +260,7 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
           <SummaryPairCard
             title="Goals & Assists"
             items={[
-              { label: "Goals", value: summary.goals },
+              { label: "Goals", value: summary.goals, href: clipUrl(stats.videos, "Goals") },
               { label: "Assists", value: summary.assists, href: clipUrl(stats.videos, "Assists") },
             ]}
           />
