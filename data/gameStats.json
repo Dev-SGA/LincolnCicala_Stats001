@@ -264,8 +264,8 @@
       "shortLabel": "Vardar",
       "logo": "/clubs/vardar.png",
       "summary": {
-        "passes": 72,
-        "accurate": 58,
+        "passes": 71,
+        "accurate": 57,
         "inaccurate": 14,
         "keyPasses": 2,
         "offensiveWon": 1,
@@ -284,9 +284,9 @@
         "videoLink": ""
       },
       "finalThirdActions": {
-        "total": 19,
+        "total": 18,
         "positive": 3,
-        "neutral": 14,
+        "neutral": 13,
         "lost": 2,
         "shots": 1,
         "passWithShotOpportunity": 2,
