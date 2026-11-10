@@ -252,7 +252,7 @@
         "passes": 72,
         "accurate": 58,
         "inaccurate": 14,
-        "keyPasses": 0,
+        "keyPasses": 2,
         "offensiveWon": 1,
         "offensiveLost": 10,
         "interceptions": 4,
@@ -274,7 +274,7 @@
         "neutral": 13,
         "lost": 2,
         "shots": 1,
-        "passWithShotOpportunity": 0,
+        "passWithShotOpportunity": 2,
         "videoLink": ""
       },
       "videos": []
