@@ -390,33 +390,35 @@ function ShotsBreakdownCard({
             </li>
           </ul>
         </div>
-        <div className="shots-group">
-          <span className="shots-group__label">Shot location</span>
-          <div
-            className="meter"
-            role="img"
-            aria-label={`Inside the box: ${insideBox}. Outside the box: ${outsideBox}.`}
-          >
-            <span className="meter__seg meter__seg--accent" style={{ width: `${insideBoxPct}%` }} />
-            <span className="meter__seg meter__seg--muted" style={{ width: `${100 - insideBoxPct}%` }} />
+        {shots.shotsInsideBox != null ? (
+          <div className="shots-group">
+            <span className="shots-group__label">Shot location</span>
+            <div
+              className="meter"
+              role="img"
+              aria-label={`Inside the box: ${insideBox}. Outside the box: ${outsideBox}.`}
+            >
+              <span className="meter__seg meter__seg--accent" style={{ width: `${insideBoxPct}%` }} />
+              <span className="meter__seg meter__seg--muted" style={{ width: `${100 - insideBoxPct}%` }} />
+            </div>
+            <ul className="legend">
+              <li>
+                <span className="legend__dot legend__dot--accent" />
+                <ClipLegendLabel label="Inside the box" href={titleHref} />
+                <strong>
+                  {fmt(insideBox)} · {insideBoxPct}%
+                </strong>
+              </li>
+              <li>
+                <span className="legend__dot legend__dot--muted" />
+                <ClipLegendLabel label="Outside the box" href={titleHref} />
+                <strong>
+                  {fmt(outsideBox)} · {percent(outsideBox, locationTotal)}%
+                </strong>
+              </li>
+            </ul>
           </div>
-          <ul className="legend">
-            <li>
-              <span className="legend__dot legend__dot--accent" />
-              <ClipLegendLabel label="Inside the box" href={titleHref} />
-              <strong>
-                {fmt(insideBox)} · {insideBoxPct}%
-              </strong>
-            </li>
-            <li>
-              <span className="legend__dot legend__dot--muted" />
-              <ClipLegendLabel label="Outside the box" href={titleHref} />
-              <strong>
-                {fmt(outsideBox)} · {percent(outsideBox, locationTotal)}%
-              </strong>
-            </li>
-          </ul>
-        </div>
+        ) : null}
       </div>
     </div>
   );

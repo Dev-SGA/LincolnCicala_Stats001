@@ -220,8 +220,8 @@
         "offensiveLost": 12,
         "interceptions": 5,
         "recoveries": 2,
-        "goals": 0,
-        "assists": 0
+        "goals": 1,
+        "assists": 1
       },
       "carries": {
         "total": 7,
@@ -238,7 +238,9 @@
         "lost": 10,
         "shots": 4,
         "passWithShotOpportunity": 3,
-        "videoLink": ""
+        "videoLink": "",
+        "shotsOnTarget": 2,
+        "shotsOffTarget": 2
       },
       "videos": []
     },
@@ -275,7 +277,9 @@
         "lost": 2,
         "shots": 1,
         "passWithShotOpportunity": 2,
-        "videoLink": ""
+        "videoLink": "",
+        "shotsOnTarget": 1,
+        "shotsOffTarget": 0
       },
       "videos": []
     }

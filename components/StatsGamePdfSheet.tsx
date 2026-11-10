@@ -563,15 +563,17 @@ function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"
           { label: "Off target", value: offTarget, tone: "pass-lost" },
         ]}
       />
-      <PdfShotGroup
-        title="Shot location"
-        total={locationTotal}
-        shareTotal={locationTotal}
-        rows={[
-          { label: "Inside the box", value: insideBox, tone: "blue" },
-          { label: "Outside the box", value: outsideBox, tone: "pass-neutral" },
-        ]}
-      />
+      {shots.shotsInsideBox != null ? (
+        <PdfShotGroup
+          title="Shot location"
+          total={locationTotal}
+          shareTotal={locationTotal}
+          rows={[
+            { label: "Inside the box", value: insideBox, tone: "blue" },
+            { label: "Outside the box", value: outsideBox, tone: "pass-neutral" },
+          ]}
+        />
+      ) : null}
     </>
   );
 }

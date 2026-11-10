@@ -1826,3 +1826,8 @@
 .spdf-final-third-panel > .spdf-threat-row .spdf-threat-card {
   height: 100%;
 }
+
+/* An odd card left alone on the last row spans the full width */
+.spdf-ft-grid > .spdf-pass-panel:nth-child(odd):last-child {
+  grid-column: 1 / -1;
+}
