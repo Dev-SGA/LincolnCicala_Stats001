@@ -343,7 +343,17 @@
         "shotsOnTarget": 3,
         "shotsOffTarget": 1
       },
-      "videos": []
+      "videos": [
+        { "label": "Shots", "url": "https://drive.google.com/file/d/1hUlZvMC4rVJhgLN00NGHVwHRJp_Ot6rf/view" },
+        { "label": "Recoveries", "url": "https://drive.google.com/file/d/1TBztubXRbX9x_DFHaX4a-mmPRVPT_UkX/view" },
+        { "label": "Off. Duels Won", "url": "https://drive.google.com/file/d/1ODeqZ942NGzmPMnt8w_fE0Yxqxvl3uGO/view" },
+        { "label": "Off. Duels Lost", "url": "https://drive.google.com/file/d/1Vsw7v6fTDlkzi_mhDe9gpPo9UexAjG86/view" },
+        { "label": "Key passes", "url": "https://drive.google.com/file/d/1BPEPEM9LHVL6iVnfmHiyVsn0r8frzQsz/view" },
+        { "label": "Interceptions", "url": "https://drive.google.com/file/d/1IoeeScJahwmK8fMSsIsAPQu3gMTwaWc0/view" },
+        { "label": "Progressive plays Final third", "url": "https://drive.google.com/file/d/14BOIrx_8HolzB5Wu8XhnLvicjAwDnLvX/view" },
+        { "label": "Lost plays final third", "url": "https://drive.google.com/file/d/1wgoKaGdUezx6mqJ80YOnFqSw0zASnYi3/view" },
+        { "label": "Progressive plays in transition", "url": "https://drive.google.com/file/d/1j_1ZRmzSqiNl1Q-YX5aR6GM3t3jeQeKP/view" }
+      ]
     }
   ]
 }
