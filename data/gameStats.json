@@ -339,7 +339,9 @@
         "lost": 5,
         "shots": 4,
         "passWithShotOpportunity": 4,
-        "videoLink": ""
+        "videoLink": "",
+        "shotsOnTarget": 3,
+        "shotsOffTarget": 1
       },
       "videos": []
     }
