@@ -305,6 +305,43 @@
         { "label": "Interceptions", "url": "https://drive.google.com/file/d/1R2GBMchYYHGdTJzh5fCIbEJj1e9SILqT/view" },
         { "label": "Progressive play in possession", "url": "https://drive.google.com/file/d/1fIvhJZryXX6Qc61dV3iYaposylVx4IVG/view" }
       ]
+    },
+    {
+      "id": "colorado-rapids",
+      "kind": "session",
+      "label": "vs Colorado Rapids",
+      "shortLabel": "Colorado Rapids",
+      "logo": "/clubs/colorado-rapids.png",
+      "summary": {
+        "passes": 43,
+        "accurate": 30,
+        "inaccurate": 13,
+        "keyPasses": 4,
+        "offensiveWon": 5,
+        "offensiveLost": 7,
+        "interceptions": 3,
+        "recoveries": 6,
+        "goals": 0,
+        "assists": 0
+      },
+      "carries": {
+        "total": 8,
+        "inTransition": 7,
+        "inPossession": 1,
+        "transitionPositive": 4,
+        "possessionPositive": 0,
+        "videoLink": ""
+      },
+      "finalThirdActions": {
+        "total": 22,
+        "positive": 5,
+        "neutral": 12,
+        "lost": 5,
+        "shots": 4,
+        "passWithShotOpportunity": 4,
+        "videoLink": ""
+      },
+      "videos": []
     }
   ]
 }
