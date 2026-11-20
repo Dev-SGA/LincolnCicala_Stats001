@@ -9,6 +9,7 @@ import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { CountLine } from "@/components/CountLine";
 import { CountDecimalsProvider, useFormatCount } from "@/components/CountFormat";
+import { OutcomeCard } from "@/components/OutcomeCard";
 import { StatsSummaryBoard } from "@/components/StatsSummaryBoard";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
 import { ProgressView } from "@/components/ProgressView";
@@ -124,7 +125,7 @@ function SplitMeter({
   secondaryLabel,
   primaryTone,
   secondaryTone,
-  headline,
+  unit,
   major,
   primaryHref,
   secondaryHref,
@@ -136,40 +137,23 @@ function SplitMeter({
   secondaryLabel: string;
   primaryTone: BarTone;
   secondaryTone: BarTone;
-  headline: string;
+  unit: string;
   major?: boolean;
   primaryHref?: string;
   secondaryHref?: string;
 }) {
-  const fmt = useFormatCount();
-  const total = primary + secondary;
-  const primaryPct = percent(primary, total);
-
   return (
-    <div className={`metric-card${major ? " metric-card--major" : " metric-card--compact"}`}>
-      <h3 className="metric-card__title">{title}</h3>
-      <p className="metric-card__headline">{headline}</p>
-      <div className="meter" role="img" aria-label={`${primaryLabel}: ${primary}. ${secondaryLabel}: ${secondary}.`}>
-        <span className={`meter__seg meter__seg--${primaryTone}`} style={{ width: `${primaryPct}%` }} />
-        <span className={`meter__seg meter__seg--${secondaryTone}`} style={{ width: `${100 - primaryPct}%` }} />
-      </div>
-      <ul className="legend">
-        <li>
-          <span className={`legend__dot legend__dot--${primaryTone}`} />
-          <ClipLegendLabel label={primaryLabel} href={primaryHref} />
-          <strong>
-            {fmt(primary)} · {percent(primary, total)}%
-          </strong>
-        </li>
-        <li>
-          <span className={`legend__dot legend__dot--${secondaryTone}`} />
-          <ClipLegendLabel label={secondaryLabel} href={secondaryHref} />
-          <strong>
-            {fmt(secondary)} · {percent(secondary, total)}%
-          </strong>
-        </li>
-      </ul>
-    </div>
+    <OutcomeCard
+      className={major ? "metric-card--major" : "metric-card--compact"}
+      title={title}
+      total={primary + secondary}
+      unit={unit}
+      meterLabel={title}
+      rows={[
+        { key: "primary", tone: primaryTone, label: <ClipLegendLabel label={primaryLabel} href={primaryHref} />, value: primary, href: primaryHref },
+        { key: "secondary", tone: secondaryTone, label: <ClipLegendLabel label={secondaryLabel} href={secondaryHref} />, value: secondary, href: secondaryHref },
+      ]}
+    />
   );
 }
 
@@ -177,58 +161,41 @@ function ActionResultsMeter({
   title,
   breakdown,
   videos,
-  games,
 }: {
   title: string;
   breakdown: PlayResultBreakdown;
   videos?: GameStats["videos"];
   games?: number;
 }) {
-  const fmt = useFormatCount();
   const total = breakdown.positive + breakdown.neutral + breakdown.lost;
-  const positivePct = percent(breakdown.positive, total);
-  const neutralPct = percent(breakdown.neutral, total);
-  const lostPct = percent(breakdown.lost, total);
   const progressiveHref = clipUrl(videos, "Progressive plays Final third", "Progressive plays final third");
   const lostHref = clipUrl(videos, "Lost plays final third", "Lost plays Final third");
 
   return (
-    <div className="metric-card">
-      <h3 className="metric-card__title">{title}</h3>
-      <CountLine value={total} unit="actions" className="metric-card__headline" />
-      <div
-        className="meter"
-        role="img"
-        aria-label={`Progressive: ${breakdown.positive}. Lost: ${breakdown.lost}. Other: ${breakdown.neutral}.`}
-      >
-        <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${positivePct}%` }} />
-        <span className="meter__seg meter__seg--pass-lost" style={{ width: `${lostPct}%` }} />
-        <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${neutralPct}%` }} />
-      </div>
-      <ul className="legend">
-        <li>
-          <span className="legend__dot legend__dot--pass-progressive" />
-          <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} href={progressiveHref} />
-          <ClipAnchor href={progressiveHref} className="legend__clip-stat" ariaLabel="Open video: Progressive plays">
-            {fmt(breakdown.positive)} · {positivePct}%
-          </ClipAnchor>
-        </li>
-        <li>
-          <span className="legend__dot legend__dot--pass-lost" />
-          <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />
-          <ClipAnchor href={lostHref} className="legend__clip-stat" ariaLabel="Open video: Lost plays">
-            {fmt(breakdown.lost)} · {lostPct}%
-          </ClipAnchor>
-        </li>
-        <li>
-          <span className="legend__dot legend__dot--pass-neutral" />
-          <PlayTip label="Other" tip={PLAY_TIPS.neutral} />
-          <strong>
-            {fmt(breakdown.neutral)} · {neutralPct}%
-          </strong>
-        </li>
-      </ul>
-    </div>
+    <OutcomeCard
+      title={title}
+      total={total}
+      unit="actions"
+      rate={{ value: percent(breakdown.positive, total), label: "progressive" }}
+      meterLabel="Progressive, lost and other plays"
+      rows={[
+        {
+          key: "progressive",
+          tone: "pass-progressive",
+          label: <PlayTip label="Progressive plays" tip={PLAY_TIPS.progressive} href={progressiveHref} />,
+          value: breakdown.positive,
+          href: progressiveHref,
+        },
+        {
+          key: "lost",
+          tone: "pass-lost",
+          label: <PlayTip label="Lost plays" tip={PLAY_TIPS.lost} href={lostHref} />,
+          value: breakdown.lost,
+          href: lostHref,
+        },
+        { key: "other", tone: "pass-neutral", label: <PlayTip label="Other" tip={PLAY_TIPS.neutral} />, value: breakdown.neutral },
+      ]}
+    />
   );
 }
 
@@ -236,48 +203,26 @@ function KeyPassesCard({
   keyPasses,
   totalPasses,
   titleHref,
-  games,
 }: {
   keyPasses: number;
   totalPasses: number;
   titleHref?: string;
   games?: number;
 }) {
-  const fmt = useFormatCount();
   const otherPasses = Math.max(totalPasses - keyPasses, 0);
-  const keyPct = percent(keyPasses, totalPasses);
 
   return (
-    <div className="metric-card">
-      <ClipMetricTitle label="Key passes" href={titleHref} />
-      {games && games > 1 ? (
-        <CountLine value={keyPasses} unit="key passes" className="metric-card__count-line" />
-      ) : (
-        <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel="Open video: Key passes">
-          {fmt(keyPasses)}
-        </ClipAnchor>
-      )}
-      <div className="meter" role="img" aria-label={`Key passes: ${keyPasses}. Other passes: ${otherPasses}.`}>
-        <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${keyPct}%` }} />
-        <span className="meter__seg meter__seg--pass-neutral" style={{ width: `${100 - keyPct}%` }} />
-      </div>
-      <ul className="legend">
-        <li>
-          <span className="legend__dot legend__dot--pass-progressive" />
-          <ClipLegendLabel label="Key passes" href={titleHref} />
-          <strong>
-            {fmt(keyPasses)} · {keyPct}%
-          </strong>
-        </li>
-        <li>
-          <span className="legend__dot legend__dot--pass-neutral" />
-          <ClipLegendLabel label="Other passes" />
-          <strong>
-            {fmt(otherPasses)} · {percent(otherPasses, totalPasses)}%
-          </strong>
-        </li>
-      </ul>
-    </div>
+    <OutcomeCard
+      title={<ClipMetricTitle label="Key passes" href={titleHref} />}
+      total={keyPasses}
+      unit="key passes"
+      rate={{ value: percent(keyPasses, totalPasses), label: "of passes" }}
+      meterLabel="Key passes and other passes"
+      rows={[
+        { key: "key", tone: "pass-progressive", label: <ClipLegendLabel label="Key passes" href={titleHref} />, value: keyPasses, href: titleHref },
+        { key: "other", tone: "pass-neutral", label: <ClipLegendLabel label="Other passes" />, value: otherPasses },
+      ]}
+    />
   );
 }
 
@@ -285,142 +230,77 @@ function PositiveCarryStat({
   label,
   positive,
   total,
-  pctTone,
   titleHref,
-  games,
 }: {
   label: string;
   positive: number;
   total: number;
-  pctTone: "transition" | "possession";
+  pctTone?: "transition" | "possession";
   titleHref?: string;
   games?: number;
 }) {
-  const fmt = useFormatCount();
-  const pctLabel = `${percent(positive, total)}% progressive play`;
-
   return (
-    <div className="metric-card">
-      <ClipMetricTitle label={label} href={titleHref} />
-      <div className="carry-result">
-        <div className="carry-result__figure">
-          <span className="metric-card__value">{fmt(total)}</span>
-          <span className="carry-result__label">Total</span>
-        </div>
-        {titleHref ? (
-          <ClipAnchor href={titleHref} className="carry-result__figure carry-result__figure--clip" ariaLabel={`Open video: ${label} progressive play`}>
-            <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-              {fmt(positive)}
-            </span>
-            <span className="carry-result__label carry-result__label--clip">Progressive play</span>
-          </ClipAnchor>
-        ) : (
-          <div className="carry-result__figure">
-            <span className="metric-card__value" style={{ color: carryProgressiveRateColor(pctTone) }}>
-              {fmt(positive)}
-            </span>
-            <span className="carry-result__label">Progressive play</span>
-          </div>
-        )}
-      </div>
-      <span
-        className="metric-card__pct metric-card__pct--carry-rate"
-        style={{ color: carryProgressiveRateColor(pctTone) }}
-      >
-        {pctLabel}
-      </span>
-    </div>
+    <OutcomeCard
+      title={<ClipMetricTitle label={label} href={titleHref} />}
+      total={total}
+      unit="carries"
+      rate={{ value: percent(positive, total), label: "progressive play" }}
+      meterLabel={`${label} carries`}
+      rows={[
+        {
+          key: "progressive",
+          tone: "pass-progressive",
+          label: <ClipLegendLabel label="Progressive play" href={titleHref} />,
+          value: positive,
+          href: titleHref,
+        },
+        { key: "other", tone: "pass-neutral", label: <ClipLegendLabel label="Other carries" />, value: Math.max(total - positive, 0) },
+      ]}
+    />
   );
 }
 
 function ShotsBreakdownCard({
   shots,
   titleHref,
-  games,
 }: {
   shots: GameStats["finalThirdActions"];
   titleHref?: string;
   games?: number;
 }) {
-  const fmt = useFormatCount();
   const onTarget = shots.shotsOnTarget ?? 0;
   const offTarget = shots.shotsOffTarget ?? Math.max(shots.shots - onTarget, 0);
   const insideBox = shots.shotsInsideBox ?? 0;
   const outsideBox = shots.shotsOutsideBox ?? Math.max(shots.shots - insideBox, 0);
   const accuracyTotal = onTarget + offTarget;
   const locationTotal = insideBox + outsideBox;
-  const total = accuracyTotal;
-  const onTargetPct = percent(onTarget, accuracyTotal);
-  const insideBoxPct = percent(insideBox, locationTotal);
 
   return (
-    <div className="metric-card">
-      <ClipMetricTitle label="Shots" href={titleHref} />
-      {games && games > 1 ? (
-        <CountLine value={total} unit="shots" className="metric-card__count-line" />
-      ) : (
-        <ClipAnchor href={titleHref} className="metric-card__value clip-link--value" ariaLabel="Open video: Shots">
-          {fmt(total)}
-        </ClipAnchor>
-      )}
-      <div className="shots-groups">
-        <div className="shots-group">
-          <span className="shots-group__label">Accuracy</span>
-          <div
-            className="meter"
-            role="img"
-            aria-label={`On target: ${onTarget}. Off target: ${offTarget}.`}
-          >
-            <span className="meter__seg meter__seg--pass-progressive" style={{ width: `${onTargetPct}%` }} />
-            <span className="meter__seg meter__seg--pass-lost" style={{ width: `${100 - onTargetPct}%` }} />
-          </div>
-          <ul className="legend">
-            <li>
-              <span className="legend__dot legend__dot--pass-progressive" />
-              <ClipLegendLabel label="On target" href={titleHref} />
-              <strong>
-                {fmt(onTarget)} · {onTargetPct}%
-              </strong>
-            </li>
-            <li>
-              <span className="legend__dot legend__dot--pass-lost" />
-              <ClipLegendLabel label="Off target" href={titleHref} />
-              <strong>
-                {fmt(offTarget)} · {percent(offTarget, accuracyTotal)}%
-              </strong>
-            </li>
-          </ul>
-        </div>
-        {shots.shotsInsideBox != null ? (
-          <div className="shots-group">
-            <span className="shots-group__label">Shot location</span>
-            <div
-              className="meter"
-              role="img"
-              aria-label={`Inside the box: ${insideBox}. Outside the box: ${outsideBox}.`}
-            >
-              <span className="meter__seg meter__seg--accent" style={{ width: `${insideBoxPct}%` }} />
-              <span className="meter__seg meter__seg--muted" style={{ width: `${100 - insideBoxPct}%` }} />
-            </div>
-            <ul className="legend">
-              <li>
-                <span className="legend__dot legend__dot--accent" />
-                <ClipLegendLabel label="Inside the box" href={titleHref} />
-                <strong>
-                  {fmt(insideBox)} · {insideBoxPct}%
-                </strong>
-              </li>
-              <li>
-                <span className="legend__dot legend__dot--muted" />
-                <ClipLegendLabel label="Outside the box" href={titleHref} />
-                <strong>
-                  {fmt(outsideBox)} · {percent(outsideBox, locationTotal)}%
-                </strong>
-              </li>
-            </ul>
-          </div>
-        ) : null}
-      </div>
+    <div className="split-layout">
+      <OutcomeCard
+        title={<ClipMetricTitle label="Shots" href={titleHref} />}
+        total={accuracyTotal}
+        unit="shots"
+        rate={{ value: percent(onTarget, accuracyTotal), label: "on target" }}
+        meterLabel="Shot accuracy"
+        rows={[
+          { key: "on", tone: "pass-progressive", label: <ClipLegendLabel label="On target" href={titleHref} />, value: onTarget, href: titleHref },
+          { key: "off", tone: "pass-lost", label: <ClipLegendLabel label="Off target" href={titleHref} />, value: offTarget, href: titleHref },
+        ]}
+      />
+      {shots.shotsInsideBox != null ? (
+        <OutcomeCard
+          title="Shot location"
+          total={locationTotal}
+          unit="shots"
+          rate={{ value: percent(insideBox, locationTotal), label: "inside the box" }}
+          meterLabel="Shot location"
+          rows={[
+            { key: "inside", tone: "accent", label: <ClipLegendLabel label="Inside the box" href={titleHref} />, value: insideBox, href: titleHref },
+            { key: "outside", tone: "muted", label: <ClipLegendLabel label="Outside the box" href={titleHref} />, value: outsideBox, href: titleHref },
+          ]}
+        />
+      ) : null}
     </div>
   );
 }
@@ -587,7 +467,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
         <SplitMeter
           key="split"
           title="Phase context"
-          headline={`${fmt(carries.inTransition)} in transition · ${fmt(carries.inPossession)} in possession`}
+          unit="carries"
           primary={carries.inTransition}
           secondary={carries.inPossession}
           primaryLabel="In transition"

@@ -91,6 +91,28 @@ function PdfHeader({ title, subtitle, opponentLogoUrl }: { title: string; subtit
   );
 }
 
+function RateRing({ value, color }: { value: number; color: string }) {
+  const radius = 25;
+  const circumference = 2 * Math.PI * radius;
+  const filled = (Math.max(0, Math.min(value, 100)) / 100) * circumference;
+  return (
+    <svg viewBox="0 0 64 64" width={46} height={46} className="spdf-ring" aria-hidden="true">
+      <circle cx={32} cy={32} r={radius} fill="none" stroke="#e3eaf0" strokeWidth={7} />
+      <circle
+        cx={32}
+        cy={32}
+        r={radius}
+        fill="none"
+        stroke={color}
+        strokeWidth={7}
+        strokeLinecap="round"
+        strokeDasharray={`${filled} ${circumference}`}
+        transform="rotate(-90 32 32)"
+      />
+    </svg>
+  );
+}
+
 function SummaryMeter({
   segments,
 }: {
@@ -100,28 +122,38 @@ function SummaryMeter({
 
   return (
     <div className="spdf-summary-meter">
-      <div className="spdf-pressure__track">
+      <div className="spdf-pressure__track spdf-pressure__track--thick">
         {total === 0 ? (
           <span className="spdf-pressure__seg spdf-pressure__seg--grey" style={{ width: "100%" }} />
         ) : (
-          segments.map((segment) => (
-            <span
-              key={segment.label}
-              className={`spdf-pressure__seg spdf-pressure__seg--${segment.tone}`}
-              style={{ width: `${(segment.share / total) * 100}%` }}
-            />
-          ))
+          segments
+            .filter((segment) => segment.share > 0)
+            .map((segment) => {
+              const share = pct(segment.share, total);
+              return (
+                <span
+                  key={segment.label}
+                  className={`spdf-pressure__seg spdf-pressure__seg--${segment.tone}`}
+                  style={{ width: `${(segment.share / total) * 100}%` }}
+                >
+                  {share >= 14 ? <span className="spdf-pressure__pct">{share}%</span> : null}
+                </span>
+              );
+            })
         )}
       </div>
-      <ul className="spdf-pressure__legend">
+      <ul className="spdf-chips">
         {segments.map((segment) => (
-          <li key={segment.label}>
-            <span className={`spdf-pressure__dot spdf-pressure__dot--${segment.tone}`} />
-            <span>
+          <li key={segment.label} className="spdf-chip">
+            <span className="spdf-chip__label">
+              <span className={`spdf-pressure__dot spdf-pressure__dot--${segment.tone}`} />
               {segment.label}
               <PdfPlay href={segment.href} />
             </span>
-            <strong className={`spdf-tone spdf-tone--${segment.tone}`}>{segment.value}</strong>
+            <span className="spdf-chip__value">
+              {segment.value}
+              <small>{pct(segment.share, total)}%</small>
+            </span>
           </li>
         ))}
       </ul>
@@ -135,6 +167,7 @@ function SummaryStatCard({
   totalLabel,
   rate,
   rateLabel,
+  rateCaption,
   segments,
   wide,
 }: {
@@ -143,6 +176,7 @@ function SummaryStatCard({
   totalLabel: string;
   rate?: number;
   rateLabel?: string;
+  rateCaption?: string;
   segments: { label: string; value: string; share: number; tone: PrintTone; href?: string }[];
   wide?: boolean;
 }) {
@@ -154,13 +188,19 @@ function SummaryStatCard({
       <div className="spdf-summary-body">
         <div className={`spdf-summary-kpis${rate == null ? " spdf-summary-kpis--single" : ""}`}>
           <div className="spdf-summary-kpi">
-            <span className="spdf-summary-kpi__value">{fmt(total)}</span>
             <span className="spdf-summary-kpi__label">{totalLabel}</span>
+            <span className="spdf-summary-kpi__value">{fmt(total)}</span>
           </div>
           {rate != null ? (
             <div className="spdf-summary-kpi spdf-summary-kpi--rate">
-              <span className="spdf-summary-kpi__value">{rate}%</span>
               <span className="spdf-summary-kpi__label">{rateLabel}</span>
+              <div className="spdf-summary-kpi__rate">
+                <RateRing value={rate} color="#4d8f6e" />
+                <div className="spdf-summary-kpi__rate-text">
+                  <span className="spdf-summary-kpi__value">{rate}%</span>
+                  {rateCaption ? <span className="spdf-summary-kpi__caption">{rateCaption}</span> : null}
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
@@ -217,10 +257,11 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             total={summary.passes}
             totalLabel="Total passes"
             rate={pct(summary.accurate, summary.passes)}
-            rateLabel="Accurate"
+            rateLabel="Accuracy"
+            rateCaption={`${fmt(summary.accurate)} of ${fmt(summary.passes)} accurate`}
             segments={[
               { label: "Accurate", value: fmt(summary.accurate), share: summary.accurate, tone: "pass-progressive" },
-              { label: "Inaccurate", value: fmt(summary.inaccurate), share: summary.inaccurate, tone: "grey" },
+              { label: "Inaccurate", value: fmt(summary.inaccurate), share: summary.inaccurate, tone: "yellow" },
             ]}
           />
           <SummaryStatCard
@@ -228,7 +269,8 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
             total={offensiveTotal}
             totalLabel="Total duels"
             rate={pct(summary.offensiveWon, offensiveTotal)}
-            rateLabel="Won rate"
+            rateLabel="Win rate"
+            rateCaption={`${fmt(summary.offensiveWon)} of ${fmt(offensiveTotal)} won`}
             segments={[
               {
                 label: "Won",
@@ -241,7 +283,7 @@ function SummaryPdfPage({ stats, photoUrl, logoUrl, clubLogoUrl, opponentLogoUrl
                 label: "Lost",
                 value: fmt(summary.offensiveLost),
                 share: summary.offensiveLost,
-                tone: "grey",
+                tone: "yellow",
                 href: clipUrl(stats.videos, "Off. Duels Lost", "Off Duels Lost", "Offensive duels lost"),
               },
             ]}
@@ -331,6 +373,80 @@ function StatTiles({
   );
 }
 
+type OutcomeRowData = {
+  key: string;
+  tone: string;
+  label: string;
+  value: number;
+  href?: string;
+  share?: string;
+};
+
+function PdfOutcomePanel({
+  title,
+  titleHref,
+  total,
+  unit,
+  rate,
+  rows,
+  className,
+}: {
+  title: string;
+  titleHref?: string;
+  total: number;
+  unit: string;
+  rate?: { value: number; label: string };
+  rows: OutcomeRowData[];
+  className?: string;
+}) {
+  const fmt = useFormatCount();
+  const sum = rows.reduce((acc, row) => acc + row.value, 0);
+
+  return (
+    <div className={`spdf-op${className ? ` ${className}` : ""}`}>
+      <div className="spdf-op__head">
+        <p className="spdf-op__title">
+          {title}
+          <PdfPlay href={titleHref} />
+        </p>
+        <div className="spdf-op__kpis">
+          <span className="spdf-op__total">
+            <strong>{fmt(total)}</strong> {unit}
+          </span>
+          {rate && total > 0 ? (
+            <span className="spdf-op__rate">
+              <strong>{rate.value}%</strong> {rate.label}
+            </span>
+          ) : null}
+        </div>
+      </div>
+      <div className="spdf-op__track">
+        {rows
+          .filter((row) => row.value > 0)
+          .map((row) => (
+            <span key={row.key} className={`spdf-op__seg spdf-pass-panel__seg--${row.tone}`} style={{ width: `${pct(row.value, sum)}%` }} />
+          ))}
+      </div>
+      <ul className="spdf-op__rows">
+        {rows.map((row) => (
+          <li key={row.key} className="spdf-op__row">
+            <span className={`spdf-pass-panel__dot spdf-pass-panel__dot--${row.tone}`} />
+            <span className="spdf-op__label">
+              {row.label}
+              <PdfPlay href={row.href} />
+            </span>
+            <span className="spdf-op__bar">
+              <span className={`spdf-op__fill spdf-pass-panel__seg--${row.tone}`} style={{ width: `${pct(row.value, sum)}%` }} />
+            </span>
+            <strong className="spdf-op__value">{fmt(row.value)}</strong>
+            <span className="spdf-op__share">{row.share ?? `${pct(row.value, sum)}%`}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function ActionResultPanel({
   title,
   breakdown,
@@ -340,110 +456,50 @@ function ActionResultPanel({
   breakdown: PlayResultBreakdown;
   videos?: GameStats["videos"];
 }) {
-  const fmt = useFormatCount();
   const progressiveHref = clipUrl(videos, "Progressive plays Final third", "Progressive plays final third");
   const lostHref = clipUrl(videos, "Lost plays final third", "Lost plays Final third");
   const total = breakdown.positive + breakdown.neutral + breakdown.lost;
-  const segments = [
-    { value: breakdown.positive, tone: "pass-progressive" as const },
-    { value: breakdown.lost, tone: "pass-lost" as const },
-    { value: breakdown.neutral, tone: "pass-neutral" as const },
-  ];
 
   return (
-    <div className="spdf-pass-panel">
-      <div className="spdf-pass-panel__head">
-        <p className="spdf-pass-panel__title">{title}</p>
-        <span className="spdf-pass-panel__total">{fmt(total)} actions</span>
-      </div>
-      <div className="spdf-pass-panel__track">
-        {segments.map((segment, index) =>
-          segment.value > 0 ? (
-            <span
-              key={index}
-              className={`spdf-pass-panel__seg spdf-pass-panel__seg--${segment.tone}`}
-              style={{ width: `${pct(segment.value, total)}%` }}
-            />
-          ) : null,
-        )}
-      </div>
-      <ul className="spdf-pass-panel__legend">
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
-          <span className="spdf-pass-panel__legend-label">Progressive plays</span>
-          <strong>
-            {fmt(breakdown.positive)} · {pct(breakdown.positive, total)}%
-            <PdfPlay href={progressiveHref} />
-          </strong>
-        </li>
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-lost" />
-          <span className="spdf-pass-panel__legend-label">Lost</span>
-          <strong>
-            {fmt(breakdown.lost)} · {pct(breakdown.lost, total)}%
-            <PdfPlay href={lostHref} />
-          </strong>
-        </li>
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
-          <span className="spdf-pass-panel__legend-label">Other</span>
-          <strong>
-            {fmt(breakdown.neutral)} · {pct(breakdown.neutral, total)}%
-          </strong>
-        </li>
-      </ul>
-    </div>
+    <PdfOutcomePanel
+      title={title}
+      total={total}
+      unit="actions"
+      rate={{ value: pct(breakdown.positive, total), label: "progressive" }}
+      rows={[
+        { key: "progressive", tone: "pass-progressive", label: "Progressive plays", value: breakdown.positive, href: progressiveHref },
+        { key: "lost", tone: "pass-lost", label: "Lost plays", value: breakdown.lost, href: lostHref },
+        { key: "other", tone: "pass-neutral", label: "Other", value: breakdown.neutral },
+      ]}
+    />
   );
 }
 
 function CarryResultPanel({
   label,
   total,
-  ofTotal,
   progressive,
-  situation,
   playHref,
 }: {
   label: string;
   total: number;
-  ofTotal: number;
+  ofTotal?: number;
   progressive: number;
-  situation: CarryProgressiveSituation;
+  situation?: CarryProgressiveSituation;
   playHref?: string;
 }) {
-  const fmt = useFormatCount();
-  const color = carryProgressiveRateColor(situation);
-
   return (
-    <div className="spdf-carry">
-      <p className="spdf-carry__title">{label}</p>
-      <table className="spdf-carry__figures">
-        <tbody>
-          <tr>
-            <td className="spdf-carry__figure">
-              <span className="spdf-carry__value">{fmt(total)}</span>
-              <span className="spdf-carry__label">Total</span>
-              <span className="spdf-carry__share">{pct(total, ofTotal)}% of carries</span>
-            </td>
-            <td className="spdf-carry__figure spdf-carry__figure--split">
-              <span className="spdf-carry__value" style={{ color }}>
-                <PdfPlayTarget href={playHref}>{fmt(progressive)}</PdfPlayTarget>
-              </span>
-              <span className="spdf-carry__label">
-                <PdfPlayTarget href={playHref}>Progressive play</PdfPlayTarget>
-                <PdfPlay href={playHref} />
-              </span>
-              <span className="spdf-carry__rate" style={{ color }}>
-                {pct(progressive, total)}% progressive play
-              </span>
-              <span className="spdf-carry__bar">
-                <span className="spdf-carry__bar-fill" style={{ width: `${pct(progressive, total)}%`, background: color }} />
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <PdfOutcomePanel
+      title={label}
+      titleHref={playHref}
+      total={total}
+      unit="carries"
+      rate={{ value: pct(progressive, total), label: "progressive play" }}
+      rows={[
+        { key: "progressive", tone: "pass-progressive", label: "Progressive play", value: progressive, href: playHref },
+        { key: "other", tone: "pass-neutral", label: "Other carries", value: Math.max(total - progressive, 0) },
+      ]}
+    />
   );
 }
 
@@ -456,90 +512,20 @@ function PdfKeyPassesPanel({
   totalPasses: number;
   playHref?: string;
 }) {
-  const fmt = useFormatCount();
   const otherPasses = Math.max(totalPasses - keyPasses, 0);
-  const keyPct = pct(keyPasses, totalPasses);
 
   return (
-    <div className="spdf-pass-panel">
-      <div className="spdf-pass-panel__head">
-        <p className="spdf-pass-panel__title">
-          Key passes
-          <PdfPlay href={playHref} />
-        </p>
-        <span className="spdf-pass-panel__total">{fmt(keyPasses)} key passes</span>
-      </div>
-      <div className="spdf-pass-panel__track">
-        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-progressive" style={{ width: `${keyPct}%` }} />
-        <span className="spdf-pass-panel__seg spdf-pass-panel__seg--pass-neutral" style={{ width: `${100 - keyPct}%` }} />
-      </div>
-      <ul className="spdf-pass-panel__legend">
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-progressive" />
-          <span className="spdf-pass-panel__legend-label">Key passes</span>
-          <strong>
-            {fmt(keyPasses)} · {keyPct}%
-            <PdfPlay href={playHref} />
-          </strong>
-        </li>
-        <li>
-          <span className="spdf-pass-panel__dot spdf-pass-panel__dot--pass-neutral" />
-          <span className="spdf-pass-panel__legend-label">Other passes</span>
-          <strong>
-            {fmt(otherPasses)} · {pct(otherPasses, totalPasses)}%
-          </strong>
-        </li>
-      </ul>
-    </div>
-  );
-}
-
-function PdfShotGroup({
-  title,
-  total,
-  shareTotal,
-  rows,
-  playHref,
-}: {
-  title: string;
-  total: number;
-  shareTotal?: number;
-  rows: { label: string; value: number; tone: Tone }[];
-  playHref?: string;
-}) {
-  const fmt = useFormatCount();
-  const share = shareTotal ?? total;
-
-  return (
-    <div className="spdf-pass-panel">
-      <div className="spdf-pass-panel__head">
-        <p className="spdf-pass-panel__title">
-          {title}
-          <PdfPlay href={playHref} />
-        </p>
-        <span className="spdf-pass-panel__total">{fmt(total)} shots</span>
-      </div>
-      <div className="spdf-pass-panel__track">
-        {rows.map((row) => (
-          <span
-            key={row.label}
-            className={`spdf-pass-panel__seg spdf-pass-panel__seg--${row.tone}`}
-            style={{ width: `${pct(row.value, share)}%` }}
-          />
-        ))}
-      </div>
-      <ul className="spdf-pass-panel__legend">
-        {rows.map((row) => (
-          <li key={row.label}>
-            <span className={`spdf-pass-panel__dot spdf-pass-panel__dot--${row.tone}`} />
-            <span className="spdf-pass-panel__legend-label">{row.label}</span>
-            <strong>
-              {fmt(row.value)} · {pct(row.value, share)}%
-            </strong>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <PdfOutcomePanel
+      title="Key passes"
+      titleHref={playHref}
+      total={keyPasses}
+      unit="key passes"
+      rate={{ value: pct(keyPasses, totalPasses), label: "of passes" }}
+      rows={[
+        { key: "key", tone: "pass-progressive", label: "Key passes", value: keyPasses, href: playHref },
+        { key: "other", tone: "pass-neutral", label: "Other passes", value: otherPasses },
+      ]}
+    />
   );
 }
 
@@ -553,24 +539,26 @@ function PdfShotsRow({ shots, playHref }: { shots: GameStats["finalThirdActions"
 
   return (
     <>
-      <PdfShotGroup
-        title="Shot accuracy"
+      <PdfOutcomePanel
+        title="Shots"
+        titleHref={playHref}
         total={accuracyTotal}
-        shareTotal={accuracyTotal}
-        playHref={playHref}
+        unit="shots"
+        rate={{ value: pct(onTarget, accuracyTotal), label: "on target" }}
         rows={[
-          { label: "On target", value: onTarget, tone: "pass-progressive" },
-          { label: "Off target", value: offTarget, tone: "pass-lost" },
+          { key: "on", tone: "pass-progressive", label: "On target", value: onTarget, href: playHref },
+          { key: "off", tone: "pass-lost", label: "Off target", value: offTarget, href: playHref },
         ]}
       />
       {shots.shotsInsideBox != null ? (
-        <PdfShotGroup
+        <PdfOutcomePanel
           title="Shot location"
           total={locationTotal}
-          shareTotal={locationTotal}
+          unit="shots"
+          rate={{ value: pct(insideBox, locationTotal), label: "inside the box" }}
           rows={[
-            { label: "Inside the box", value: insideBox, tone: "blue" },
-            { label: "Outside the box", value: outsideBox, tone: "pass-neutral" },
+            { key: "inside", tone: "blue", label: "Inside the box", value: insideBox },
+            { key: "outside", tone: "pass-neutral", label: "Outside the box", value: outsideBox },
           ]}
         />
       ) : null}

@@ -19,85 +19,22 @@ function ClipLabel({ label, href }: { label: string; href?: string }) {
   );
 }
 
-function ExploreBar({
-  primary,
-  secondary,
-  primaryTone,
-  secondaryTone,
-  label,
-}: {
-  primary: number;
-  secondary: number;
-  primaryTone: Tone;
-  secondaryTone: Tone;
-  label: string;
-}) {
-  const total = primary + secondary;
-  const primaryPct = total > 0 ? (primary / total) * 100 : 0;
-
+function RateRing({ value, tone }: { value: number; tone: Tone }) {
+  const radius = 25;
+  const circumference = 2 * Math.PI * radius;
+  const filled = (Math.max(0, Math.min(value, 100)) / 100) * circumference;
   return (
-    <div className="stats-bar" role="img" aria-label={label}>
-      {total === 0 ? (
-        <span className="stats-bar__seg stats-bar__seg--muted" style={{ width: "100%" }} />
-      ) : (
-        <>
-          <span className={`stats-bar__seg stats-bar__seg--${primaryTone}`} style={{ width: `${primaryPct}%` }} />
-          <span className={`stats-bar__seg stats-bar__seg--${secondaryTone}`} style={{ width: `${100 - primaryPct}%` }} />
-        </>
-      )}
-    </div>
-  );
-}
-
-function StatsSplit({
-  primary,
-  secondary,
-  primaryLabel,
-  secondaryLabel,
-  primaryTone,
-  secondaryTone,
-  primaryHref,
-  secondaryHref,
-  showShare = true,
-}: {
-  primary: number;
-  secondary: number;
-  primaryLabel: string;
-  secondaryLabel: string;
-  primaryTone: Tone;
-  secondaryTone: Tone;
-  primaryHref?: string;
-  secondaryHref?: string;
-  showShare?: boolean;
-}) {
-  const fmt = useFormatCount();
-  const total = primary + secondary;
-  const primaryPct = percent(primary, total);
-  const secondaryPct = total > 0 ? 100 - primaryPct : 0;
-  const figure = (value: number, share: number) => (showShare ? `${fmt(value)} · ${share}%` : fmt(value));
-
-  return (
-    <div className="stats-viz">
-      <ExploreBar
-        primary={primary}
-        secondary={secondary}
-        primaryTone={primaryTone}
-        secondaryTone={secondaryTone}
-        label={`${primaryLabel} ${primary}. ${secondaryLabel} ${secondary}.`}
+    <svg viewBox="0 0 64 64" className={`rate-ring rate-ring--${tone}`} aria-hidden="true">
+      <circle cx={32} cy={32} r={radius} className="rate-ring__track" />
+      <circle
+        cx={32}
+        cy={32}
+        r={radius}
+        className="rate-ring__fill"
+        strokeDasharray={`${filled} ${circumference}`}
+        transform="rotate(-90 32 32)"
       />
-      <ul className="stats-viz__legend">
-        <li>
-          <span className={`legend__dot legend__dot--${primaryTone}`} />
-          <ClipLabel label={primaryLabel} href={primaryHref} />
-          <strong>{figure(primary, primaryPct)}</strong>
-        </li>
-        <li>
-          <span className={`legend__dot legend__dot--${secondaryTone}`} />
-          <ClipLabel label={secondaryLabel} href={secondaryHref} />
-          <strong>{figure(secondary, secondaryPct)}</strong>
-        </li>
-      </ul>
-    </div>
+    </svg>
   );
 }
 
@@ -106,28 +43,84 @@ function StatsFigure({
   value,
   unit,
   games,
-  rate,
   href,
 }: {
   label: string;
   value: number;
   unit?: string;
   games?: number;
-  rate?: boolean;
   href?: string;
 }) {
   const fmt = useFormatCount();
 
   return (
-    <div className={`stats-figure${rate ? " stats-figure--rate" : ""}`}>
+    <div className="stats-figure">
       <span className="stats-figure__label">
         <ClipLabel label={label} href={href} />
       </span>
       {games && games > 1 && unit ? (
         <CountLine value={value} unit={unit} />
       ) : (
-        <span className="stats-figure__value">{rate ? `${fmt(value)}%` : fmt(value)}</span>
+        <span className="stats-figure__value">{fmt(value)}</span>
       )}
+    </div>
+  );
+}
+
+function RateFigure({ label, rate, tone, caption }: { label: string; rate: number; tone: Tone; caption?: string }) {
+  return (
+    <div className={`stats-figure stats-figure--rate stats-figure--${tone}`}>
+      <span className="stats-figure__label">{label}</span>
+      <div className="stats-figure__rate">
+        <RateRing value={rate} tone={tone} />
+        <div className="stats-figure__rate-text">
+          <span className="stats-figure__value">{rate}%</span>
+          {caption ? <span className="stats-figure__caption">{caption}</span> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type DuoSegment = { label: string; value: number; tone: Tone; href?: string };
+
+/** Two-way outcome meter with in-bar shares and aligned chips below. */
+function DuoSplit({ segments, label }: { segments: DuoSegment[]; label: string }) {
+  const fmt = useFormatCount();
+  const total = segments.reduce((sum, segment) => sum + segment.value, 0);
+
+  return (
+    <div className="stats-viz">
+      <div className="meter meter--duo" role="img" aria-label={`${label}: ${segments.map((s) => `${s.label} ${s.value}`).join(", ")}`}>
+        {total === 0 ? (
+          <span className="meter__seg meter__seg--muted" style={{ flex: "1 1 0" }} />
+        ) : (
+          segments
+            .filter((segment) => segment.value > 0)
+            .map((segment) => {
+              const share = percent(segment.value, total);
+              return (
+                <span key={segment.label} className={`meter__seg meter__seg--${segment.tone}`} style={{ flex: `${segment.value} 1 0` }}>
+                  {share >= 14 ? <span className="meter__pct">{share}%</span> : null}
+                </span>
+              );
+            })
+        )}
+      </div>
+      <ul className="outcome-grid">
+        {segments.map((segment) => (
+          <li key={segment.label} className={`outcome-chip outcome-chip--${segment.tone}${segment.value === 0 ? " is-empty" : ""}`}>
+            <span className="outcome-chip__label">
+              <span className={`legend__dot legend__dot--${segment.tone}`} />
+              <ClipLabel label={segment.label} href={segment.href} />
+            </span>
+            <span className="outcome-chip__value">
+              {fmt(segment.value)}
+              <small>{percent(segment.value, total)}%</small>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -139,51 +132,23 @@ function StatsRateTopic({
   totalUnit,
   games,
   rate,
-  rateLabel,
-  primary,
-  secondary,
-  primaryLabel,
-  secondaryLabel,
-  primaryTone,
-  secondaryTone,
-  primaryHref,
-  secondaryHref,
-  showShare = true,
+  segments,
 }: {
   title: string;
   total: number;
   totalLabel: string;
   totalUnit: string;
   games?: number;
-  rate: number;
-  rateLabel: string;
-  primary: number;
-  secondary: number;
-  primaryLabel: string;
-  secondaryLabel: string;
-  primaryTone: Tone;
-  secondaryTone: Tone;
-  primaryHref?: string;
-  secondaryHref?: string;
-  showShare?: boolean;
+  rate: { label: string; value: number; tone: Tone; caption?: string };
+  segments: DuoSegment[];
 }) {
   return (
     <section className="stats-topic">
       <h3 className="stats-topic__title">{title}</h3>
       <div className="stats-topic__panel">
         <StatsFigure label={totalLabel} value={total} unit={totalUnit} games={games} />
-        <StatsFigure label={rateLabel} value={rate} rate />
-        <StatsSplit
-          primary={primary}
-          secondary={secondary}
-          primaryLabel={primaryLabel}
-          secondaryLabel={secondaryLabel}
-          primaryTone={primaryTone}
-          secondaryTone={secondaryTone}
-          primaryHref={primaryHref}
-          secondaryHref={secondaryHref}
-          showShare={showShare}
-        />
+        <RateFigure label={rate.label} rate={rate.value} tone={rate.tone} caption={rate.caption} />
+        <DuoSplit segments={segments} label={`${title} breakdown`} />
       </div>
     </section>
   );
@@ -200,6 +165,7 @@ export function StatsSummaryBoard({
   games?: number;
   videos?: MatchStats["videos"];
 }) {
+  const fmt = useFormatCount();
   const offensiveTotal = summary.offensiveWon + summary.offensiveLost;
   const regains = summary.interceptions + summary.recoveries;
 
@@ -211,15 +177,16 @@ export function StatsSummaryBoard({
         totalLabel="Total passes"
         totalUnit="passes"
         games={games}
-        rate={percent(summary.accurate, summary.passes)}
-        rateLabel="Accurate"
-        primary={summary.accurate}
-        secondary={summary.inaccurate}
-        primaryLabel="Accurate"
-        secondaryLabel="Inaccurate"
-        primaryTone="positive"
-        secondaryTone="negative"
-        showShare={false}
+        rate={{
+          label: "Accuracy",
+          value: percent(summary.accurate, summary.passes),
+          tone: "positive",
+          caption: `${fmt(summary.accurate)} of ${fmt(summary.passes)} accurate`,
+        }}
+        segments={[
+          { label: "Accurate", value: summary.accurate, tone: "positive" },
+          { label: "Inaccurate", value: summary.inaccurate, tone: "negative" },
+        ]}
       />
       <StatsRateTopic
         title="Offensive Duels"
@@ -227,17 +194,26 @@ export function StatsSummaryBoard({
         totalLabel="Total duels"
         totalUnit="duels"
         games={games}
-        rate={percent(summary.offensiveWon, offensiveTotal)}
-        rateLabel="Won rate"
-        primary={summary.offensiveWon}
-        secondary={summary.offensiveLost}
-        primaryLabel="Won"
-        secondaryLabel="Lost"
-        primaryTone="positive"
-        secondaryTone="negative"
-        primaryHref={clipUrl(videos, "Off. Duels Won", "Off Duels Won", "Offensive duels won")}
-        secondaryHref={clipUrl(videos, "Off. Duels Lost", "Off Duels Lost", "Offensive duels lost")}
-        showShare={false}
+        rate={{
+          label: "Win rate",
+          value: percent(summary.offensiveWon, offensiveTotal),
+          tone: "positive",
+          caption: `${fmt(summary.offensiveWon)} of ${fmt(offensiveTotal)} won`,
+        }}
+        segments={[
+          {
+            label: "Won",
+            value: summary.offensiveWon,
+            tone: "positive",
+            href: clipUrl(videos, "Off. Duels Won", "Off Duels Won", "Offensive duels won"),
+          },
+          {
+            label: "Lost",
+            value: summary.offensiveLost,
+            tone: "negative",
+            href: clipUrl(videos, "Off. Duels Lost", "Off Duels Lost", "Offensive duels lost"),
+          },
+        ]}
       />
       <section className="stats-topic">
         <h3 className="stats-topic__title">Key Passes | Shots</h3>
@@ -275,15 +251,12 @@ export function StatsSummaryBoard({
         <h3 className="stats-topic__title">Tackles</h3>
         <div className="stats-topic__panel stats-topic__panel--pair">
           <StatsFigure label="Total tackles" value={regains} unit="tackles" games={games} />
-          <StatsSplit
-            primary={summary.interceptions}
-            secondary={summary.recoveries}
-            primaryLabel="Interceptions"
-            secondaryLabel="Recoveries"
-            primaryTone="accent"
-            secondaryTone="recover"
-            primaryHref={clipUrl(videos, "Interceptions")}
-            secondaryHref={clipUrl(videos, "Recoveries")}
+          <DuoSplit
+            label="Tackles breakdown"
+            segments={[
+              { label: "Interceptions", value: summary.interceptions, tone: "accent", href: clipUrl(videos, "Interceptions") },
+              { label: "Recoveries", value: summary.recoveries, tone: "recover", href: clipUrl(videos, "Recoveries") },
+            ]}
           />
         </div>
       </section>
