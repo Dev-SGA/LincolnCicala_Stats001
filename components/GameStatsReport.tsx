@@ -11,6 +11,7 @@ import { CountLine } from "@/components/CountLine";
 import { CountDecimalsProvider, useFormatCount } from "@/components/CountFormat";
 import { StatsSummaryBoard } from "@/components/StatsSummaryBoard";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
+import { ProgressView } from "@/components/ProgressView";
 import { BRAND, carryProgressiveRateColor } from "@/lib/brand";
 import {
   clipUrl,
@@ -721,6 +722,7 @@ function buildTopics(stats: GameStats, isSeason: boolean): Topic[] {
 
 export function GameStatsReport({ report }: GameStatsReportProps) {
   const { player, meta, matches } = report;
+  const [tab, setTab] = useState<"match" | "progress">("match");
   const [seasonMode, setSeasonMode] = useState<SeasonMode>("total");
   const options = useMemo(() => {
     const season = seasonMatch(matches);
@@ -752,11 +754,11 @@ export function GameStatsReport({ report }: GameStatsReportProps) {
             <p className="report-header__eyebrow">{BRAND.legal}</p>
             <h1 className="report-header__title">{meta.title}</h1>
             <p className="report-header__meta">
-              {stats.match.logo ? (
+              {tab === "progress" ? null : stats.match.logo ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={stats.match.logo} alt="" className="club-logo club-logo--meta" />
               ) : null}
-              {stats.match.label}
+              {tab === "progress" ? "Progress across matches" : stats.match.label}
             </p>
           </div>
         </header>
@@ -768,12 +770,37 @@ export function GameStatsReport({ report }: GameStatsReportProps) {
 
           <main className="report-main">
             <div className="view-panel">
-              <MatchSwitcher matches={options} activeId={activeMatch.id} onChange={setMatchId}>
-                {isSeason ? <SeasonModeToggle mode={seasonMode} onChange={setSeasonMode} /> : null}
-              </MatchSwitcher>
-              <CountDecimalsProvider value={Boolean(stats.meta.perGame)}>
-                <TopicsBoard topics={topics} />
-              </CountDecimalsProvider>
+              <div className="match-nav__pills view-tabs" role="tablist" aria-label="Report view">
+                {(
+                  [
+                    { id: "match", label: "Match" },
+                    { id: "progress", label: "Progress" },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === item.id}
+                    className={`match-nav__pill${tab === item.id ? " is-active" : ""}`}
+                    onClick={() => setTab(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              {tab === "progress" ? (
+                <ProgressView matches={matches} />
+              ) : (
+                <>
+                  <MatchSwitcher matches={options} activeId={activeMatch.id} onChange={setMatchId}>
+                    {isSeason ? <SeasonModeToggle mode={seasonMode} onChange={setSeasonMode} /> : null}
+                  </MatchSwitcher>
+                  <CountDecimalsProvider value={Boolean(stats.meta.perGame)}>
+                    <TopicsBoard topics={topics} />
+                  </CountDecimalsProvider>
+                </>
+              )}
             </div>
           </main>
         </div>

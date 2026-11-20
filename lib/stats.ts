@@ -252,3 +252,88 @@ export function getFinalThirdBreakdown(stats: GameStats): PlayResultBreakdown {
   const { positive, neutral, lost } = stats.finalThirdActions;
   return { positive, neutral, lost };
 }
+
+export type ProgressPoint = {
+  id: string;
+  label: string;
+  shortLabel: string;
+  logo: string;
+  quantity: number;
+  /** Success rate in percent (0-100). */
+  quality?: number;
+  qualityDetail?: string;
+};
+
+export type ProgressMetric = {
+  id: string;
+  title: string;
+  phase: "build-up" | "defensive";
+  quantityLabel: string;
+  qualityLabel?: string;
+  points: ProgressPoint[];
+};
+
+/** Metrics tracked in every match, ready for match-by-match trend charts. Summary-only stats are left out. */
+export function progressMetrics(matches: MatchStats[]): ProgressMetric[] {
+  const base = (match: MatchStats) => ({
+    id: match.id,
+    label: match.label,
+    shortLabel: match.shortLabel,
+    logo: match.logo,
+  });
+  const rate = (good: number, total: number) => (total > 0 ? (good / total) * 100 : 0);
+  const everyShotDetail = matches.every((match) => match.finalThirdActions.shotsOnTarget != null);
+
+  const metrics: (ProgressMetric | null)[] = [
+    {
+      id: "carries",
+      title: "Progressive Carries",
+      phase: "build-up",
+      quantityLabel: "Carries",
+      qualityLabel: "Positive",
+      points: matches.map((match) => {
+        const positive = match.carries.transitionPositive + match.carries.possessionPositive;
+        return {
+          ...base(match),
+          quantity: match.carries.total,
+          quality: rate(positive, match.carries.total),
+          qualityDetail: `${positive} of ${match.carries.total} positive`,
+        };
+      }),
+    },
+    {
+      id: "final-third",
+      title: "Final Third Actions",
+      phase: "build-up",
+      quantityLabel: "Actions",
+      qualityLabel: "Positive",
+      points: matches.map((match) => ({
+        ...base(match),
+        quantity: match.finalThirdActions.total,
+        quality: rate(match.finalThirdActions.positive, match.finalThirdActions.total),
+        qualityDetail: `${match.finalThirdActions.positive} of ${match.finalThirdActions.total} positive`,
+      })),
+    },
+    matches.every((match) => match.finalThirdActions.shots > 0)
+      ? {
+          id: "shots",
+          title: "Shots",
+          phase: "build-up",
+          quantityLabel: "Shots",
+          qualityLabel: everyShotDetail ? "On target" : undefined,
+          points: matches.map((match) => ({
+            ...base(match),
+            quantity: match.finalThirdActions.shots,
+            quality: everyShotDetail
+              ? rate(match.finalThirdActions.shotsOnTarget ?? 0, match.finalThirdActions.shots)
+              : undefined,
+            qualityDetail: everyShotDetail
+              ? `${match.finalThirdActions.shotsOnTarget ?? 0} of ${match.finalThirdActions.shots} on target`
+              : undefined,
+          })),
+        }
+      : null,
+  ];
+
+  return metrics.filter((metric): metric is ProgressMetric => metric !== null);
+}
