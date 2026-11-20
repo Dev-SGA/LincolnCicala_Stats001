@@ -13,6 +13,8 @@ export type OutcomeRow = {
   href?: string;
   /** Text shown in the share column; defaults to the percentage of the card total. */
   share?: string;
+  /** Counts toward the meter but renders no row — used for the remainder segment. */
+  barOnly?: boolean;
 };
 
 function percent(value: number, total: number): number {
@@ -69,7 +71,7 @@ export function OutcomeCard({ title, total, unit, rate, rows, meterLabel, classN
         )}
       </div>
       <ul className="pass-rows">
-        {rows.map((row) => {
+        {rows.filter((row) => !row.barOnly).map((row) => {
           const share = percent(row.value, sum);
           return (
             <li key={row.key} className={`pass-row${row.value === 0 ? " is-empty" : ""}`}>

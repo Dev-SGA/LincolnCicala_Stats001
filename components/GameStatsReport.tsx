@@ -254,7 +254,13 @@ function PositiveCarryStat({
           value: positive,
           href: titleHref,
         },
-        { key: "other", tone: "pass-neutral", label: <ClipLegendLabel label="Other carries" />, value: Math.max(total - positive, 0) },
+        {
+          key: "other",
+          tone: "pass-neutral",
+          label: <ClipLegendLabel label="Other carries" />,
+          value: Math.max(total - positive, 0),
+          barOnly: true,
+        },
       ]}
     />
   );

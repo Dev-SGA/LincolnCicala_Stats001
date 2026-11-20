@@ -380,6 +380,7 @@ type OutcomeRowData = {
   value: number;
   href?: string;
   share?: string;
+  barOnly?: boolean;
 };
 
 function PdfOutcomePanel({
@@ -428,7 +429,7 @@ function PdfOutcomePanel({
           ))}
       </div>
       <ul className="spdf-op__rows">
-        {rows.map((row) => (
+        {rows.filter((row) => !row.barOnly).map((row) => (
           <li key={row.key} className="spdf-op__row">
             <span className={`spdf-pass-panel__dot spdf-pass-panel__dot--${row.tone}`} />
             <span className="spdf-op__label">
@@ -497,7 +498,13 @@ function CarryResultPanel({
       rate={{ value: pct(progressive, total), label: "progressive play" }}
       rows={[
         { key: "progressive", tone: "pass-progressive", label: "Progressive play", value: progressive, href: playHref },
-        { key: "other", tone: "pass-neutral", label: "Other carries", value: Math.max(total - progressive, 0) },
+        {
+          key: "other",
+          tone: "pass-neutral",
+          label: "Other carries",
+          value: Math.max(total - progressive, 0),
+          barOnly: true,
+        },
       ]}
     />
   );
