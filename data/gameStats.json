@@ -354,6 +354,55 @@
         { "label": "Lost plays final third", "url": "https://drive.google.com/file/d/1wgoKaGdUezx6mqJ80YOnFqSw0zASnYi3/view" },
         { "label": "Progressive plays in transition", "url": "https://drive.google.com/file/d/1j_1ZRmzSqiNl1Q-YX5aR6GM3t3jeQeKP/view" }
       ]
+    },
+    {
+      "id": "columbus-crew",
+      "kind": "session",
+      "label": "vs Columbus Crew",
+      "shortLabel": "Columbus Crew",
+      "logo": "/clubs/columbus-crew.png",
+      "summary": {
+        "passes": 47,
+        "accurate": 42,
+        "inaccurate": 5,
+        "keyPasses": 1,
+        "offensiveWon": 5,
+        "offensiveLost": 11,
+        "interceptions": 4,
+        "recoveries": 9,
+        "goals": 0,
+        "assists": 0
+      },
+      "carries": {
+        "total": 5,
+        "inTransition": 1,
+        "inPossession": 4,
+        "transitionPositive": 0,
+        "possessionPositive": 2,
+        "videoLink": ""
+      },
+      "finalThirdActions": {
+        "total": 24,
+        "positive": 4,
+        "neutral": 14,
+        "lost": 6,
+        "shots": 3,
+        "passWithShotOpportunity": 1,
+        "videoLink": ""
+      },
+      "videos": [
+        { "label": "Shots", "url": "" },
+        { "label": "Recoveries", "url": "" },
+        { "label": "Off. Duels Won", "url": "" },
+        { "label": "Off. Duels Lost", "url": "" },
+        { "label": "Key passes", "url": "" },
+        { "label": "Interceptions", "url": "" },
+        { "label": "Progressive plays Final third", "url": "" },
+        { "label": "Lost plays final third", "url": "" },
+        { "label": "Progressive plays in transition", "url": "" },
+        { "label": "Progressive play in possession", "url": "" },
+        { "label": "Carries", "url": "" }
+      ]
     }
   ]
 }
