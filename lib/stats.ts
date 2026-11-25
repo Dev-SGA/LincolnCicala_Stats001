@@ -258,18 +258,20 @@ export type ProgressPoint = {
   label: string;
   shortLabel: string;
   logo: string;
-  quantity: number;
-  /** Success rate in percent (0-100). */
-  quality?: number;
-  qualityDetail?: string;
+  volume: number;
+  /** Success rate in percent (0-100), or a secondary count when rateIsPercent is false. */
+  rate?: number;
+  rateDetail?: string;
 };
 
 export type ProgressMetric = {
   id: string;
   title: string;
-  phase: "build-up" | "defensive";
-  quantityLabel: string;
-  qualityLabel?: string;
+  phase: "build-up" | "offensive" | "defensive" | "carrying" | "final-third";
+  volumeLabel: string;
+  rateLabel?: string;
+  /** Set to false when the secondary series is a raw count instead of a percentage. */
+  rateIsPercent?: boolean;
   points: ProgressPoint[];
 };
 
@@ -282,57 +284,116 @@ export function progressMetrics(matches: MatchStats[]): ProgressMetric[] {
     logo: match.logo,
   });
   const rate = (good: number, total: number) => (total > 0 ? (good / total) * 100 : 0);
-  const everyShotDetail = matches.every((match) => match.finalThirdActions.shotsOnTarget != null);
 
   const metrics: (ProgressMetric | null)[] = [
     {
-      id: "carries",
-      title: "Progressive Carries",
+      id: "passes",
+      title: "Passes",
       phase: "build-up",
-      quantityLabel: "Carries",
-      qualityLabel: "Positive",
+      volumeLabel: "Passes",
+      rateLabel: "Accurate",
       points: matches.map((match) => {
-        const positive = match.carries.transitionPositive + match.carries.possessionPositive;
+        const passes = match.summary?.passes ?? 0;
+        const accurate = match.summary?.accurate ?? 0;
         return {
           ...base(match),
-          quantity: match.carries.total,
-          quality: rate(positive, match.carries.total),
-          qualityDetail: `${positive} of ${match.carries.total} positive`,
+          volume: passes,
+          rate: rate(accurate, passes),
+          rateDetail: `${accurate} of ${passes} accurate`,
         };
       }),
     },
     {
-      id: "final-third",
-      title: "Final Third Actions",
-      phase: "build-up",
-      quantityLabel: "Actions",
-      qualityLabel: "Positive",
+      id: "offensive-duels",
+      title: "Offensive Duels",
+      phase: "offensive",
+      volumeLabel: "Duels",
+      rateLabel: "Win Rate",
+      points: matches.map((match) => {
+        const won = match.summary?.offensiveWon ?? 0;
+        const lost = match.summary?.offensiveLost ?? 0;
+        const total = won + lost;
+        return {
+          ...base(match),
+          volume: total,
+          rate: rate(won, total),
+          rateDetail: `${won} of ${total} won`,
+        };
+      }),
+    },
+    {
+      id: "tackles",
+      title: "Tackles",
+      phase: "defensive",
+      volumeLabel: "Tackles",
       points: matches.map((match) => ({
         ...base(match),
-        quantity: match.finalThirdActions.total,
-        quality: rate(match.finalThirdActions.positive, match.finalThirdActions.total),
-        qualityDetail: `${match.finalThirdActions.positive} of ${match.finalThirdActions.total} positive`,
+        volume: (match.summary?.interceptions ?? 0) + (match.summary?.recoveries ?? 0),
       })),
     },
-    matches.every((match) => match.finalThirdActions.shots > 0)
-      ? {
-          id: "shots",
-          title: "Shots",
-          phase: "build-up",
-          quantityLabel: "Shots",
-          qualityLabel: everyShotDetail ? "On target" : undefined,
-          points: matches.map((match) => ({
-            ...base(match),
-            quantity: match.finalThirdActions.shots,
-            quality: everyShotDetail
-              ? rate(match.finalThirdActions.shotsOnTarget ?? 0, match.finalThirdActions.shots)
-              : undefined,
-            qualityDetail: everyShotDetail
-              ? `${match.finalThirdActions.shotsOnTarget ?? 0} of ${match.finalThirdActions.shots} on target`
-              : undefined,
-          })),
-        }
-      : null,
+    {
+      id: "carries",
+      title: "Carries",
+      phase: "carrying",
+      volumeLabel: "Carries",
+      points: matches.map((match) => ({
+        ...base(match),
+        volume: match.carries.total,
+      })),
+    },
+    {
+      id: "transition-carries",
+      title: "In Transition Carries",
+      phase: "carrying",
+      volumeLabel: "In Transition",
+      rateLabel: "Positive",
+      points: matches.map((match) => ({
+        ...base(match),
+        volume: match.carries.inTransition,
+        rate: rate(match.carries.transitionPositive, match.carries.inTransition),
+        rateDetail: `${match.carries.transitionPositive} of ${match.carries.inTransition} positive`,
+      })),
+    },
+    {
+      id: "possession-carries",
+      title: "In Possession Carries",
+      phase: "carrying",
+      volumeLabel: "In Possession",
+      rateLabel: "Positive",
+      points: matches.map((match) => ({
+        ...base(match),
+        volume: match.carries.inPossession,
+        rate: rate(match.carries.possessionPositive, match.carries.inPossession),
+        rateDetail: `${match.carries.possessionPositive} of ${match.carries.inPossession} positive`,
+      })),
+    },
+    {
+      id: "final-third",
+      title: "Final Third Actions",
+      phase: "final-third",
+      volumeLabel: "Actions",
+      rateLabel: "Progressive",
+      points: matches.map((match) => ({
+        ...base(match),
+        volume: match.finalThirdActions.total,
+        rate: rate(match.finalThirdActions.positive, match.finalThirdActions.total),
+        rateDetail: `${match.finalThirdActions.positive} of ${match.finalThirdActions.total} progressive`,
+      })),
+    },
+    {
+      id: "key-passes-shots",
+      title: "Key Passes & Shots",
+      phase: "final-third",
+      volumeLabel: "Key Passes",
+      rateLabel: "Shots",
+      rateIsPercent: false,
+      points: matches.map((match) => ({
+        ...base(match),
+        volume: match.summary?.keyPasses ?? match.finalThirdActions.passWithShotOpportunity,
+        rate: match.finalThirdActions.shots,
+        rateDetail: `${match.finalThirdActions.shots} shots`,
+      })),
+    },
   ];
 
   return metrics.filter((metric): metric is ProgressMetric => metric !== null);
